@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ec2d0d4890b6ca47bdecd3366460d64, type: 3}
+  m_Name: MapEditorStroe
+  m_EditorClassIdentifier: 
+  isDrawCoordinate: 0
+  isDrawGrid: 0
+  GeneratePlane: {fileID: 7180401607112173289, guid: 140145ff7ed76a14e8fe2792d14957ac, type: 3}
+  RoadTilePrefab: {fileID: 3705158704659492097, guid: 5d325604d641b4f4f95e65243d5209fa, type: 3}
+  BlockTilePrefab: {fileID: 3705158704659492097, guid: 00a91b1a10b25124e873c76925287e93, type: 3}
+  DarkTilePrefab: {fileID: 3705158704659492097, guid: ddad151a7e179c74b9f2a7f47b37919f, type: 3}
+  WaterTilePrefab: {fileID: 3705158704659492097, guid: 0dc4efe45b022eb46ad2eb9fa3b3ef76, type: 3}
+  SandTilePrefab: {fileID: 3705158704659492097, guid: 3e23acb3937a6214ab029ea8c047f8b5, type: 3}
