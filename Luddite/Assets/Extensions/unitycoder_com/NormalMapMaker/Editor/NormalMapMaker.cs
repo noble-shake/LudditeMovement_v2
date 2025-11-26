@@ -8,6 +8,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+//using System.Drawing;
 
 namespace unitycodercom_mapmaker
 {
@@ -31,7 +32,7 @@ namespace unitycodercom_mapmaker
 	    static void Init () 
 		{
 	    NormalMapMaker window = (NormalMapMaker)EditorWindow.GetWindow (typeof (NormalMapMaker));
-			window.title = appName;
+			window.titleContent = new GUIContent(appName);
 			window.minSize = new Vector2(300,348);
 			window.maxSize = new Vector2(300,350);
 			running = true;

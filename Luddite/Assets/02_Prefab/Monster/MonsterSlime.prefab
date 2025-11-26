@@ -112,9 +112,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6963166336189855593}
-  - component: {fileID: 5731087064691205427}
   - component: {fileID: 2944703363111308288}
   - component: {fileID: 304768543454555529}
+  - component: {fileID: 4555717840447860086}
+  - component: {fileID: 1561178119022917166}
+  - component: {fileID: -8476054233494868934}
   m_Layer: 0
   m_Name: MonsterSlime
   m_TagString: Untagged
@@ -140,20 +142,6 @@ Transform:
   - {fileID: 6327873791065669461}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5731087064691205427
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8199468940793596056}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8849dbbe1af4f0f4ebcf5343228c335d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CoolTime: 1
-  testBullet: {fileID: 1384324301237547463, guid: 54f3c7f5db893014594f753d388b96dd, type: 3}
 --- !u!210 &2944703363111308288
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -178,8 +166,75 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 236aa916802793644978fff9c70e0c20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  status: {fileID: -8476054233494868934}
   MainSprite: {fileID: 9065112988225649913}
   OutlineSprite: {fileID: 8374425062295204844}
+  interval: 2
+  curFlow: 2
+  BulletPrefab: {fileID: 8717593373515325033, guid: e608fcf9630c7404092b46b3ed1ac028, type: 3}
+--- !u!54 &4555717840447860086
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8199468940793596056}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 36
+  m_CollisionDetection: 0
+--- !u!65 &1561178119022917166
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8199468940793596056}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-8476054233494868934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8199468940793596056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85fdc2b70fabfed49a9158bb98911b69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HP: 0
+  AP: 0
+  BP: 0
 --- !u!1 &8374425062295204844
 GameObject:
   m_ObjectHideFlags: 0
