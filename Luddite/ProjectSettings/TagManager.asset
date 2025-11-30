@@ -19,9 +19,9 @@ TagManager:
   - Enemy
   - Interactable
   - Orb
-  - 
-  - 
-  - 
+  - EnemyBullet
+  - Environment
+  - Props
   - 
   - 
   - 

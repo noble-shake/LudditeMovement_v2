@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System.Collections.Generic;
 
 public enum Difficulty
 { 
@@ -23,6 +23,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        
+
     }
+
+    // TEST
+    public EnemyAttackScriptable attackScript;
+    public EnemyMoveScriptable moveScript;
 }

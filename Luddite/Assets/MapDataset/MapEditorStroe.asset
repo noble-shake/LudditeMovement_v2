@@ -12,11 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ec2d0d4890b6ca47bdecd3366460d64, type: 3}
   m_Name: MapEditorStroe
   m_EditorClassIdentifier: 
-  isDrawCoordinate: 0
-  isDrawGrid: 0
+  isDrawCoordinate: 1
+  isDrawGrid: 1
   GeneratePlane: {fileID: 7180401607112173289, guid: 140145ff7ed76a14e8fe2792d14957ac, type: 3}
   RoadTilePrefab: {fileID: 3705158704659492097, guid: 5d325604d641b4f4f95e65243d5209fa, type: 3}
-  BlockTilePrefab: {fileID: 3705158704659492097, guid: 00a91b1a10b25124e873c76925287e93, type: 3}
   DarkTilePrefab: {fileID: 3705158704659492097, guid: ddad151a7e179c74b9f2a7f47b37919f, type: 3}
   WaterTilePrefab: {fileID: 3705158704659492097, guid: 0dc4efe45b022eb46ad2eb9fa3b3ef76, type: 3}
-  SandTilePrefab: {fileID: 3705158704659492097, guid: 3e23acb3937a6214ab029ea8c047f8b5, type: 3}
+  SandTilePrefab: {fileID: 3467153583463133883, guid: 3e23acb3937a6214ab029ea8c047f8b5, type: 3}
+  BlockTopTilePrefab: {fileID: 3705158704659492097, guid: 32b1d954be5ed574fa4ed8e95531156e, type: 3}
+  BlockDownTilePrefab: {fileID: 3705158704659492097, guid: 00a91b1a10b25124e873c76925287e93, type: 3}
+  BlockLeftTilePrefab: {fileID: 3705158704659492097, guid: 0f406a070e0d92a42a1509409c9e4c08, type: 3}
+  BlockRightTilePrefab: {fileID: 6409857710032606025, guid: dc543593c5bc2b041bf7261333c27886, type: 3}
+  BlockTopLeftTilePrefab: {fileID: 3705158704659492097, guid: 74dbe0e34fb278c49a1bf8c511e8a229, type: 3}
+  BlockTopRightTilePrefab: {fileID: 3705158704659492097, guid: 0b3350b0ef131f744812f96aedd87a37, type: 3}
+  BlockDownLeftTilePrefab: {fileID: 3705158704659492097, guid: 77bab6db8dd216941a83c096428dc388, type: 3}
+  BlockDownRightTilePrefab: {fileID: 6194066688062371117, guid: 166da58d4240396488214ce338b180f5, type: 3}
+  BlockTopWaterTilePrefab: {fileID: 7618109948881395349, guid: 0c5c8faa825195143924f034540a876a, type: 3}
+  BlockDownWaterTilePrefab: {fileID: 3705158704659492097, guid: 93a1b22a77b4723499071ac1038e126f, type: 3}
+  BlockLeftWaterTilePrefab: {fileID: 618854895204348739, guid: 3643bb9561f6d8e4e88e588fcd0b79f2, type: 3}
+  BlockRightWaterTilePrefab: {fileID: 3705158704659492097, guid: 7ca20f555a12ae2409e05d10ee8437b0, type: 3}
+  BlockTopLeftWaterTilePrefab: {fileID: 3705158704659492097, guid: 74dbe0e34fb278c49a1bf8c511e8a229, type: 3}
+  BlockTopRightWaterTilePrefab: {fileID: 3705158704659492097, guid: 1df5d051433dc7844bbe31f516a2422b, type: 3}
+  BlockDownLeftWaterTilePrefab: {fileID: 3705158704659492097, guid: 879bd406ebfe85f40babd3d2954bc4a2, type: 3}
+  BlockDownRightWaterTilePrefab: {fileID: 6194066688062371117, guid: 6a22573d1930ad0448bd3946a146bea6, type: 3}
+  RoadEnvironment: []
+  WaterEnvironment: []
+  BlockEnvironment: []
+  PropPrefabList: []
+  EnemyProgression: []

@@ -1,9 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+
+[Serializable]
+public class StageData
+{
+    public float SpawnTime;
+    public EnemyName MonsterType;
+    public int MonsterLevel;
+    public int SpawnColumn;
+    public int SpawnRow;
+
+}
 
 [SerializeField]
 public struct TileCompressed
@@ -42,35 +56,39 @@ public class MapEditor : EditorWindow
     private MapData SaveData;
     private const string AssetPath = "Assets/MapDataset/MapEditorStroe.asset";
     private const string SavePath = "Assets/MapDataset/MapData.asset";
-    //private bool isDrawCoordinate;
-    //private bool isDrawGrid;
+
+    // ScrollBar
+    [SerializeField] private Vector2 entirePos = Vector2.zero;
 
     // isGenerateMode 는 실제 Scene에 영향력을 주므로, False를 디폴트로 한다.
     private bool isGenerateMode = false;
     private bool isRemoveMode = false;
 
-    //[SerializeField] private GameObject GeneratePlane;
-
     private TileBuildType CurrentTile;
     private TileTarget CurrentBuildTarget = TileTarget.Tile;
+    private EnemyName CurrentEnemy;
+
     //private MapManager mapInstance;
     private Text TitleLabel;
     public GameObject GeneratePlane;
 
+    // TileMap
     [SerializeField] private MapTile CurrentTilePrefab;
-    [SerializeField] private MapTile RoadTilePrefab;
-    [SerializeField] private MapTile BlockTilePrefab;
-    [SerializeField] private MapTile DarkTilePrefab;
-    [SerializeField] private MapTile WaterTilePrefab;
-    [SerializeField] private MapTile SandTilePrefab;
-
     public Dictionary<(int, int), TileCompression> tileRecords;
     private MapTile TempTilePrefab;
+
+    // Stage Edit
+    public bool isStageEditMode = false;
+    ScriptableObject scriptableObj;
+    public SerializedObject SerialObject;
+    public SerializedProperty serialProp;
+
+    // Time Slider
+    private float TimeScheduling;
 
     private void OnEnable()
     {
         tileRecords = new Dictionary<(int, int), TileCompression>();
-
         RenderPipelineManager.endContextRendering += EndFrameRendering;
         SceneView.duringSceneGui += OnSceneGUI;
 
@@ -83,6 +101,10 @@ public class MapEditor : EditorWindow
             AssetDatabase.Refresh();
         }
 
+        scriptableObj = this;
+        SerialObject = new SerializedObject(MapData);
+        serialProp = SerialObject.FindProperty("EnemyProgression");
+        
     }
 
     private void OnDisable()
@@ -93,75 +115,159 @@ public class MapEditor : EditorWindow
 
     }
 
-    private void OnGUI()
+    private void CreateGUI()
     {
 
+    }
 
-        ////isGenerateMode = EditorGUILayout.Toggle(isGenerateMode, )
-        GUILayout.BeginVertical();
+    private void OnGUI()
+    {
+        entirePos = EditorGUILayout.BeginScrollView(entirePos);
+
+        #region Font Style
         GUIStyle header = new GUIStyle();
         header.normal.textColor = Color.white;
-        header.fontSize = 16;
-        GUILayout.Label("맵 에디터", header);
-        //MapData.MapInstance = ((MapManager)EditorGUILayout.ObjectField("MapManagerInstance", MapData.MapInstance, typeof(MapManager), true));
-        MapData.isDrawCoordinate = EditorGUILayout.Toggle("Draw Coordinate", MapData.isDrawCoordinate);
-        MapData.isDrawGrid = EditorGUILayout.Toggle("Draw Grid", MapData.isDrawGrid);
-        GUILayout.EndVertical();
+        header.fontSize = 24;
 
+        GUIStyle SubHeader = new GUIStyle();
+        SubHeader.normal.textColor = Color.aliceBlue;
+        SubHeader.fontSize = 16;
 
         GUIStyle tileStyle = new GUIStyle();
         tileStyle.normal.textColor = Color.white;
         tileStyle.fontSize = 12;
 
+        GUIStyle targetStyle = new GUIStyle();
+        targetStyle.normal.textColor = Color.cyan;
+        targetStyle.fontSize = 14;
+
+        #endregion
+
+        ////isGenerateMode = EditorGUILayout.Toggle(isGenerateMode, )
+        GUILayout.BeginVertical();
+
+        GUILayout.Label("맵 에디터", header);
+        GUILayout.EndVertical();
+
+        GUILayout.Space(16);
+
+        GUILayout.Label("Tile Prefab Collection", SubHeader);
+
+        #region Prefab Collections
+
+        GUILayout.Label("Normal Tile", SubHeader);
         GUILayout.BeginHorizontal();
-        GUILayout.Label("RoadTilePrefab", tileStyle);
-        MapData.RoadTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.RoadTilePrefab, typeof(MapTile), true));
+        GUILayout.BeginVertical();
+        GUILayout.Label("Road", tileStyle);
+        MapData.RoadTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.RoadTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Dark", tileStyle);
+        MapData.DarkTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.DarkTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Water", tileStyle);
+        MapData.WaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.WaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Sand", tileStyle);
+        MapData.SandTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.SandTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
         GUILayout.EndHorizontal();
+        GUILayout.Space(10);
 
+        GUILayout.Label("Block Normal", SubHeader);
         GUILayout.BeginHorizontal();
-        GUILayout.Label("DarkTilePrefab", tileStyle);
-        MapData.DarkTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.DarkTilePrefab, typeof(MapTile), true));
+        GUILayout.BeginVertical();
+        GUILayout.Label("Top", tileStyle);
+        MapData.BlockTopTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Down", tileStyle);
+        MapData.BlockDownTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Left", tileStyle);
+        MapData.BlockLeftTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockLeftTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Right", tileStyle);
+        MapData.BlockRightTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockRightTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
         GUILayout.EndHorizontal();
+        GUILayout.Space(10);
+
+        GUILayout.Label("Block Normal 2side", SubHeader);
         GUILayout.BeginHorizontal();
-        GUILayout.Label("WaterTilePrefab", tileStyle);
-        MapData.WaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.WaterTilePrefab, typeof(MapTile), true));
+        GUILayout.BeginVertical();
+        GUILayout.Label("Top+Left", tileStyle);
+        MapData.BlockTopLeftTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopLeftTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Top+Right", tileStyle);
+        MapData.BlockTopRightTilePrefab= ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopRightTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Down+Left", tileStyle);
+        MapData.BlockDownLeftTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownLeftTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Down+Right", tileStyle);
+        MapData.BlockDownRightTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownRightTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
         GUILayout.EndHorizontal();
+        GUILayout.Space(10);
+
+        GUILayout.Label("Block Water", SubHeader);
         GUILayout.BeginHorizontal();
-        GUILayout.Label("SandTilePrefab", tileStyle);
-        MapData.SandTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.SandTilePrefab, typeof(MapTile), true));
+        GUILayout.BeginVertical();
+        GUILayout.Label("Top", tileStyle);
+        MapData.BlockTopWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Down", tileStyle);
+        MapData.BlockDownWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Left", tileStyle);
+        MapData.BlockLeftWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockLeftWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Right", tileStyle);
+        MapData.BlockRightWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockRightWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
         GUILayout.EndHorizontal();
+        GUILayout.Space(10);
 
-        GUILayout.Label("BlockTilePrefab", tileStyle);
-        MapData.BlockTopTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopTilePrefab, typeof(MapTile), true));
-        MapData.BlockDownTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownTilePrefab, typeof(MapTile), true));
-        MapData.BlockLeftTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopTilePrefab, typeof(MapTile), true));
-        MapData.BlockRightTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownTilePrefab, typeof(MapTile), true));
-        MapData.BlockTopLeftTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopTilePrefab, typeof(MapTile), true));
-        MapData.BlockDownRightTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownWaterTilePrefab, typeof(MapTile), true));
-        MapData.BlockTopWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopWaterTilePrefab, typeof(MapTile), true));
-        MapData.BlockDownWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownWaterTilePrefab, typeof(MapTile), true));
-        MapData.BlockLeftWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopWaterTilePrefab, typeof(MapTile), true));
-        MapData.BlockRightWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownWaterTilePrefab, typeof(MapTile), true));
-        MapData.BlockTopLeftWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopWaterTilePrefab, typeof(MapTile), true));
-        MapData.BlockDownRightWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownWaterTilePrefab, typeof(MapTile), true));
+        GUILayout.Label("Block Water 2side", SubHeader);
+        GUILayout.BeginHorizontal();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Top+Left", tileStyle);
+        MapData.BlockTopLeftWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopLeftWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Top+Right", tileStyle);
+        MapData.BlockTopRightWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopRightWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Down+Left", tileStyle);
+        MapData.BlockDownLeftWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownLeftWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
+        GUILayout.BeginVertical();
+        GUILayout.Label("Down+Right", tileStyle);
+        MapData.BlockDownRightWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownRightWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
+        GUILayout.EndVertical();
 
-
-        //EditorGUI.BeginChangeCheck();
-        //if (RoadTilePrefab != null)
-        //{
-        //    RoadTilePreview = Editor.CreateEditor(RoadTilePrefab.gameObject);
-        //    RoadTilePreview.OnPreviewGUI(GUILayoutUtility.GetRect(256, 256), );
-        //}
-
+        GUILayout.EndHorizontal();
+        #endregion
+        
+        GUILayout.Space(16);
         //EditorGUI.EndChangeCheck();
-        GUILayout.BeginHorizontal();
-        EditorGUI.BeginChangeCheck();
-        GUILayout.Label("Selected Tile", tileStyle);
-        CurrentTile = ((TileBuildType)EditorGUILayout.EnumFlagsField(CurrentTile));
 
-        GUILayout.EndHorizontal();
-        GUILayout.Label($"Current Tile {CurrentTile.ToString()}", tileStyle);
+
         EditorGUI.EndChangeCheck();
+
+        #region Prefab Switching
 
         EditorGUI.BeginChangeCheck();
         switch (CurrentTile)
@@ -198,43 +304,85 @@ public class MapEditor : EditorWindow
                 CurrentTilePrefab = MapData.BlockTopRightTilePrefab;
                 break;
             case TileBuildType.BlockDownLeft:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockDownLeftTilePrefab;
                 break;
             case TileBuildType.BlockDownRight:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockDownRightTilePrefab;
                 break;
             case TileBuildType.BlockTopWater:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockTopWaterTilePrefab;
                 break;
             case TileBuildType.BlockDownWater:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockDownWaterTilePrefab;
                 break;
             case TileBuildType.BlockLeftWater:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockLeftWaterTilePrefab;
                 break;
             case TileBuildType.BlockRightWater:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockRightWaterTilePrefab;
                 break;
             case TileBuildType.BlockTopLeftWater:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockTopLeftWaterTilePrefab;
                 break;
             case TileBuildType.BlockTopRightWater:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockTopRightWaterTilePrefab;
                 break;
             case TileBuildType.BlockDownLeftWater:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockDownLeftWaterTilePrefab;
                 break;
             case TileBuildType.BlockDownRightWater:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
+                CurrentTilePrefab = MapData.BlockDownRightWaterTilePrefab;
                 break;
         }
 
-        //GUILayout.BeginHorizontal();
-        //// GeneratePlane = ((GameObject)EditorGUILayout.ObjectField(MapData.GeneratePlane, typeof(GameObject), false));
-        //GUILayout.EndHorizontal();
+        #endregion
+
+        GUILayout.Label("Drawing Mode", SubHeader);
+        GUILayout.Space(10);
+
+        EditorGUI.BeginChangeCheck();
+        MapData.isDrawCoordinate = EditorGUILayout.Toggle("Draw Coordinate", MapData.isDrawCoordinate);
+        MapData.isDrawGrid = EditorGUILayout.Toggle("Draw Grid", MapData.isDrawGrid);
+
+        GUILayout.Label("Edit Mode", SubHeader);
+        GUILayout.Space(10);
         isGenerateMode = EditorGUILayout.Toggle("Add Tile Mode", isGenerateMode);
-        GUILayout.Label("Selected Tile Target (Tile, Building, Environment)", tileStyle);
+        isRemoveMode = EditorGUILayout.Toggle("Remove Tile Mode", isRemoveMode);
+        isStageEditMode = EditorGUILayout.Toggle("Stage Edit Mode", isStageEditMode);
+        EditorGUI.EndChangeCheck();
+
+        GUILayout.Space(16);
+        GUILayout.Label("Setup Targets", SubHeader);
+        GUILayout.Space(10);
+
+        GUILayout.Label($"Select Tile", targetStyle);
+        GUILayout.BeginHorizontal();
+        EditorGUI.BeginChangeCheck();
+        GUILayout.Label("Selected Tile", tileStyle);
+        CurrentTile = ((TileBuildType)EditorGUILayout.EnumFlagsField(CurrentTile));
+
+        GUILayout.EndHorizontal();
+        GUILayout.Label($"Current Tile : [ {CurrentTile.ToString()} ]", tileStyle);
+
+        GUILayout.Space(10);
+        GUILayout.Label($"Select BuildType", targetStyle);
         CurrentBuildTarget = ((TileTarget)EditorGUILayout.EnumFlagsField(CurrentBuildTarget));
+        GUILayout.Label("Selected Tile Target (Tile, Building, Environment)", tileStyle);
+
+        GUILayout.Space(10);
+        GUILayout.Label($"Select EnemyType", targetStyle);
+        CurrentEnemy = ((EnemyName)EditorGUILayout.EnumFlagsField(CurrentEnemy));
+        GUILayout.Label("Selecte Enemy Type", tileStyle);
+
+        EditorGUI.BeginChangeCheck();
+        GUILayout.Space(16);
+        GUILayout.Label($"Time Schedule", SubHeader);
+        GUILayout.Label($"GameTime : {Mathf.FloorToInt(TimeScheduling/60f).ToString("D2")}:{Mathf.FloorToInt(TimeScheduling% 60f).ToString("D2")}", targetStyle);
+        TimeScheduling = EditorGUILayout.Slider(TimeScheduling, 0f, 60f * 10, GUILayout.Height(20f));
+        EditorGUI.EndChangeCheck();
+        GUILayout.Space(10);
+
+        #region Model Conditions
         if (isGenerateMode)
         {
             isRemoveMode = false;
@@ -253,9 +401,43 @@ public class MapEditor : EditorWindow
                 DestroyImmediate(GeneratePlane.gameObject);
             }
         }
-        isRemoveMode = EditorGUILayout.Toggle("Remove Tile Mode", isRemoveMode);
+
         EditorGUI.EndChangeCheck();
 
+        EditorGUI.BeginChangeCheck();
+        EditorGUILayout.PropertyField(serialProp, true);
+        SerialObject.ApplyModifiedProperties();
+        if (isStageEditMode)
+        {
+            if (MapData.GeneratePlane != null && GeneratePlane == null)
+            {
+                GeneratePlane = Instantiate(MapData.GeneratePlane);
+                GeneratePlane.transform.SetAsFirstSibling();
+                GeneratePlane.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            if (GeneratePlane != null)
+            {
+                DestroyImmediate(GeneratePlane.gameObject);
+            }
+        }
+        EditorGUI.EndChangeCheck();
+        EditorGUILayout.EndScrollView();
+
+        #endregion
+
+
+
+        // Generate Map
+        EditorGUI.BeginChangeCheck();
+        bool ButtonPressed = false;
+        if (GUILayout.Button("TileMap Generate", EditorStyles.miniButton))
+        {
+            ButtonPressed = true;
+        }
+        EditorGUI.EndChangeCheck();
     }
 
     void OnSceneGUI(SceneView sceneView)
@@ -263,6 +445,9 @@ public class MapEditor : EditorWindow
         EditorGUI.BeginChangeCheck();
         if (isGenerateMode)
         {
+            int id = GUIUtility.GetControlID(FocusType.Passive);
+            HandleUtility.AddDefaultControl(id);
+
             Event mouseEvent = Event.current;
             if (mouseEvent.type == EventType.MouseDown && mouseEvent.button == 0) // Left mouse button click
             {
@@ -326,7 +511,47 @@ public class MapEditor : EditorWindow
 
             }
         }
+        EditorGUI.EndChangeCheck();
 
+        EditorGUI.BeginChangeCheck();
+        if (isStageEditMode)
+        {
+            int id = GUIUtility.GetControlID(FocusType.Passive);
+            HandleUtility.AddDefaultControl(id);
+
+            Event mouseEvent = Event.current;
+            if (mouseEvent.type == EventType.MouseDown && mouseEvent.button == 0) // Left mouse button click
+            {
+                Ray ray = HandleUtility.GUIPointToWorldRay(mouseEvent.mousePosition);
+                //HandleUtility.GUIPointToScreenPixelCoordinate
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.GetMask("Editor")))
+                {
+                    SerialObject.Update();
+
+                    int size = MapData.EnemyProgression.Length;
+                    Array.Resize(ref MapData.EnemyProgression, ++size);
+                    MapData.EnemyProgression[size-1] = new StageData();
+
+                    Vector3 EdgePosition = EdgeRunner(hit.point);
+                    (int, int) EdgeIndex = EdgeIndexer(hit.point);
+
+                    MapData.EnemyProgression[size - 1].SpawnRow = EdgeIndex.Item2;
+                    MapData.EnemyProgression[size - 1].SpawnColumn = EdgeIndex.Item1;
+                    MapData.EnemyProgression[size - 1].SpawnTime = TimeScheduling;
+
+                    SerialObject.Update();
+                }
+                else
+                {
+                    Vector3 worldPosition = ray.GetPoint(10); // 10 units in front of the camera
+                    Debug.Log($"Plane does not Hit : {worldPosition}");
+                }
+            }
+
+
+        }
         EditorGUI.EndChangeCheck();
     }
 

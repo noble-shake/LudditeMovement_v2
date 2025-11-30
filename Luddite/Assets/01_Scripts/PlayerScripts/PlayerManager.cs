@@ -1,11 +1,30 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using TMPro;
+using Unity.UI.Shaders.Sample;
+using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance;
+    bool isSoulGaugeChanged;
+    [Header("HP")]
+    [SerializeField] Meter HPGauge;
+    [SerializeField] Meter HPGaugeBackground;
+    [SerializeField] TMP_Text HPText;
+    [SerializeField] float HP;
+    [SerializeField] float MaxHP = 100;
+
+    [Header("Soul")]
+    [SerializeField] Meter SoulGauge;
+    [SerializeField] Meter SoulGaugeBackground;
+    [SerializeField] TMP_Text SoulText;
+    [SerializeField] float Souls = 0;
+    [SerializeField] float MaxSouls = 1000;
+    private Color SoulColor;
+
+    [Header("Orb")]
     [SerializeField] float Speed;
     [SerializeField] PlayerOrb player;
     [SerializeField] int RecordIndex;
@@ -13,6 +32,26 @@ public class PlayerManager : MonoBehaviour
     private int[] ClockCheckArray;
     private bool isClockwise = false;
     private bool isCounterClockwise = false;
+
+    public float SoulValue
+    {
+        get { return Souls; }
+        set {
+            if (value > Souls)
+            {
+                SoulUp();
+            }
+            else if (value < Souls)
+            {
+                SoulDown();
+            }
+            Souls = value;
+            if (Souls <= 0f) Souls = 0f;
+            if (Souls > 1000) Souls = 1000;
+            
+            Invoke("SoulChanged", 0.5f);
+        }
+    }
 
     private void Awake()
     {
@@ -23,12 +62,70 @@ public class PlayerManager : MonoBehaviour
 
     private void Start()
     {
+        SoulColor = SoulGauge.GetComponent<Image>().color;
+        HP = MaxHP;
         PositionRecords = new Vector3[RecordIndex];
         ClockCheckArray = new int[RecordIndex - 1];
+        if (SoulGauge != null) SoulGauge.Value = 0f;
+        if (SoulText != null) SoulText.text = $"0/1000";
     }
+
+    #region Gauge Effect
+    private void SoulGaugeCheck()
+    {
+        if (SoulGauge != null) SoulGauge.Value = Mathf.Lerp(SoulGauge.Value, Souls / 1000f, Time.deltaTime * 5f);
+        if (SoulText != null) SoulText.text = $"{((int)Souls).ToString()}/1000";
+
+        if (isSoulGaugeChanged)
+        {
+            if (SoulGaugeBackground != null) SoulGaugeBackground.Value = Mathf.Lerp(SoulGaugeBackground.Value, SoulGauge.Value, Time.deltaTime * 10f);
+            if (SoulGauge.Value >= SoulGaugeBackground.Value - 0.01f)
+            {
+                isSoulGaugeChanged = false;
+                SoulGaugeBackground.Value = SoulGauge.Value;
+            }
+        }
+    }
+
+    private void HPGaugeCheck()
+    { 
+        
+    }
+
+    private void SoulChanged()
+    {
+        isSoulGaugeChanged = true;
+    }
+
+    private void SoulDown()
+    {
+        SoulGauge.GetComponent<Image>().color = Color.red;
+        Invoke("SoulColorChanged", 0.3f);
+    }
+
+    private void SoulUp()
+    {
+        SoulGauge.GetComponent<Image>().color = Color.white;
+        Invoke("SoulColorChanged", 0.3f);
+    }
+
+    private void SoulColorChanged()
+    {
+        SoulGauge.GetComponent<Image>().color = SoulColor;
+    }
+
+    private void HPChanged()
+    {
+        isSoulGaugeChanged = true;
+    }
+    #endregion
 
     private void Update()
     {
+        HPGaugeCheck();
+        SoulGaugeCheck();
+
+
         if (player == null) return;
 
         MoveUpdate(); // Move, CircularDetect
@@ -46,14 +143,19 @@ public class PlayerManager : MonoBehaviour
 
     // CameraInput은 Screen Position 값 ( = Resolution 값)
     // 실제 전장에 맞게 값이 변경 되어야 한다. x : -8 에서 8, y : -4.5에서 4.5 사이로 normalize
+    private Vector3 mousePos;
+    private Vector3 worldPoint; // 0 ~ 1 사이로 normalized
+    private Vector3 MoveVector = Vector3.zero;
     private Vector3 GetMoveVector()
     {
-        Vector3 mousePos = InputManager.Instance.CameraInput;
-        Vector3 worldPoint = Camera.main.ScreenToViewportPoint(mousePos); // 0 ~ 1 사이로 normalized
+        mousePos = InputManager.Instance.CameraInput;
+        worldPoint = Camera.main.ScreenToViewportPoint(mousePos); // 0 ~ 1 사이로 normalized
         float x = Mathf.Clamp(remap(worldPoint.x, 0f, 1f, -8f, 8f), -8f, 8f);
         float y = Mathf.Clamp(remap(worldPoint.y, 0f, 1f, -4.5f, 4.5f), -4.5f, 4.5f);
         // Debug.Log($"norm {x}, {y}");
-        return new Vector3(x, 0f, y);
+        MoveVector.x = x;
+        MoveVector.z = y;
+        return MoveVector;
     }
 
     private float remap(float val, float in1, float in2, float out1, float out2)
@@ -182,21 +284,55 @@ public class PlayerManager : MonoBehaviour
             isCounterClockwise = true;
         }
 
+        float radius = CenterDist / PositionRecords.Length;
+
         if (isClockwise == false && isCounterClockwise == false) return;
         if (Mathf.Abs(totalAngleChange) < 320f) return;
         if (MinCneterDist < 0.3f || MaxCneterDist > 1f) return;
+        if (radius > 0.8f || radius < 0.3f) return;
 
         //Debug.Log($"{totalAngleChange} Total Angle");
         //Debug.Log($"{CenterDist / PositionRecords.Length} Center Average Distance");
         //Debug.Log($"{MaxCneterDist} MAX {MinCneterDist} Min Center Dist");
 
-        float radius = CenterDist / PositionRecords.Length;
 
-        RaycastHit hitInfo;
-        Physics.SphereCast(center + Vector3.up * 2f, radius, Vector3.down, out hitInfo, 3f, LayerMask.GetMask("Player"));
+
+        // 우선, 플레이어를 먼저 체크하고. 없으면 다른 상호작용을 진행한다.
+        RaycastHit[] CasterHits = Physics.SphereCastAll(center + Vector3.up * 2f, radius, Vector3.down, 3f);
+        foreach (RaycastHit hitInfo in CasterHits)
         {
+            if (hitInfo.collider == null) continue;
+            if (LayerMask.LayerToName(hitInfo.collider.gameObject.layer).Equals("Default")) continue;
+
+            string LayerName = LayerMask.LayerToName(hitInfo.collider.gameObject.layer);
+            if (LayerName.Equals("Player"))
+            {
+                if (isClockwise)
+                {
+                    hitInfo.collider.GetComponent<Player>().OrbInteract(true);
+                }
+                else if (isCounterClockwise)
+                {
+                    hitInfo.collider.GetComponent<Player>().OrbInteract(false);
+                }
+
+                return;
+            }
+
+
+        }
+
+        foreach(RaycastHit hitInfo in CasterHits)
+        {
+            if (hitInfo.collider == null) continue;
+            if (LayerMask.LayerToName(hitInfo.collider.gameObject.layer).Equals("Default")) continue;
+
             Debug.Log(hitInfo.collider);
-            if (hitInfo.collider != null)
+
+            string LayerName = LayerMask.LayerToName(hitInfo.collider.gameObject.layer);
+
+            // 플레이어는 발생 할 일이 없겠지만 혹시나...
+            if (LayerName.Equals("Player"))
             {
                 if (isClockwise)
                 {
@@ -207,25 +343,20 @@ public class PlayerManager : MonoBehaviour
                     hitInfo.collider.GetComponent<Player>().OrbInteract(false);
                 }
             }
-        }
-
-        RaycastHit hitInfo2;
-        Physics.SphereCast(center + Vector3.up * 2f, radius, Vector3.down, out hitInfo2, 3f, LayerMask.GetMask("Enemy"));
-        {
-            if (hitInfo2.collider != null)
+            else if (LayerName.Equals("Enemy"))
             {
-                if (isClockwise)
-                {
-                    hitInfo2.collider.GetComponent<Enemy>().OrbInteract(true);
-                }
-                else if (isCounterClockwise)
-                {
-                    hitInfo2.collider.GetComponent<Enemy>().OrbInteract(false);
-                }
+                hitInfo.collider.GetComponent<Enemy>().OrbInteracted();
             }
+            else if (LayerName.Equals("Props"))
+            {
+                hitInfo.collider.GetComponent<Props>().OrbInteracted();
+            }
+            else if (LayerName.Equals("Environment"))
+            {
+                hitInfo.collider.GetComponent<Environments>().OrbInteracted();
+            }
+
         }
-
-
     }
 
     private void RecordUpdate()

@@ -11,4 +11,9 @@ public class EnemyGround : Enemy
         
         enemyType = EnemyType.Ground;
     }
+
+    protected virtual void Update() 
+    {
+        
+    }
 }

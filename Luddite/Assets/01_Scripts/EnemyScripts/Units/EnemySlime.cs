@@ -9,7 +9,11 @@ public class EnemySlime : EnemyGround, IEnemyBehavior
     [SerializeField] float interval;
     [SerializeField] float curFlow;
     [SerializeField] EnemyBullet BulletPrefab;
+    [SerializeField] IEnemyAttack AttackPattern;
+    [SerializeField] IEnemyMove MovePattern;
     [SerializeField] SlimeBullet BulletPattern;
+
+    //Skill Scriptable Object
 
     public void Attack()
     {
@@ -17,26 +21,8 @@ public class EnemySlime : EnemyGround, IEnemyBehavior
          * 슬라임 공격 : 6, 9, 12
          */
         int diff = (int)GameManager.Instance.difficulty;
-        StartCoroutine(SlimeShot(diff));
-    }
-
-    IEnumerator SlimeShot(int _diff)
-    {
-        float angle = Quaternion.FromToRotation(Vector3.forward, Vector3.back).eulerAngles.z;
-        for (int i = 0; i < 6 + 3 * _diff; i++)
-        {
-            EnemyBullet bullet = ResourceManager.Instance.GetResource(BulletPrefab.gameObject).GetComponent<EnemyBullet>();
-            bullet.pattern = new SlimeBullet();
-            //bullet.pattern = BulletPattern;
-            bullet.pattern.SetBullet(bullet.transform, PlayerManager.Instance.GetPlayerTrs());
-            bullet.transform.SetParent(null);
-            bullet.transform.position = transform.position;
-            bullet.transform.rotation = Quaternion.Euler(new Vector3(0f, angle, 0f));
-            angle += (360f / (6 + 3 * _diff));
-
-        }
-
-        yield return null;
+        //StartCoroutine(SlimeShot(diff));
+        StartCoroutine(AttackPattern.Attack());
     }
 
     public void Charging()
@@ -46,23 +32,33 @@ public class EnemySlime : EnemyGround, IEnemyBehavior
 
     public void Move()
     {
-        throw new System.NotImplementedException();
+        StartCoroutine(MovePattern.Move());
     }
 
     protected override void Start()
     {
         base.Start();
         curFlow = interval;
+        AttackPattern = GameManager.Instance.attackScript.GetInstance();
+        //AttackPattern = GameManager.Instance.enemyAttacks[0];
+        AttackPattern.SetInit(transform, BulletPrefab);
+
+        MovePattern = GameManager.Instance.moveScript.GetInstance();
+        MovePattern.SetInit(transform);
     }
 
-    private void Update()
+    protected override void Update()
     {
+        if (isIdleCheck) return;
+
         curFlow -= Time.deltaTime;
         if (curFlow < 0f)
         {
             curFlow = interval;
             Attack();
         }
+
+        if(MovePattern.MoveDone()) Move();
     }
 
 

@@ -29,6 +29,11 @@ public class MapEditorScriptableObject : ScriptableObject
     public MapTile BlockDownLeftWaterTilePrefab;
     public MapTile BlockDownRightWaterTilePrefab;
 
-    public List<GameObject> RoadEnvironment;
+    public Environments[] RoadEnvironment;
+    public Environments[] WaterEnvironment;
+    public Environments[] BlockEnvironment;
+
+    public Props[] PropPrefabList;
+    public StageData[] EnemyProgression;
 
 }

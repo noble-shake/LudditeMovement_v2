@@ -25,6 +25,8 @@ public abstract class Player : MonoBehaviour
     [SerializeField] float OrbDetectRemained = 0.5f;
     [SerializeField] float OrbDetectCurFlow;
 
+    [SerializeField] SkillReadyUI test;
+
     #region MatLitResponse Control (isOrbTriggered / MainSprite / OutlineSprite)
     // Orb Triggered
     public void MatLitResponseOff()
@@ -68,6 +70,8 @@ public abstract class Player : MonoBehaviour
     {
         isDetected = true;
         OrbDetectRemained = 0.5f;
+
+        test.SetProgress(0.5f);
         // isClockwise == true => Clockwise
         // isClockwise == false => CounterClockwise
 

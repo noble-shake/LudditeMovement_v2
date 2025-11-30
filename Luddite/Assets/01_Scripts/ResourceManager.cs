@@ -23,6 +23,9 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private List<MapData> MapDataset;
     [SerializeField] private List<GameObject> TileObjects; // 9, 16 => 144.
 
+    [Header("Item")]
+    [SerializeField] private List<>
+
     private Dictionary<GameObject, List<GameObject>> ObjectPool = new Dictionary<GameObject, List<GameObject>>(); // Hash값을 이용한다.
     private Dictionary<(int, int), List<GameObject>> TilePool = new Dictionary<(int, int), List<GameObject>>(); // Pooled Tile 관리
 

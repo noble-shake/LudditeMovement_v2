@@ -2,36 +2,52 @@ using UnityEngine;
 
 public class BulletSprite : MonoBehaviour
 {
-    private bool isGraze;
+    private bool isGraze = false;
+    private bool isHitPlayer = false;
+    private bool isOrb = false;
     private EnemyBullet enemyBullet;
-    private float interval;
+    private float GrazeDelay;
+    private float HitDelay;
+    private float HitOrbDelay;
 
     private void Start()
     {
         enemyBullet = GetComponentInParent<EnemyBullet>();
-        interval = 1f;
-        isGraze = false;
+        GrazeDelay = 1f;
+        HitDelay = 1f;
+        HitOrbDelay = 0.25f;
     }
 
     private void Update()
     {
-        interval -= Time.deltaTime;
-        if (interval < 0f)
+        GrazeDelay -= Time.deltaTime;
+        HitDelay -= Time.deltaTime;
+        HitOrbDelay -= Time.deltaTime;
+
+        if (GrazeDelay < 0f)
         {
-            interval = 1f;
+            GrazeDelay = 1f;
             isGraze = false;
-        } 
-
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Orb"))
-        {
-            Debug.Log("HIT!!");
-            enemyBullet.OnHit(other.gameObject);
         }
+
+        if (HitDelay < 0f)
+        {
+            HitDelay = 1f;
+            isHitPlayer = false;
+        }
+
+        if (HitOrbDelay < 0f)
+        {
+            HitOrbDelay = 0.25f;
+            isOrb = false;
+        }
+
     }
+
+    //private void OnTriggerEnter(Collider other)
+    //{
+
+    //}
 
 
     private void OnTriggerStay(Collider other)
@@ -43,6 +59,18 @@ public class BulletSprite : MonoBehaviour
             // Drop Soul
             // Graze up
             // Score Up
+        }
+        
+        if (other.CompareTag("Orb") && isOrb == false)
+        {
+            isOrb= true;
+            enemyBullet.OnHit(other.gameObject, true);
+        }
+        
+        if (other.CompareTag("Player") && isHitPlayer == false)
+        {
+            isHitPlayer = true;
+            enemyBullet.OnHit(other.gameObject, false);
         }
     }
 
