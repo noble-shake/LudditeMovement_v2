@@ -41,13 +41,16 @@ public class RandomMove : IEnemyMove
             }
         }
 
-        while (Vector3.Distance(Owner.position, currentPos + nextDirection) > 0.01f)
-        {
-            Owner.transform.position = Vector3.MoveTowards(Owner.position, currentPos + nextDirection, Time.deltaTime * 2f);
-            yield return null;
-        }
-        Owner.position = currentPos + nextDirection;
-        yield return new WaitForSeconds(2f);
+        //while (Vector3.Distance(Owner.position, currentPos + nextDirection) > 0.01f)
+        //{
+        //    Owner.transform.position = Vector3.MoveTowards(Owner.position, currentPos + nextDirection, Time.deltaTime * 2f);
+        //    yield return null;
+        //}
+        //Owner.position = currentPos + nextDirection;
+
+        Owner.GetComponent<Rigidbody>().AddForce(nextDirection * 2f, ForceMode.Impulse);
+
+        yield return new WaitForSeconds(5f);
         isMoveDone = true;
 
 

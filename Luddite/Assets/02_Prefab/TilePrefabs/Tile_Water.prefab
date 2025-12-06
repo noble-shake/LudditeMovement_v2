@@ -53,6 +53,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -74,6 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -149,9 +152,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1636508699921302101}
-  - component: {fileID: 3705158704659492097}
   - component: {fileID: 6600313119386936052}
   - component: {fileID: 6163971649662252691}
+  - component: {fileID: 2972613605876012854}
   m_Layer: 0
   m_Name: Tile_Water
   m_TagString: Untagged
@@ -175,20 +178,6 @@ Transform:
   - {fileID: 634029313164009403}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3705158704659492097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4208732618241957923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b26ebcd2c10b4994bb468e49b049f02b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isBlocked: 0
-  isBuildingExist: 0
 --- !u!210 &6600313119386936052
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -222,3 +211,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2972613605876012854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4208732618241957923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 602df96945af9ac4dbfd926574387856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TileBlock
+  isBlocked: 0
+  isBuildingExist: 0
+  mainSprite: {fileID: 4437599787614755928}
+  tileType: 1
+  tileBuildType: 1

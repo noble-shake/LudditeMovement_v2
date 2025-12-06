@@ -82,6 +82,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e09ba30def5a2041812aac820917cf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PositiveEnv
+  envType: 0
   ParticleObject: {fileID: 7629059881745277616}
   SoulParticle: {fileID: 2944328357802334596}
 --- !u!1 &3801803918472175402
@@ -244,7 +245,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5085491782990982957, guid: 9467f26124f106b40bdf360b351c1d56, type: 3}
       propertyPath: playOnAwake
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6363290884772882009, guid: 9467f26124f106b40bdf360b351c1d56, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -252,7 +253,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 1e05b5eda1d99074bb86bf03334d0ccb, type: 2}
     - target: {fileID: 8945477199509912932, guid: 9467f26124f106b40bdf360b351c1d56, type: 3}
       propertyPath: playOnAwake
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9105694113287598700, guid: 9467f26124f106b40bdf360b351c1d56, type: 3}
       propertyPath: m_Name

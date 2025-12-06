@@ -17,6 +17,8 @@ public class OrbTriggerZone : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        if (player.ActivatedCheck == true) return;
+
         if (player == null)
         {
             Debug.LogWarning("OrbTriggerZone : Player Not Assigned");
@@ -26,12 +28,15 @@ public class OrbTriggerZone : MonoBehaviour
         if(other.CompareTag("Orb"))
         {
             player.MatLitResponseOff();
+            player.PlayActivate();
 
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
+        if (player.ActivatedCheck == true) return;
+
         if (player == null)
         {
             Debug.LogWarning("OrbTriggerZone : Player Not Assigned");
@@ -41,7 +46,7 @@ public class OrbTriggerZone : MonoBehaviour
         if (other.CompareTag("Orb"))
         {
             player.MatLitResponseOn();
-
+            player.PlayIdle();
         }
     }
 }

@@ -49,6 +49,8 @@ public class EnemySlime : EnemyGround, IEnemyBehavior
 
     protected override void Update()
     {
+        base.Update();
+
         if (isIdleCheck) return;
 
         curFlow -= Time.deltaTime;

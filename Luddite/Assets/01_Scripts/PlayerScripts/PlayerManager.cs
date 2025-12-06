@@ -4,6 +4,8 @@ using Unity.UI.Shaders.Sample;
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.VisualScripting;
+using UnityEngine.EventSystems;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] TMP_Text HPText;
     [SerializeField] float HP;
     [SerializeField] float MaxHP = 100;
+    float HPRegen = 3f;
+    bool isDead;
 
     [Header("Soul")]
     [SerializeField] Meter SoulGauge;
@@ -23,6 +27,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] float Souls = 0;
     [SerializeField] float MaxSouls = 1000;
     private Color SoulColor;
+    float SoulDecay = 3f;
 
     [Header("Orb")]
     [SerializeField] float Speed;
@@ -48,8 +53,27 @@ public class PlayerManager : MonoBehaviour
             Souls = value;
             if (Souls <= 0f) Souls = 0f;
             if (Souls > 1000) Souls = 1000;
-            
-            Invoke("SoulChanged", 0.5f);
+            if (SoulText != null) SoulText.text = $"{((int)Souls).ToString()}/1000";
+            if (SoulGauge != null) SoulGauge.Value = Mathf.Lerp(SoulGauge.Value, Souls / 1000f, Time.deltaTime * 5f);
+            Invoke("SoulChanged", 0.3f);
+        }
+    }
+
+    public float HPValue
+    {
+        get { return HP; }
+        set
+        {
+            HP = value;
+            if (HP <= 0f)
+            {
+                // Death
+                isDead = true;
+                HP = 0f;
+            } 
+            if (HP > MaxHP) HP= MaxHP;
+
+            Invoke("HPChanged", 0.3f);
         }
     }
 
@@ -73,8 +97,7 @@ public class PlayerManager : MonoBehaviour
     #region Gauge Effect
     private void SoulGaugeCheck()
     {
-        if (SoulGauge != null) SoulGauge.Value = Mathf.Lerp(SoulGauge.Value, Souls / 1000f, Time.deltaTime * 5f);
-        if (SoulText != null) SoulText.text = $"{((int)Souls).ToString()}/1000";
+
 
         if (isSoulGaugeChanged)
         {
@@ -124,12 +147,25 @@ public class PlayerManager : MonoBehaviour
     {
         HPGaugeCheck();
         SoulGaugeCheck();
+        HPRegen -= Time.deltaTime;
+        SoulDecay -= Time.deltaTime;
+        if (HPRegen <= 0f && isDead)
+        {
+            HPRegen = 3f;
+            HPValue += 1f;
+        }
+
+        if (SoulDecay <= 0f)
+        {
+            SoulDecay = 3f;
+            SoulValue -= 1f;
+        }
 
 
         if (player == null) return;
 
         MoveUpdate(); // Move, CircularDetect
-
+        PointUpdate();
     }
 
     private void FixedUpdate()
@@ -169,10 +205,81 @@ public class PlayerManager : MonoBehaviour
         return player.transform;
     }
 
+    public PlayerOrb GetPlayerOrb()
+    {
+        if (player == null) return null;
+        return player;
+    }
+
+
+    private bool AttackInput; // Mouse Left Click
+    private bool isClicked;
+    private Player SelectedUnit;
+    public EventSystem eventSystem;
+    public GraphicRaycaster graphicRaycaster;
+    private void PointUpdate()
+    {
+        AttackInput = InputManager.Instance.AttackInput;
+        float col = player.transform.position.x;
+        float row = player.transform.position.z;
+
+        if (AttackInput)
+        {
+            //PointerEventData pointerData = new PointerEventData(eventSystem);
+            //// 마우스 위치 대신, 상호작용을 원하는 특정 위치(예: 화면 중앙)로 설정할 수 있습니다.
+            //// pointerData.position = new Vector2(Screen.width / 2, Screen.height / 2); // 화면 중앙 기준
+            //pointerData.position = Camera.main.WorldToScreenPoint(player.transform.position); // 현재 마우스 위치 기준
+
+            //List<RaycastResult> results = new List<RaycastResult>();
+            //graphicRaycaster.Raycast(pointerData, results);
+            //Debug.Log("Test");
+            //if (results.Count > 0)
+            //{ 
+                
+            //}
+        }
+
+
+        if (AttackInput)
+        {
+            if (isClicked) return;
+            RaycastHit[] hit = Physics.RaycastAll(player.transform.position + Vector3.up, Vector3.down, 2f);
+            foreach (RaycastHit target in hit)
+            {
+                if (target.collider.GetComponent<OrbTriggerZone>() == null) continue;
+                Player tempSelect = target.collider.GetComponentInParent<Player>();
+                if (tempSelect.ActivatedCheck == false) continue;
+
+                SelectedUnit = tempSelect;
+                isClicked = true;
+
+                SelectedUnit.OrbPointInteract(true);
+
+                break; // Only One Character Select
+            }
+
+
+        }
+        else
+        {
+
+            if (isClicked && SelectedUnit != null)
+            {
+                Debug.Log($"Mouse Up Point : {player.transform.position}");
+                SelectedUnit.MovePoint(player.transform.position);
+                SelectedUnit.OrbPointInteract(false);
+                SelectedUnit = null;
+            } 
+            isClicked = false;
+        }
+
+
+    }
+
     private void MoveUpdate()
     {
         Vector3 CameraInput = GetMoveVector();
-        if (Vector3.Distance(CameraInput, player.transform.position) < 0.1f)
+        if (Vector3.Distance(CameraInput, player.transform.position) < 0.01f)
         {
             player.transform.position = CameraInput;
         }
@@ -180,7 +287,10 @@ public class PlayerManager : MonoBehaviour
         {
             Vector3 DifferPosition = player.transform.position + (CameraInput - player.transform.position).normalized * Time.deltaTime * Speed;
             player.transform.position = new Vector3(Mathf.Clamp(DifferPosition.x, -8f, 8f), DifferPosition.y, Mathf.Clamp(DifferPosition.z, -4.5f, 4.5f));
+
         }
+
+
 
         float MaxDist = -1f;
         float MinDist = Mathf.Infinity;
@@ -189,17 +299,17 @@ public class PlayerManager : MonoBehaviour
 
         for (int i = 0; i < RecordIndex - 1; i++)
         {
-            Debug.DrawLine(PositionRecords[i], PositionRecords[i + 1], Color.red);
+            //Debug.DrawLine(PositionRecords[i], PositionRecords[i + 1], Color.red);
             Vector3 CenterVec = (PositionRecords[i] + PositionRecords[i + 1]) / 2f;
             // Vector3 CenterYVec = CenterVec + Vector3.up;
-            if (i == 0 || i == RecordIndex - 2)
-            {
-                Debug.DrawLine(CenterVec, CenterVec + Vector3.Cross(PositionRecords[i + 1] - CenterVec, Vector3.up), Color.red);
-            }
-            else
-            {
-                Debug.DrawLine(CenterVec, CenterVec + Vector3.Cross(PositionRecords[i + 1] - CenterVec, Vector3.up), Color.blue);
-            }
+            //if (i == 0 || i == RecordIndex - 2)
+            //{
+            //    Debug.DrawLine(CenterVec, CenterVec + Vector3.Cross(PositionRecords[i + 1] - CenterVec, Vector3.up), Color.red);
+            //}
+            //else
+            //{
+            //    Debug.DrawLine(CenterVec, CenterVec + Vector3.Cross(PositionRecords[i + 1] - CenterVec, Vector3.up), Color.blue);
+            //}
 
             float ldist = Vector3.Distance(PositionRecords[i], PositionRecords[i + 1]);
             if (MaxDist < ldist) MaxDist = ldist;
@@ -229,14 +339,14 @@ public class PlayerManager : MonoBehaviour
         {
             Vector3 CenterVec = (PositionRecords[i] + PositionRecords[i + 1]) / 2f;
 
-            if (i == RecordIndex - 2 || i == 0)
-            {
-                Debug.DrawLine(CenterVec, center, Color.magenta);
-            }
-            else
-            {
-                Debug.DrawLine(CenterVec, center, Color.yellow);
-            }
+            //if (i == RecordIndex - 2 || i == 0)
+            //{
+            //    Debug.DrawLine(CenterVec, center, Color.magenta);
+            //}
+            //else
+            //{
+            //    Debug.DrawLine(CenterVec, center, Color.yellow);
+            //}
 
             float dist = Vector3.Distance(CenterVec, center);
             CenterDist += dist;
@@ -273,12 +383,12 @@ public class PlayerManager : MonoBehaviour
         isClockwise = false;
         isCounterClockwise = false;
 
-        if (ClockCheck.Item1 == TotalClock)
+        if (ClockCheck.Item1 > ClockCheck.Item2 + ClockCheck.Item3)
         {
             isClockwise = false;
             isCounterClockwise = true;
         }
-        else if (ClockCheck.Item3 == TotalClock)
+        else if (ClockCheck.Item3 > ClockCheck.Item1 + ClockCheck.Item2)
         {
             isClockwise = true;
             isCounterClockwise = true;
@@ -286,17 +396,24 @@ public class PlayerManager : MonoBehaviour
 
         float radius = CenterDist / PositionRecords.Length;
 
+
+
+        //Debug.Log($"{ClockCheck.Item1},{ClockCheck.Item2},{ClockCheck.Item3}");
         if (isClockwise == false && isCounterClockwise == false) return;
+        //Debug.Log($"{totalAngleChange} Total Angle");
+        //Debug.Log($"{CenterDist / PositionRecords.Length} Center Average Distance");
+        //Debug.Log($"{MaxCneterDist} MAX {MinCneterDist} Min Center Dist");
         if (Mathf.Abs(totalAngleChange) < 320f) return;
         if (MinCneterDist < 0.3f || MaxCneterDist > 1f) return;
         if (radius > 0.8f || radius < 0.3f) return;
 
-        //Debug.Log($"{totalAngleChange} Total Angle");
-        //Debug.Log($"{CenterDist / PositionRecords.Length} Center Average Distance");
-        //Debug.Log($"{MaxCneterDist} MAX {MinCneterDist} Min Center Dist");
 
+        OrbInteractIngame(center, radius);
+        
+    }
 
-
+    private void OrbInteractIngame(Vector3 center, float radius)
+    {
         // 우선, 플레이어를 먼저 체크하고. 없으면 다른 상호작용을 진행한다.
         RaycastHit[] CasterHits = Physics.SphereCastAll(center + Vector3.up * 2f, radius, Vector3.down, 3f);
         foreach (RaycastHit hitInfo in CasterHits)
@@ -322,7 +439,7 @@ public class PlayerManager : MonoBehaviour
 
         }
 
-        foreach(RaycastHit hitInfo in CasterHits)
+        foreach (RaycastHit hitInfo in CasterHits)
         {
             if (hitInfo.collider == null) continue;
             if (LayerMask.LayerToName(hitInfo.collider.gameObject.layer).Equals("Default")) continue;
@@ -355,7 +472,6 @@ public class PlayerManager : MonoBehaviour
             {
                 hitInfo.collider.GetComponent<Environments>().OrbInteracted();
             }
-
         }
     }
 

@@ -54,8 +54,11 @@ public class BulletSprite : MonoBehaviour
     {
         if (other.CompareTag("OrbIndirect") && isGraze == false)
         {
-            Debug.Log("GRAZE!!");
+            //Debug.Log("GRAZE!!");
             isGraze = true;
+            SoulItem soul = ResourceManager.Instance.GetSoulItem();
+            soul.SoulValue = Random.Range(1f, 2f);
+            soul.transform.position = this.transform.position;
             // Drop Soul
             // Graze up
             // Score Up
@@ -71,6 +74,8 @@ public class BulletSprite : MonoBehaviour
         {
             isHitPlayer = true;
             enemyBullet.OnHit(other.gameObject, false);
+            other.GetComponent<Rigidbody>().AddForce((enemyBullet.transform.position - other.transform.position).normalized *0.25f, ForceMode.Impulse);
+            other.GetComponent<Player>().OnHit();
         }
     }
 

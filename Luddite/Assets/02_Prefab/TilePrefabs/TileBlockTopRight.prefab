@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1636508699921302101}
-  - component: {fileID: 3705158704659492097}
   - component: {fileID: 6000024413108933707}
   - component: {fileID: 4700889149515781314}
   - component: {fileID: 5012469968466241268}
@@ -39,20 +38,6 @@ Transform:
   - {fileID: 7219983361436963667}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3705158704659492097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4208732618241957923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b26ebcd2c10b4994bb468e49b049f02b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isBlocked: 0
-  isBuildingExist: 0
 --- !u!210 &6000024413108933707
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -100,6 +85,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isBlocked: 1
   isBuildingExist: 0
+  mainSprite: {fileID: 6556653451226041417}
+  tileType: 4
+  tileBuildType: 9
 --- !u!1 &5738050201973144515
 GameObject:
   m_ObjectHideFlags: 0

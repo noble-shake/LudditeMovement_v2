@@ -7,33 +7,12 @@ public class MapEditorScriptableObject : ScriptableObject
     public bool isDrawGrid;
     public GameObject GeneratePlane;
 
-    public MapTile RoadTilePrefab;
-    public MapTile DarkTilePrefab;
-    public MapTile WaterTilePrefab;
-    public MapTile SandTilePrefab;
+    public List<MapTile> TilePrefabs;
+    public List<Enemy> EnemyPrefabs;
 
-    public MapTile BlockTopTilePrefab;
-    public MapTile BlockDownTilePrefab;
-    public MapTile BlockLeftTilePrefab;
-    public MapTile BlockRightTilePrefab;
-    public MapTile BlockTopLeftTilePrefab;
-    public MapTile BlockTopRightTilePrefab;
-    public MapTile BlockDownLeftTilePrefab;
-    public MapTile BlockDownRightTilePrefab;
-    public MapTile BlockTopWaterTilePrefab;
-    public MapTile BlockDownWaterTilePrefab;
-    public MapTile BlockLeftWaterTilePrefab;
-    public MapTile BlockRightWaterTilePrefab;
-    public MapTile BlockTopLeftWaterTilePrefab;
-    public MapTile BlockTopRightWaterTilePrefab;
-    public MapTile BlockDownLeftWaterTilePrefab;
-    public MapTile BlockDownRightWaterTilePrefab;
+    public Environments[] EnvironmentPrefabs;
 
-    public Environments[] RoadEnvironment;
-    public Environments[] WaterEnvironment;
-    public Environments[] BlockEnvironment;
-
-    public Props[] PropPrefabList;
+    public Props[] PropPrefabs;
     public StageData[] EnemyProgression;
 
 }

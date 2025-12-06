@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyMoveScriptable : ScriptableObject
 {
     public string Name;
+    [TextArea] public string Description;
 
     public IEnemyMove GetInstance()
     {

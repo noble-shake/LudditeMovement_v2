@@ -32,8 +32,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3216637850882299491}
   - {fileID: 1874444675958653990}
+  - {fileID: 3216637850882299491}
   - {fileID: 3495439322155078106}
   - {fileID: 750584561040417447}
   m_Father: {fileID: 0}
@@ -83,6 +83,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 411b695e2aa098247b5c69d8798217cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NegativeEnv
+  GridPos: {x: 0, y: 0}
+  envType: 3
   ParticleObject: {fileID: 750584561040417450}
   SoulParticle: {fileID: 3625722633166548622}
   NegativeParticle: {fileID: 2111434627415640970}
@@ -512,7 +514,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6423666203348373026, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.3
+      value: 0.65
       objectReference: {fileID: 0}
     - target: {fileID: 6423666203348373026, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_LocalScale.z
@@ -528,7 +530,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6423666203348373026, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.148
+      value: -0.3
       objectReference: {fileID: 0}
     - target: {fileID: 6423666203348373026, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_LocalRotation.w

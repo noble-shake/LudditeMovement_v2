@@ -5,6 +5,8 @@ using UnityEngine;
 public class EnemyAttackScriptable : ScriptableObject
 {
     public string Name;
+    [TextArea] public string Description;
+    public bool isCharging;
 
     public IEnemyAttack GetInstance()
     {

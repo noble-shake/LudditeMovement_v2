@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public enum Difficulty
 { 
@@ -16,6 +17,13 @@ public class GameManager : MonoBehaviour
     public int CurrentStageScore;
     public Difficulty difficulty;
 
+    public Action SpawnAction = new Action(() => { }); // From Spawn Environment.
+
+    public void CharacterSpawn()
+    {
+        SpawnAction.Invoke();
+    }
+
     private void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -29,4 +37,19 @@ public class GameManager : MonoBehaviour
     // TEST
     public EnemyAttackScriptable attackScript;
     public EnemyMoveScriptable moveScript;
+
+    public void TimeContinue()
+    {
+        Time.timeScale = 1f;
+    }
+
+    public void TimeStop()
+    {
+        Time.timeScale = 0f;
+    }
+
+    public void TimeSlow()
+    {
+        Time.timeScale = 0.3f;
+    }
 }

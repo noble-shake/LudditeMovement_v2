@@ -7,14 +7,16 @@ public class ResourceManager : MonoBehaviour
     public static ResourceManager Instance;
 
     [Header("Player")]
-    [SerializeField] private List<GameObject> PlayerObjects;
+    [SerializeField] private List<PlayerScriptableObject> PlayerObjects;
     //[SerializeField] private PlayerOrb P_Orb_Prefab; 
     //[SerializeField] private PlayerKnight P_Knight_Prefab; 
 
     [Header("Enemy")]
-    [SerializeField] private List<GameObject> EnemyObjects;
-    [SerializeField] private List<GameObject> BossObjects;
+    [SerializeField] private List<EnemyScriptableObject> EnemyObjects;
+    [SerializeField] private List<EnemyScriptableObject> BossObjects;
     //[SerializeField] private EnemySlime M_Slime_Prefab;
+    public List<EnemyScriptableObject> GetEnemyObjects() { return EnemyObjects; }
+    public List<EnemyScriptableObject> GetBossObjects() { return BossObjects; }
 
     [Header("Bullet")]
     [SerializeField] private List<GameObject> BulletObjects;
@@ -24,8 +26,14 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private List<GameObject> TileObjects; // 9, 16 => 144.
 
     [Header("Item")]
-    [SerializeField] private List<>
+    [SerializeField] private List<Sprite> SoulSprite;
+    [SerializeField] private SoulItem SoulItemPrefab;
+    private List<SoulItem> SoulPool;
 
+    [Header("Effect")]
+    [SerializeField] private List<GameObject> Effects;
+
+    private Dictionary<PlayerClassType, GameObject> PlayerPool = new Dictionary<PlayerClassType, GameObject>();
     private Dictionary<GameObject, List<GameObject>> ObjectPool = new Dictionary<GameObject, List<GameObject>>(); // Hash값을 이용한다.
     private Dictionary<(int, int), List<GameObject>> TilePool = new Dictionary<(int, int), List<GameObject>>(); // Pooled Tile 관리
 
@@ -37,8 +45,11 @@ public class ResourceManager : MonoBehaviour
     private void Start()
     {
         CreateTileInstance();
-        CreateInstance(EnemyObjects);
+        CreatePlayerInstance(PlayerObjects);
+        CreateEnemyInstance(EnemyObjects);
         CreateInstance(BulletObjects, 256);
+        CreateInstance(Effects, 128);
+        CreatedSoulInstance();
     }
 
     private void CreateInstance(List<GameObject> _objects, int num_of_instance = 16)
@@ -58,6 +69,63 @@ public class ResourceManager : MonoBehaviour
                 currentCnt++;
             }
         }
+    }
+
+    private void CreateEnemyInstance(List<EnemyScriptableObject> _objects, int num_of_instance = 16)
+    {
+        int currentCnt = 0;
+        int totalCnt = _objects.Count * num_of_instance;
+
+        foreach (EnemyScriptableObject target in _objects)
+        {
+            GameObject targetObject = target.EnemyPrefab;
+            if (ObjectPool.ContainsKey(targetObject) == false) ObjectPool[targetObject] = new List<GameObject>();
+            for (int i = 0; i < num_of_instance; i++)
+            {
+                GameObject newObj = Instantiate(targetObject, this.transform);
+                newObj.SetActive(false);
+
+                ObjectPool[targetObject].Add(newObj);
+                currentCnt++;
+            }
+        }
+    }
+
+    private void CreatePlayerInstance(List<PlayerScriptableObject> _objects)
+    {
+        int currentCnt = 0;
+        int totalCnt = _objects.Count;
+
+        foreach (PlayerScriptableObject target in _objects)
+        {
+            GameObject targetObject = target.PlayerPrefab.gameObject;
+
+            GameObject newObj = Instantiate(targetObject, this.transform);
+            newObj.SetActive(false);
+            PlayerPool[target.classType] = newObj;
+            currentCnt++;
+            
+        }
+    }
+
+    public GameObject GetPlayerResource(PlayerClassType _class)
+    {
+        if (PlayerPool[_class].activeSelf) return null;
+        PlayerPool[_class].SetActive(true);
+        return PlayerPool[_class];
+    }
+
+    public PlayerScriptableObject GetPlayerInfo(Player _player)
+    {
+        foreach (PlayerScriptableObject target in PlayerObjects)
+        {
+            if (_player == target.PlayerPrefab)
+            {
+                return target;
+            }
+        }
+
+        return null;
     }
 
 
@@ -84,6 +152,48 @@ public class ResourceManager : MonoBehaviour
     { 
         _object.gameObject.SetActive(false);
         _object.transform.parent = this.transform;
+    }
+
+    private void CreatedSoulInstance()
+    {
+        if (SoulPool == null) SoulPool = new List<SoulItem>();
+        for (int i = 0; i < 256; i++)
+        {
+            SoulItem newObj = Instantiate(SoulItemPrefab, this.transform);
+            newObj.gameObject.SetActive(false);
+
+            SoulPool.Add(newObj);
+        }
+    }
+
+    public SoulItem GetSoulItem()
+    {
+        int rand = Random.Range(0, SoulSprite.Count);
+
+        foreach (SoulItem target in SoulPool)
+        {
+            if (target.gameObject.activeSelf == false)
+            {
+                target.transform.parent = null;
+                target.SetSprite(SoulSprite[rand]);
+                target.gameObject.SetActive(true);
+                return target;
+            }
+        }
+
+        SoulItem newObj = Instantiate(SoulItemPrefab, this.transform);
+        newObj.transform.parent = null;
+        newObj.SetSprite(SoulSprite[rand]);
+        newObj.gameObject.SetActive(true);
+        SoulPool.Add(newObj);
+        return newObj;
+
+    }
+
+    public void SoulRetrieve(SoulItem _soul)
+    {
+        _soul.transform.parent = this.transform;
+        _soul.gameObject.SetActive(false);
     }
 
     #region TileSet Pooling

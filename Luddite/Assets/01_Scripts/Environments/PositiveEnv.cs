@@ -1,13 +1,15 @@
+using System.Collections;
 using UnityEngine;
 using static UnityEngine.ParticleSystem;
 
 public class PositiveEnv : Environments
 {
+
     [SerializeField] GameObject ParticleObject;
     [SerializeField] ParticleSystem SoulParticle;
 
-    int SoulStorage = 300;
-    int CurStorage;
+    int EnvHP = 5;
+    int CurHP;
     float SoulTimer = 150f; // 60 * 2 + 30
     float CurRegentTime;
     float CurInteractDelay;
@@ -15,7 +17,7 @@ public class PositiveEnv : Environments
     private void Start()
     {
         isActiavted = true;
-        CurStorage = SoulStorage;
+        CurHP= EnvHP;
     }
 
     private void Update()
@@ -43,24 +45,28 @@ public class PositiveEnv : Environments
         if (CurInteractDelay > 0f) return;
 
         if(SoulParticle != null) SoulParticle.Play();
-        CurInteractDelay = 0.5f;
-        if (CurStorage >= 10)
-        {
-            CurStorage -= 10;
-            PlayerManager.Instance.SoulValue += 10;
-        }
-        else
-        {
-            PlayerManager.Instance.SoulValue += CurStorage;
-            CurStorage = 0;
-        }
+        CurInteractDelay = 1f;
 
-        if (CurStorage <= 0)
+        CurHP--;
+        StartCoroutine(SoulDrop(Random.Range(8, 13)));  
+
+        if (CurHP <= 0)
         {
-            CurStorage = 300;
+            CurHP = EnvHP;
             ParticleObject.SetActive(false);
             isActiavted = false;
         }
 
+    }
+
+    IEnumerator SoulDrop(int _numb)
+    {
+        for (int i = 0; i < _numb; i++)
+        {
+            SoulItem soul = ResourceManager.Instance.GetSoulItem();
+            soul.SoulValue = Random.Range(8, 21);
+            soul.transform.position = this.transform.position;
+            yield return null;
+        }
     }
 }

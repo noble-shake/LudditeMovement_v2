@@ -23,6 +23,7 @@ public enum TileType
     Sand,
     Dark,
     Block,
+    None,
 }
 
 public enum TileBuildType
@@ -47,6 +48,7 @@ public enum TileBuildType
     BlockTopRightWater,
     BlockDownLeftWater,
     BlockDownRightWater,
+    None,
 }
 
 public struct directionalGridReleation
@@ -59,10 +61,12 @@ public struct directionalGridReleation
 
 public abstract class MapTile : MonoBehaviour
 {
+    public Vector2Int GridPos;
     public bool isBlocked;
     public bool isBuildingExist;
-    protected TileType tileType;
-    protected TileBuildType tileBuildType;
+    [SerializeField] public SpriteRenderer mainSprite;
+    [SerializeField]protected TileType tileType;
+    [SerializeField]protected TileBuildType tileBuildType;
     protected directionalGridReleation closerGrid;
 
     public TileType GetTileType()

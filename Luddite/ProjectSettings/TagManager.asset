@@ -7,6 +7,7 @@ TagManager:
   - Orb
   - OrbAbsorber
   - OrbIndirect
+  - Enemy
   layers:
   - Default
   - TransparentFX

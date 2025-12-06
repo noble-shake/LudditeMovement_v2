@@ -1,10 +1,10 @@
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public enum EnemyName
 { 
+    None,
     Slime,
-
 }
 
 
@@ -22,18 +22,26 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] private CanvasGroup statusUI;
 
     [SerializeField] protected GameObject MainSprite; 
-    [SerializeField] protected GameObject OutlineSprite; 
+    [SerializeField] protected GameObject OutlineSprite;
 
-    protected EnemyType enemyType;
+    [SerializeField] protected EnemyType enemyType;
+    [SerializeField] protected EnemyName enemyName;
+
+    [SerializeField] protected Rigidbody rigid;
     protected AppearEffect appearEffect;
     protected bool isIdle = true;
     protected bool isBerserk = false;
     protected bool isDead = false;
     protected bool isAttack = false;
+    protected bool isMove;
+    protected bool isCharging;
+
     public bool isIdleCheck { get { return isIdle; } set { isIdle = value;} }
     public bool isBerserkCheck { get { return isBerserk; } set { isBerserk = value;} }
     public bool isDeadCheck { get { return isDead; } set { isDead = value;} }
     public bool isAttackCheck { get { return isAttack; } set { isAttack = value;} }
+
+    private Awaitable HitAwait;
 
     public void AppearOn()
     {
@@ -53,9 +61,27 @@ public abstract class Enemy : MonoBehaviour
         OutlineSprite.SetActive(false);
     }
 
+    public void OnHit()
+    {
+        HitEffect();
+    }
+
+    async Awaitable HitEffect()
+    {
+        //await new Task().;
+        MainSprite.GetComponent<SpriteRenderer>().color = Color.red;
+        await Awaitable.WaitForSecondsAsync(1f);
+        MainSprite.GetComponent<SpriteRenderer>().color = Color.white;
+    }
+
     public EnemyType GetEnemyType()
     {
         return enemyType;
+    }
+
+    public EnemyName GetEnemyName()
+    {
+        return enemyName;
     }
 
     public Animator GetAnimator() { return anim; }

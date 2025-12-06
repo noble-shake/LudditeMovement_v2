@@ -46,7 +46,7 @@ public class NegativeEnv : Environments
         CurNegativeTime -= Time.deltaTime;
         if (CurNegativeTime <= 0f)
         {
-            PlayerManager.Instance.SoulValue -= 10f;
+            PlayerManager.Instance.SoulValue -= Mathf.Clamp(PlayerManager.Instance.SoulValue * 0.1f, 10f, 100f);
             CurNegativeTime = NegativeTimer;
             NegativeParticle.Play();
         }

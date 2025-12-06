@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI.MessageBox;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 [Serializable]
 public class StageData
@@ -24,7 +26,7 @@ public struct TileCompressed
 {
     public MapTile tile;
     public Props building; // TODO: Update TBD
-    public GameObject environment;
+    public Environments environment;
 
     public void SetTile(MapTile _tile)
     {
@@ -37,7 +39,7 @@ public class TileCompression
 {
     public MapTile tile;
     public Props building; // TODO: Update TBD
-    public GameObject environment;
+    public Environments environment;
 
     public TileCompression() { }
 }
@@ -55,7 +57,13 @@ public class MapEditor : EditorWindow
     private MapEditorScriptableObject MapData;
     private MapData SaveData;
     private const string AssetPath = "Assets/MapDataset/MapEditorStroe.asset";
-    private const string SavePath = "Assets/MapDataset/MapData.asset";
+    private const string SavePath = "Assets/MapDataset/";
+    private const string SaveTail= ".asset";
+    MapData LoadData;
+    private string StageName = "Default";
+    private string StageStory = "Story Summary";
+    private string StageHint = "Hint";
+    private int StageBatchMember = 4;
 
     // ScrollBar
     [SerializeField] private Vector2 entirePos = Vector2.zero;
@@ -67,6 +75,10 @@ public class MapEditor : EditorWindow
     private TileBuildType CurrentTile;
     private TileTarget CurrentBuildTarget = TileTarget.Tile;
     private EnemyName CurrentEnemy;
+    Enemy tempEnemy;
+
+    private EnvironmentType CurrentEnvType;
+    private Environments TempEnvPrefab;
 
     //private MapManager mapInstance;
     private Text TitleLabel;
@@ -83,12 +95,18 @@ public class MapEditor : EditorWindow
     public SerializedObject SerialObject;
     public SerializedProperty serialProp;
 
+    public SerializedObject SerialLoadObject;
+    public SerializedProperty serialEnvProp;
+    public SerializedProperty serialBuildingProp;
+    public SerializedProperty serialTileProp;
+
     // Time Slider
     private float TimeScheduling;
 
     private void OnEnable()
     {
         tileRecords = new Dictionary<(int, int), TileCompression>();
+        //RenderPipelineManager.endContextRendering += EndFrameRendering;
         RenderPipelineManager.endContextRendering += EndFrameRendering;
         SceneView.duringSceneGui += OnSceneGUI;
 
@@ -104,7 +122,10 @@ public class MapEditor : EditorWindow
         scriptableObj = this;
         SerialObject = new SerializedObject(MapData);
         serialProp = SerialObject.FindProperty("EnemyProgression");
-        
+
+
+
+
     }
 
     private void OnDisable()
@@ -150,116 +171,6 @@ public class MapEditor : EditorWindow
         GUILayout.EndVertical();
 
         GUILayout.Space(16);
-
-        GUILayout.Label("Tile Prefab Collection", SubHeader);
-
-        #region Prefab Collections
-
-        GUILayout.Label("Normal Tile", SubHeader);
-        GUILayout.BeginHorizontal();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Road", tileStyle);
-        MapData.RoadTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.RoadTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Dark", tileStyle);
-        MapData.DarkTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.DarkTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Water", tileStyle);
-        MapData.WaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.WaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Sand", tileStyle);
-        MapData.SandTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.SandTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.EndHorizontal();
-        GUILayout.Space(10);
-
-        GUILayout.Label("Block Normal", SubHeader);
-        GUILayout.BeginHorizontal();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Top", tileStyle);
-        MapData.BlockTopTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Down", tileStyle);
-        MapData.BlockDownTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Left", tileStyle);
-        MapData.BlockLeftTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockLeftTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Right", tileStyle);
-        MapData.BlockRightTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockRightTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.EndHorizontal();
-        GUILayout.Space(10);
-
-        GUILayout.Label("Block Normal 2side", SubHeader);
-        GUILayout.BeginHorizontal();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Top+Left", tileStyle);
-        MapData.BlockTopLeftTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopLeftTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Top+Right", tileStyle);
-        MapData.BlockTopRightTilePrefab= ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopRightTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Down+Left", tileStyle);
-        MapData.BlockDownLeftTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownLeftTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Down+Right", tileStyle);
-        MapData.BlockDownRightTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownRightTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.EndHorizontal();
-        GUILayout.Space(10);
-
-        GUILayout.Label("Block Water", SubHeader);
-        GUILayout.BeginHorizontal();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Top", tileStyle);
-        MapData.BlockTopWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Down", tileStyle);
-        MapData.BlockDownWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Left", tileStyle);
-        MapData.BlockLeftWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockLeftWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Right", tileStyle);
-        MapData.BlockRightWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockRightWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.EndHorizontal();
-        GUILayout.Space(10);
-
-        GUILayout.Label("Block Water 2side", SubHeader);
-        GUILayout.BeginHorizontal();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Top+Left", tileStyle);
-        MapData.BlockTopLeftWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopLeftWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Top+Right", tileStyle);
-        MapData.BlockTopRightWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockTopRightWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Down+Left", tileStyle);
-        MapData.BlockDownLeftWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownLeftWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-        GUILayout.BeginVertical();
-        GUILayout.Label("Down+Right", tileStyle);
-        MapData.BlockDownRightWaterTilePrefab = ((MapTile)EditorGUILayout.ObjectField(MapData.BlockDownRightWaterTilePrefab, typeof(MapTile), true, GUILayout.Width(48f)));
-        GUILayout.EndVertical();
-
-        GUILayout.EndHorizontal();
-        #endregion
         
         GUILayout.Space(16);
         //EditorGUI.EndChangeCheck();
@@ -267,76 +178,18 @@ public class MapEditor : EditorWindow
 
         EditorGUI.EndChangeCheck();
 
-        #region Prefab Switching
-
         EditorGUI.BeginChangeCheck();
-        switch (CurrentTile)
+        GUILayout.Label("Map Data Load", SubHeader);
+
+        LoadData = (MapData)EditorGUILayout.ObjectField(LoadData, typeof(MapData), false);
+        if (GUILayout.Button("Load", EditorStyles.miniButton))
         {
-            default:
-            case TileBuildType.Road:
-                CurrentTilePrefab = MapData.RoadTilePrefab;
-                break;
-            case TileBuildType.Dark:
-                CurrentTilePrefab = MapData.DarkTilePrefab;
-                break;
-            case TileBuildType.Sand:
-                CurrentTilePrefab = MapData.SandTilePrefab;
-                break;
-            case TileBuildType.Water:
-                CurrentTilePrefab = MapData.WaterTilePrefab;
-                break;
-            case TileBuildType.BlockTop:
-                CurrentTilePrefab = MapData.BlockTopTilePrefab;
-                break;
-            case TileBuildType.BlockDown:
-                CurrentTilePrefab = MapData.BlockDownTilePrefab;
-                break;
-            case TileBuildType.BlockLeft:
-                CurrentTilePrefab = MapData.BlockLeftTilePrefab;
-                break;
-            case TileBuildType.BlockRight:
-                CurrentTilePrefab = MapData.BlockRightTilePrefab;
-                break;
-            case TileBuildType.BlockTopLeft:
-                CurrentTilePrefab = MapData.BlockTopLeftTilePrefab;
-                break;
-            case TileBuildType.BlockTopRight:
-                CurrentTilePrefab = MapData.BlockTopRightTilePrefab;
-                break;
-            case TileBuildType.BlockDownLeft:
-                CurrentTilePrefab = MapData.BlockDownLeftTilePrefab;
-                break;
-            case TileBuildType.BlockDownRight:
-                CurrentTilePrefab = MapData.BlockDownRightTilePrefab;
-                break;
-            case TileBuildType.BlockTopWater:
-                CurrentTilePrefab = MapData.BlockTopWaterTilePrefab;
-                break;
-            case TileBuildType.BlockDownWater:
-                CurrentTilePrefab = MapData.BlockDownWaterTilePrefab;
-                break;
-            case TileBuildType.BlockLeftWater:
-                CurrentTilePrefab = MapData.BlockLeftWaterTilePrefab;
-                break;
-            case TileBuildType.BlockRightWater:
-                CurrentTilePrefab = MapData.BlockRightWaterTilePrefab;
-                break;
-            case TileBuildType.BlockTopLeftWater:
-                CurrentTilePrefab = MapData.BlockTopLeftWaterTilePrefab;
-                break;
-            case TileBuildType.BlockTopRightWater:
-                CurrentTilePrefab = MapData.BlockTopRightWaterTilePrefab;
-                break;
-            case TileBuildType.BlockDownLeftWater:
-                CurrentTilePrefab = MapData.BlockDownLeftWaterTilePrefab;
-                break;
-            case TileBuildType.BlockDownRightWater:
-                CurrentTilePrefab = MapData.BlockDownRightWaterTilePrefab;
-                break;
+            CreateInstanceFromLoadButton();
+
         }
+        EditorGUI.EndChangeCheck();
 
-        #endregion
-
+        GUILayout.Space(10);
         GUILayout.Label("Drawing Mode", SubHeader);
         GUILayout.Space(10);
 
@@ -359,31 +212,84 @@ public class MapEditor : EditorWindow
         GUILayout.BeginHorizontal();
         EditorGUI.BeginChangeCheck();
         GUILayout.Label("Selected Tile", tileStyle);
-        CurrentTile = ((TileBuildType)EditorGUILayout.EnumFlagsField(CurrentTile));
+        CurrentTile = ((TileBuildType)EditorGUILayout.EnumPopup(CurrentTile));
 
         GUILayout.EndHorizontal();
         GUILayout.Label($"Current Tile : [ {CurrentTile.ToString()} ]", tileStyle);
+        foreach (MapTile tile in MapData.TilePrefabs)
+        {
+            if (tile.GetTileBuildType() == CurrentTile)
+            {
+                CurrentTilePrefab = tile;
+                break;
+            }
+        }
+        Rect textureTileRect = GUILayoutUtility.GetLastRect();
+        textureTileRect = new Rect(textureTileRect.x, textureTileRect.y + 20f, 40f, 40f);
+        EditorGUI.DrawPreviewTexture(textureTileRect, CurrentTilePrefab.GetComponentInChildren<SpriteRenderer>().sprite.texture);
 
-        GUILayout.Space(10);
+        GUILayout.Space(50);
+        //GUILayout.Box(CurrentTile);
+
+        GUILayout.Label($"Current Environment Type", targetStyle);
+        CurrentEnvType = ((EnvironmentType)EditorGUILayout.EnumPopup(CurrentEnvType));
+        for (int i = 0; i < MapData.EnvironmentPrefabs.Length; i++)
+        {
+            if (MapData.EnvironmentPrefabs[i].envType == CurrentEnvType)
+            {
+                TempEnvPrefab = MapData.EnvironmentPrefabs[i];
+                break;
+            }
+        }
+        
+        Rect textureEnvRect= GUILayoutUtility.GetLastRect();
+        textureEnvRect = new Rect(textureEnvRect.x, textureEnvRect.y + 20f, 40f, 40f);
+        EditorGUI.DrawPreviewTexture(textureEnvRect, TempEnvPrefab.GetComponentInChildren<SpriteRenderer>().sprite.texture);
+
+        GUILayout.Space(50);
         GUILayout.Label($"Select BuildType", targetStyle);
-        CurrentBuildTarget = ((TileTarget)EditorGUILayout.EnumFlagsField(CurrentBuildTarget));
+        CurrentBuildTarget = ((TileTarget)EditorGUILayout.EnumPopup(CurrentBuildTarget));
         GUILayout.Label("Selected Tile Target (Tile, Building, Environment)", tileStyle);
 
         GUILayout.Space(10);
         GUILayout.Label($"Select EnemyType", targetStyle);
-        CurrentEnemy = ((EnemyName)EditorGUILayout.EnumFlagsField(CurrentEnemy));
-        GUILayout.Label("Selecte Enemy Type", tileStyle);
+        CurrentEnemy = ((EnemyName)EditorGUILayout.EnumPopup(CurrentEnemy));
+
+
+        Rect textureEnemyRect = GUILayoutUtility.GetLastRect();
+        textureEnemyRect = new Rect(textureEnemyRect.x, textureEnemyRect.y + 20f, 40f, 40f);
+        
+        foreach (Enemy e in MapData.EnemyPrefabs)
+        {
+            if (e.GetEnemyName() == CurrentEnemy)
+            {
+                tempEnemy = e;
+                
+                break;
+            }
+        }
+        if(tempEnemy != null) EditorGUI.DrawPreviewTexture(textureEnemyRect, tempEnemy.GetComponentInChildren<SpriteRenderer>().sprite.texture);
+        GUILayout.Space(50);
+        EditorGUI.EndChangeCheck();
 
         EditorGUI.BeginChangeCheck();
         GUILayout.Space(16);
         GUILayout.Label($"Time Schedule", SubHeader);
         GUILayout.Label($"GameTime : {Mathf.FloorToInt(TimeScheduling/60f).ToString("D2")}:{Mathf.FloorToInt(TimeScheduling% 60f).ToString("D2")}", targetStyle);
         TimeScheduling = EditorGUILayout.Slider(TimeScheduling, 0f, 60f * 10, GUILayout.Height(20f));
+
+        GUILayout.Label($"Stage Batching", SubHeader);
+        StageBatchMember = EditorGUILayout.IntField(StageBatchMember, GUILayout.Height(30f));
+        GUILayout.Label($"Stage Story", SubHeader);
+        StageStory= GUILayout.TextArea(StageStory, GUILayout.Height(40f));
+        GUILayout.Label($"Stage Hint", SubHeader);
+        StageHint= GUILayout.TextArea(StageHint, GUILayout.Height(40f));
         EditorGUI.EndChangeCheck();
         GUILayout.Space(10);
 
         #region Model Conditions
-        if (isGenerateMode)
+        EditorGUI.BeginChangeCheck();
+        if (isGenerateMode || isStageEditMode)
         {
             isRemoveMode = false;
 
@@ -407,35 +313,92 @@ public class MapEditor : EditorWindow
         EditorGUI.BeginChangeCheck();
         EditorGUILayout.PropertyField(serialProp, true);
         SerialObject.ApplyModifiedProperties();
-        if (isStageEditMode)
-        {
-            if (MapData.GeneratePlane != null && GeneratePlane == null)
-            {
-                GeneratePlane = Instantiate(MapData.GeneratePlane);
-                GeneratePlane.transform.SetAsFirstSibling();
-                GeneratePlane.gameObject.SetActive(true);
-            }
-        }
-        else
-        {
-            if (GeneratePlane != null)
-            {
-                DestroyImmediate(GeneratePlane.gameObject);
-            }
-        }
         EditorGUI.EndChangeCheck();
         EditorGUILayout.EndScrollView();
 
         #endregion
 
+        EditorGUI.EndChangeCheck();
 
+        EditorGUI.BeginChangeCheck();
+        GUILayout.Label($"Stage Name", SubHeader);
+        StageName = GUILayout.TextField(StageName, GUILayout.Height(30f));
+
+        GUILayout.Label($"Current Save Path : {SavePath + StageName + SaveTail}", targetStyle);
+        EditorGUI.EndChangeCheck();
 
         // Generate Map
         EditorGUI.BeginChangeCheck();
-        bool ButtonPressed = false;
-        if (GUILayout.Button("TileMap Generate", EditorStyles.miniButton))
+        if (GUILayout.Button("TileMap Generate", GUILayout.Height(40f)))
         {
-            ButtonPressed = true;
+            MapData StageDataset = ScriptableObject.CreateInstance<MapData>();
+            SerialLoadObject = new SerializedObject(StageDataset);
+            serialEnvProp = SerialLoadObject.FindProperty("Buildings");
+            serialBuildingProp = SerialLoadObject.FindProperty("Environment");
+            serialTileProp = SerialLoadObject.FindProperty("Tiles");
+            StageDataset.StageName = StageName;
+            StageDataset.StageStory = StageStory;
+            StageDataset.StageHint= StageHint;
+            StageDataset.BatchMembers = StageBatchMember;
+            StageDataset.SpawnCnt = 0;
+            StageDataset.Environment = new EnvironmentType[9 * 16];
+            StageDataset.Tiles = new TileBuildType[9 * 16];
+            StageDataset.Buildings= new PropType[9 * 16];
+
+            for (int col = 0; col < 16; col++)
+            {
+                for (int row = 0; row < 9; row++)
+                {
+                    if (tileRecords.ContainsKey((row, col)) == false)
+                    {
+                        StageDataset.Environment[col + 16*row] = EnvironmentType.None;
+                        StageDataset.Tiles[col + 16 * row] = TileBuildType.None;
+                        StageDataset.Buildings[col + 16 * row] = PropType.None;
+                    }
+                    else
+                    {
+                        TileCompression comp = tileRecords[(row, col)];
+                        if (comp.tile != null)
+                        {
+                            StageDataset.Tiles[col + 16 * row] = comp.tile.GetTileBuildType();
+                        }
+                        else
+                        {
+                            StageDataset.Tiles[col + 16 * row] = TileBuildType.None;
+                        }
+
+                        if (comp.building != null)
+                        {
+                            StageDataset.Buildings[col + 16 * row] = comp.building.propType;
+                        }
+                        else
+                        {
+                            StageDataset.Buildings[col + 16 * row] = PropType.None;
+                        }
+
+                        if (comp.environment != null)
+                        {
+                            StageDataset.Environment[col + 16 * row] = comp.environment.envType;
+                            if (comp.environment.envType == EnvironmentType.SpawnEnv)
+                            {
+                                StageDataset.SpawnCnt++;
+                            }
+                        }
+                        else
+                        {
+                            StageDataset.Environment[col + 16 * row] = EnvironmentType.None;
+                        }
+                    }
+                }
+            }
+
+            StageDataset.EnemyProgression = MapData.EnemyProgression;
+            SerialLoadObject.ApplyModifiedProperties();
+            SerialLoadObject.Update();
+            AssetDatabase.CreateAsset(StageDataset, SavePath + StageName + SaveTail);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
         }
         EditorGUI.EndChangeCheck();
     }
@@ -465,19 +428,52 @@ public class MapEditor : EditorWindow
                     Debug.Log($"Hit Index : {EdgeIndexer(hit.point).Item1}, {EdgeIndexer(hit.point).Item2}");
                     Debug.Log($"Target Position: {EdgeRunner(hit.point)}");
 
+                    Vector3 EdgePosition = EdgeRunner(hit.point);
+                    (int, int) EdgeIndex = EdgeIndexer(hit.point);
+
                     switch (CurrentBuildTarget)
                     {
                         case TileTarget.Environment:
+                            for (int i = 0; i < MapData.EnvironmentPrefabs.Length; i++)
+                            {
+                                if (MapData.EnvironmentPrefabs[i].envType == CurrentEnvType)
+                                {
+                                    TempEnvPrefab = Instantiate(MapData.EnvironmentPrefabs[i]);
+                                    TempEnvPrefab.transform.position = EdgePosition;
+                                    TempEnvPrefab.GridPos = new Vector2Int(EdgeIndex.Item1, EdgeIndex.Item2);
+                                    if (tileRecords.ContainsKey(EdgeIndex))
+                                    {
+                                        if (tileRecords[EdgeIndex].environment != null)
+                                        {
+                                            DestroyImmediate(tileRecords[EdgeIndex].environment.gameObject);
+                                            tileRecords[EdgeIndex].environment = TempEnvPrefab;
+                                        }
+                                        else
+                                        {
+                                            tileRecords[EdgeIndex].environment = TempEnvPrefab;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        tileRecords[EdgeIndexer(hit.point)] = new TileCompression();
+                                        tileRecords[EdgeIndexer(hit.point)].environment = TempEnvPrefab;
+                                        Debug.Log(tileRecords[EdgeIndexer(hit.point)]);
+                                    }
+
+                                }
+                            }
+
+                            break;
                         case TileTarget.Tile:
-                            Vector3 EdgePosition = EdgeRunner(hit.point);
-                            (int, int) EdgeIndex= EdgeIndexer(hit.point);
+
                             TempTilePrefab = Instantiate(CurrentTilePrefab);
                             TempTilePrefab.transform.position = EdgePosition;
+                            TempTilePrefab.GridPos = new Vector2Int(EdgeIndex.Item1, EdgeIndex.Item2);
                             if (tileRecords.ContainsKey(EdgeIndex))
                             {
                                 if (tileRecords[EdgeIndex].tile != null)
                                 {
-                                    DestroyImmediate(tileRecords[EdgeIndex].tile);
+                                    DestroyImmediate(tileRecords[EdgeIndex].tile.gameObject);
                                     tileRecords[EdgeIndex].tile = TempTilePrefab;
                                 }
                                 else
@@ -536,9 +532,9 @@ public class MapEditor : EditorWindow
 
                     Vector3 EdgePosition = EdgeRunner(hit.point);
                     (int, int) EdgeIndex = EdgeIndexer(hit.point);
-
-                    MapData.EnemyProgression[size - 1].SpawnRow = EdgeIndex.Item2;
-                    MapData.EnemyProgression[size - 1].SpawnColumn = EdgeIndex.Item1;
+                    MapData.EnemyProgression[size - 1].MonsterType = CurrentEnemy;
+                    MapData.EnemyProgression[size - 1].SpawnRow = EdgeIndex.Item1;
+                    MapData.EnemyProgression[size - 1].SpawnColumn = EdgeIndex.Item2;
                     MapData.EnemyProgression[size - 1].SpawnTime = TimeScheduling;
 
                     SerialObject.Update();
@@ -648,7 +644,7 @@ public class MapEditor : EditorWindow
         }
         float indexerY = remap(z, -4f, 4f, 0f, 8f);
 
-        return ((int)indexerX, (int)indexerY);
+        return ((int)indexerY, (int)indexerX);
     }
 
     private float remap(float val, float in1, float in2, float out1, float out2)
@@ -695,6 +691,117 @@ public class MapEditor : EditorWindow
         {
             DestroyImmediate(record.environment.gameObject);
         }
+
+    }
+
+    private void CreateInstanceFromLoadButton()
+    {
+        MapData.EnemyProgression = LoadData.EnemyProgression;
+        // SerialLoadObject.Update();
+        StageName = LoadData.StageName;
+        StageStory = LoadData.StageStory;
+        StageHint= LoadData.StageHint;
+        StageBatchMember = LoadData.BatchMembers;
+
+        Dictionary<(int, int), TileCompression> tempRecords = new Dictionary<(int, int), TileCompression>();
+
+        for (int row = 0; row < 9; row++)
+        {
+            for (int col = 0; col < 16; col++)
+            {
+                if (tileRecords.ContainsKey((row, col)))
+                {
+                    if (tileRecords[(row, col)].building != null)
+                    {
+                        DestroyImmediate(tileRecords[(row, col)].building.gameObject);
+                    }
+                    if (tileRecords[(row, col)].tile != null)
+                    {
+                        DestroyImmediate(tileRecords[(row, col)].tile.gameObject);
+                    }
+                    if (tileRecords[(row, col)].environment != null)
+                    {
+                        DestroyImmediate(tileRecords[(row, col)].environment.gameObject);
+                    }
+                }
+
+                Vector3 targetVec = new Vector3(-8.0f+ col, 0, -4.5f + row);
+                Vector3 EdgePosition = EdgeRunner(targetVec);
+                (int, int) EdgeIndex = EdgeIndexer(targetVec);
+                if (LoadData.Environment[col + 16 * row] != EnvironmentType.None)
+                {
+                    foreach(Environments envPrefab in MapData.EnvironmentPrefabs)
+                    {
+                        if (envPrefab.envType == LoadData.Environment[col + 16 * row])
+                        {
+                            Environments envObject = Instantiate(envPrefab);
+                            envObject.transform.position = EdgePosition;
+                            envObject.GridPos = new Vector2Int(row, col);
+
+                            if (tempRecords.ContainsKey((row, col)) == false)
+                            {
+                                tempRecords[(row, col)] = new TileCompression() { environment = envObject };
+                            }
+                            else
+                            {
+                                tempRecords[(row, col)].environment = envObject;
+                            }
+
+                        }
+
+
+                    }
+                }
+
+                if (LoadData.Tiles[col + 16 * row] != TileBuildType.None)
+                {
+                    foreach (MapTile envPrefab in MapData.TilePrefabs)
+                    {
+                        if (envPrefab.GetTileBuildType() == LoadData.Tiles[col + 16 * row])
+                        {
+                            MapTile envObject = Instantiate(envPrefab);
+                            envObject.transform.position = EdgePosition;
+                            envObject.GridPos = new Vector2Int(row, col);
+
+                            if (tempRecords.ContainsKey((row, col)) == false)
+                            {
+                                tempRecords[(row, col)] = new TileCompression() { tile = envObject };
+                            }
+                            else
+                            {
+                                tempRecords[(row, col)].tile = envObject;
+                            }
+                        }
+                    }
+                }
+
+                if (    LoadData.Buildings[col + 16 * row] != PropType.None)
+                {
+                    foreach (Props envPrefab in MapData.PropPrefabs)
+                    {
+                        if (envPrefab.propType == LoadData.Buildings[col + 16 * row])
+                        {
+                            Props envObject = Instantiate(envPrefab);
+                            envObject.transform.position = EdgePosition;
+                            envObject.GridPos = new Vector2Int(row, col);
+
+                            if (tempRecords.ContainsKey((row, col)) == false)
+                            {
+                                tempRecords[(row, col)] = new TileCompression() { building = envObject };
+                            }
+                            else
+                            {
+                                tempRecords[(row, col)].building = envObject;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        tileRecords = tempRecords;
+
 
     }
 
