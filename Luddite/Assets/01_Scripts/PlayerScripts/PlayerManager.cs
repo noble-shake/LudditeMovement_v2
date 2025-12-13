@@ -4,8 +4,6 @@ using Unity.UI.Shaders.Sample;
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Unity.VisualScripting;
-using UnityEngine.EventSystems;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -80,7 +78,6 @@ public class PlayerManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
-        Cursor.visible = false;
 
     }
 
@@ -92,6 +89,7 @@ public class PlayerManager : MonoBehaviour
         ClockCheckArray = new int[RecordIndex - 1];
         if (SoulGauge != null) SoulGauge.Value = 0f;
         if (SoulText != null) SoulText.text = $"0/1000";
+        player.gameObject.SetActive(false);
     }
 
     #region Gauge Effect
@@ -145,6 +143,8 @@ public class PlayerManager : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.currentCondition == GameCondition.Menu) return;
+
         HPGaugeCheck();
         SoulGaugeCheck();
         HPRegen -= Time.deltaTime;
@@ -215,29 +215,11 @@ public class PlayerManager : MonoBehaviour
     private bool AttackInput; // Mouse Left Click
     private bool isClicked;
     private Player SelectedUnit;
-    public EventSystem eventSystem;
-    public GraphicRaycaster graphicRaycaster;
     private void PointUpdate()
     {
         AttackInput = InputManager.Instance.AttackInput;
         float col = player.transform.position.x;
         float row = player.transform.position.z;
-
-        if (AttackInput)
-        {
-            //PointerEventData pointerData = new PointerEventData(eventSystem);
-            //// 마우스 위치 대신, 상호작용을 원하는 특정 위치(예: 화면 중앙)로 설정할 수 있습니다.
-            //// pointerData.position = new Vector2(Screen.width / 2, Screen.height / 2); // 화면 중앙 기준
-            //pointerData.position = Camera.main.WorldToScreenPoint(player.transform.position); // 현재 마우스 위치 기준
-
-            //List<RaycastResult> results = new List<RaycastResult>();
-            //graphicRaycaster.Raycast(pointerData, results);
-            //Debug.Log("Test");
-            //if (results.Count > 0)
-            //{ 
-                
-            //}
-        }
 
 
         if (AttackInput)

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b2dbcd7204050843b1217b152b7bcd1, type: 3}
+  m_Name: Tier3_PlayerSlashDance
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillScriptableObject
+  Icon: {fileID: 21300000, guid: 0e1ab67eb67874542b1606233616c377, type: 3}
+  Name: "\uB09C\uBB34"
+  Description: "[(\uAC15\uD654) \uC804\uD22C \uACE0\uC870 + (\uAC15\uD654) \uBA54\uAC00
+    \uC2AC\uB798\uC2DC]\n\uC804\uBC29\uC704\uB85C \uB09C\uACA9\uC744 \uAC00\uD55C\uB2E4."
+  isCharging: 1
+  NodeIndex: 0
+  skillType: 1
+  Params: []
+  isSynergy: 1
+  SynergySkills:
+  - {fileID: 11400000, guid: a76673cdc32c3c84f8539ea55f7c09a5, type: 2}
+  - {fileID: 11400000, guid: f6a46bb006abac844b253b19cad79810, type: 2}

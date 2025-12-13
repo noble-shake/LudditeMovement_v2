@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b2dbcd7204050843b1217b152b7bcd1, type: 3}
+  m_Name: Tier3_PlayerSheildThrow
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillScriptableObject
+  Icon: {fileID: 21300000, guid: 0e1ab67eb67874542b1606233616c377, type: 3}
+  Name: "\uBC29\uD328 \uB3CC\uACA9"
+  Description: "\uC544\uAD70 \uC601\uC6C5\uC5D0\uAC8C \uBC29\uD328\uB97C \uB358\uC9C4\uB2E4.\n\uACBD\uB85C\uC0C1\uC758
+    \uC801\uC744 \uACF5\uACA9\uD558\uACE0, \uC544\uAD70\uC5D0\uAC8C \uCCB4\uB825\uC744
+    \uBD80\uC5EC\uD55C\uB2E4."
+  isCharging: 1
+  NodeIndex: 0
+  skillType: 1
+  Params: []

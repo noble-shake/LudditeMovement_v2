@@ -4,6 +4,7 @@ using UnityEngine;
 public class EnemyScriptableObject : ScriptableObject
 {
     public string Name;
+    public EnemyName enemyName;
     [TextArea] public string EnemyDescription;
 
     [TextArea] public string Comment1;

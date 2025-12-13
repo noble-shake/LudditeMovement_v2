@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using static UnityEngine.GraphicsBuffer;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class ResourceManager : MonoBehaviour
     //[SerializeField] private EnemySlime M_Slime_Prefab;
     public List<EnemyScriptableObject> GetEnemyObjects() { return EnemyObjects; }
     public List<EnemyScriptableObject> GetBossObjects() { return BossObjects; }
+    public List<PlayerScriptableObject> GetPlayerObjects() { return PlayerObjects; }
 
     [Header("Bullet")]
     [SerializeField] private List<GameObject> BulletObjects;
@@ -32,6 +34,9 @@ public class ResourceManager : MonoBehaviour
 
     [Header("Effect")]
     [SerializeField] private List<GameObject> Effects;
+
+    [Header("Map Data")]
+    [SerializeField] private List<MapData> mapDatas;
 
     private Dictionary<PlayerClassType, GameObject> PlayerPool = new Dictionary<PlayerClassType, GameObject>();
     private Dictionary<GameObject, List<GameObject>> ObjectPool = new Dictionary<GameObject, List<GameObject>>(); // Hash값을 이용한다.
@@ -50,6 +55,8 @@ public class ResourceManager : MonoBehaviour
         CreateInstance(BulletObjects, 256);
         CreateInstance(Effects, 128);
         CreatedSoulInstance();
+
+        LibraryManager.Instance.SaveLoad();
     }
 
     private void CreateInstance(List<GameObject> _objects, int num_of_instance = 16)
@@ -102,17 +109,28 @@ public class ResourceManager : MonoBehaviour
 
             GameObject newObj = Instantiate(targetObject, this.transform);
             newObj.SetActive(false);
+            Player player = newObj.GetComponent<Player>();
+            player.PlayerInfo = target;
+            player.statusManager.StatusInit();
             PlayerPool[target.classType] = newObj;
             currentCnt++;
             
         }
     }
 
-    public GameObject GetPlayerResource(PlayerClassType _class)
+    public GameObject GetPlayerResource(PlayerClassType _class, bool isActive= true)
     {
-        if (PlayerPool[_class].activeSelf) return null;
-        PlayerPool[_class].SetActive(true);
-        return PlayerPool[_class];
+        if (isActive)
+        {
+            if (PlayerPool[_class].activeSelf) return null;
+            PlayerPool[_class].SetActive(true);
+            return PlayerPool[_class];
+        }
+        else
+        {
+            return PlayerPool[_class];
+        }
+
     }
 
     public PlayerScriptableObject GetPlayerInfo(Player _player)
@@ -120,6 +138,19 @@ public class ResourceManager : MonoBehaviour
         foreach (PlayerScriptableObject target in PlayerObjects)
         {
             if (_player == target.PlayerPrefab)
+            {
+                return target;
+            }
+        }
+
+        return null;
+    }
+
+    public PlayerScriptableObject GetPlayerInfo(PlayerClassType _class)
+    {
+        foreach (PlayerScriptableObject target in PlayerObjects)
+        {
+            if (_class == target.classType)
             {
                 return target;
             }
@@ -234,4 +265,9 @@ public class ResourceManager : MonoBehaviour
     }
 
     #endregion
+
+    public List<MapData> GetMapDataset()
+    {
+        return mapDatas;
+    }
 }

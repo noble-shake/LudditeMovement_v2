@@ -47,7 +47,8 @@ public class InputManager : MonoBehaviour
     {
 
         InputBinding();
-        PlayerInputBind();
+        UIInputBind();
+        // PlayerInputBind();
     }
 
     private void InputBinding()

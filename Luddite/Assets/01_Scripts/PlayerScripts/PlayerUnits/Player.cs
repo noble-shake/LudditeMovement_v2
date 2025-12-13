@@ -7,18 +7,10 @@ using UnityEngine;
 
 // ∞¯≈Î¡° : ¿Ãµø πÊΩƒ, »∞º∫»≠, »πµÊ, Ω∫≈»
 
-public enum PlayerType
-{ 
-    Knight,
-    Healer,
-    Wizard,
-    Ranger,
-    Thief,
-}
-
 public abstract class Player : MonoBehaviour
 {
-    [SerializeField] protected PlayerStatusManager statusManager;
+
+    [SerializeField] public PlayerStatusManager statusManager;
     [SerializeField] protected Animator animator;
     [SerializeField] protected bool isOrbTriggered = false;
 
@@ -27,7 +19,7 @@ public abstract class Player : MonoBehaviour
     [SerializeField] protected SpriteRenderer MainSprite;
     [SerializeField] protected SpriteRenderer OutlineSprite;
     [SerializeField] protected SpriteRenderer OutlineInnerSprite;
-    [SerializeField] protected PlayerType playerType;
+    [SerializeField] protected PlayerClassType playerType;
 
 
     [Header("OrbInteraction")]
@@ -45,6 +37,12 @@ public abstract class Player : MonoBehaviour
     [Header("Indicators")]
     [SerializeField] PlayerIndicator lineIndicator;
     [SerializeField] SkillReadyUI test;
+
+    [SerializeField] private PlayerScriptableObject playerScriptableObject;
+    [SerializeField] public PlayerSkillScriptableObject ClockWiseSkill;
+    [SerializeField] public PlayerSkillScriptableObject CClockWiseSkill;
+
+    public PlayerScriptableObject PlayerInfo { get { return playerScriptableObject; } set { playerScriptableObject = value; } }
 
     public bool ActivatedCheck
     { get { return isActivated; } 
@@ -233,10 +231,12 @@ public abstract class Player : MonoBehaviour
 
         if (isActivated == false)
         {
-            if (PlayerManager.Instance.SoulValue < 30f) return;
-            PlayerManager.Instance.SoulValue -= 30f;
+            float RequireAP = statusManager.RequireAPValue;
+            if (PlayerManager.Instance.SoulValue < RequireAP) return;
+            PlayerManager.Instance.SoulValue -= RequireAP;
             GetHPEffect.Play();
-            statusManager.HPValue += statusManager.MaxHPValue * 0.2f;
+            int RequireCycle = statusManager.RequireCycleValue;
+            statusManager.HPValue += statusManager.MaxHPValue * (1 / RequireCycle);
 
             return;
         }

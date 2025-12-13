@@ -2,6 +2,13 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
+public enum GameCondition
+{ 
+    Menu,
+    Game,
+}
+
+
 public enum Difficulty
 { 
     Easy,
@@ -16,6 +23,7 @@ public class GameManager : MonoBehaviour
     public int TotalScore;
     public int CurrentStageScore;
     public Difficulty difficulty;
+    public GameCondition currentCondition;
 
     public Action SpawnAction = new Action(() => { }); // From Spawn Environment.
 
@@ -31,12 +39,29 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-
+        difficulty = Difficulty.Normal;
+        currentCondition = GameCondition.Menu;
+        Cursor.visible = true;
     }
 
     // TEST
     public EnemyAttackScriptable attackScript;
     public EnemyMoveScriptable moveScript;
+
+    public Difficulty GetDifficulty()
+    {
+        return difficulty;
+    }
+
+    public void SetDifficulty(Difficulty _diff)
+    { 
+        difficulty = _diff;
+    }
+
+    public void CursorVisible(bool isOn)
+    {
+        Cursor.visible = isOn;
+    }
 
     public void TimeContinue()
     {

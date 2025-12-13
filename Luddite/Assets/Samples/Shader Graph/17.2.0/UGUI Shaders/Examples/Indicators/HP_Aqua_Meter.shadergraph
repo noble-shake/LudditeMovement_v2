@@ -1287,6 +1287,12 @@
 
 {
     "m_SGVersion": 0,
+    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.HDCanvasSubTarget",
+    "m_ObjectId": "48f4b1e87a3c4f6885826e7b4fac6a55"
+}
+
+{
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector2MaterialSlot",
     "m_ObjectId": "55ec786dbd514ee99f2113f1b379f200",
     "m_Id": 1334631528,
@@ -1434,6 +1440,12 @@
 
 {
     "m_SGVersion": 0,
+    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.HDCanvasSubTarget",
+    "m_ObjectId": "5fdad50a225b41158ea509de8ebd38c6"
+}
+
+{
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "606f1f1772cd48929f5970d529dcfa94",
     "m_Id": 3,
@@ -1566,6 +1578,13 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.HDCanvasData",
+    "m_ObjectId": "6a4f7fe7684a4000b7f710774cf6b0bd",
+    "supportsMotionVectors": false
 }
 
 {
@@ -2072,7 +2091,7 @@
     "m_ObjectId": "9d040c2b5ac948008bd7afe0289c2f7f",
     "m_Title": "GlassEffect",
     "m_Position": {
-        "x": -2426.0,
+        "x": -2425.999755859375,
         "y": -777.0000610351563
     }
 }
@@ -2433,6 +2452,13 @@
     "m_Value": 4.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.HDCanvasData",
+    "m_ObjectId": "c1e7ee39856a45b3ab5d7e007395d447",
+    "supportsMotionVectors": false
 }
 
 {

@@ -1675,8 +1675,8 @@
     "m_ObjectId": "0540e2ecb690484f8b517498e6d86440",
     "m_Title": "SDF Shape Morphing",
     "m_Position": {
-        "x": 453.33349609375,
-        "y": -960.6666259765625
+        "x": 454.0,
+        "y": -961.0
     }
 }
 
@@ -1854,8 +1854,8 @@
     "m_ObjectId": "0ade1b9689b34c31addd90651b4d90d6",
     "m_Title": "Animated Tiled Shapes",
     "m_Position": {
-        "x": 314.666748046875,
-        "y": -96.66650390625
+        "x": 315.0,
+        "y": -97.0
     }
 }
 
@@ -2266,8 +2266,8 @@
     "m_ObjectId": "12d30b81e9e641a29eadb539d8345111",
     "m_Title": "Time Offset Example",
     "m_Position": {
-        "x": -112.66650390625,
-        "y": 669.333251953125
+        "x": -112.0,
+        "y": 669.0
     }
 }
 
@@ -4672,7 +4672,7 @@
     "m_ObjectId": "4b2b7bbfbc5e448d8a9c01df31a3e68b",
     "m_Title": "Checkers and Tiles Example",
     "m_Position": {
-        "x": 1045.999755859375,
+        "x": 1047.0,
         "y": -2192.0
     }
 }
@@ -5601,8 +5601,8 @@
     "m_ObjectId": "5b1c048e225a4b89a298923abd77cf0e",
     "m_Title": "Time Offset and Ease Curves",
     "m_Position": {
-        "x": 102.666748046875,
-        "y": 296.666748046875
+        "x": 103.0,
+        "y": 297.0
     }
 }
 
@@ -8511,8 +8511,8 @@
     "m_ObjectId": "8aa2265192cb4af1b5d99e4e728196c1",
     "m_Title": "Ability Cooldown",
     "m_Position": {
-        "x": 686.666748046875,
-        "y": -487.999755859375
+        "x": 687.0,
+        "y": -488.0
     }
 }
 
@@ -8779,8 +8779,8 @@
     "m_ObjectId": "90fd1166c0794f71b08b9a9924a9fdde",
     "m_Title": "Square Gradient Example",
     "m_Position": {
-        "x": 225.33349609375,
-        "y": -1354.6666259765625
+        "x": 226.0,
+        "y": -1355.0
     }
 }
 
@@ -11135,8 +11135,8 @@
     "m_ObjectId": "c03a87713b7943188a61cf0e59cab558",
     "m_Title": "Grid Tiles Example",
     "m_Position": {
-        "x": 1115.999755859375,
-        "y": -2671.3330078125
+        "x": 1117.0,
+        "y": -2671.0
     }
 }
 
@@ -12836,15 +12836,6 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.Rendering.Canvas.ShaderGraph.CanvasData",
-    "m_ObjectId": "e166b041e5a14d30a55d3ddd19f6d191",
-    "m_Version": 0,
-    "m_AlphaClip": false,
-    "m_DisableTint": false
-}
-
-{
-    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector2MaterialSlot",
     "m_ObjectId": "e1d714f7328e40c3b66a6d4138c33c8d",
     "m_Id": 1,
@@ -13970,8 +13961,8 @@
     "m_ObjectId": "f986b2a4cde3412889a67b597175b7e5",
     "m_Title": "PingPong Example",
     "m_Position": {
-        "x": 732.666748046875,
-        "y": -1767.33349609375
+        "x": 733.0,
+        "y": -1768.0
     }
 }
 

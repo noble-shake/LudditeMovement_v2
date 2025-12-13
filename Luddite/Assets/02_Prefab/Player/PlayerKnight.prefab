@@ -15402,13 +15402,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 355329a69f75b0d489857175ebf7c2c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  statusManager: {fileID: 0}
+  statusManager: {fileID: 3146148005352240780}
   animator: {fileID: 7514401938183854697}
   isOrbTriggered: 0
   MainSprite: {fileID: 2046562786209984303}
   OutlineSprite: {fileID: 1328690296757033952}
   OutlineInnerSprite: {fileID: 8980200500043572553}
-  playerType: 0
+  playerType: 1
   GetHPEffect: {fileID: 4435520364198773663}
   ActivatedeEffect: {fileID: 0}
   isDetected: 0
@@ -15419,6 +15419,9 @@ MonoBehaviour:
   isMove: 0
   lineIndicator: {fileID: 3929703646920244865}
   test: {fileID: 0}
+  playerScriptableObject: {fileID: 0}
+  ClockWiseSkill: {fileID: 0}
+  CClockWiseSkill: {fileID: 0}
   SlashAttackZone: {fileID: 4160351214201340871}
   SlashParticle: {fileID: 3783881403320507406}
 --- !u!136 &3365266097163580866
@@ -15456,10 +15459,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81ee32e9d4c163445bc1cf9edd0cb37c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatusManager
-  player: {fileID: 0}
+  player: {fileID: 1704615974176794420}
   HP: 0
   MaxHP: 100
+  Attack: 0
   Speed: 1
+  Critical: 0
+  RequireAP: 0
+  RequireCycle: 0
   ClockwiseSkillPoint: 0
   ClockwiseSkillRequire: 200
   CounterClockwiseSkillPoint: 0

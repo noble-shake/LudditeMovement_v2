@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b2dbcd7204050843b1217b152b7bcd1, type: 3}
+  m_Name: Tier1_PlayerSlash
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillScriptableObject
+  Icon: {fileID: 21300000, guid: 0e1ab67eb67874542b1606233616c377, type: 3}
+  Name: "\uBA54\uAC00 \uC2AC\uB798\uC2DC"
+  Description: "\uD798\uC744 \uBAA8\uC544 \uAC15\uB825\uD55C \uBCA0\uAE30 \uACF5\uACA9\uC744
+    \uAC00\uD55C\uB2E4."
+  isCharging: 1
+  NodeIndex: 0
+  skillType: 1

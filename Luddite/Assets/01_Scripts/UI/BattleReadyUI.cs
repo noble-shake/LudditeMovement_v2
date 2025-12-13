@@ -8,6 +8,7 @@ public class BattleReadyUI : MonoBehaviour
 {
     public static BattleReadyUI Instance;
 
+    [SerializeField] public PlayerClassType CurrentPlayer;
     [SerializeField] private Image StandingPortrait;
     [SerializeField] private CanvasGroup StandingLabel;
     [SerializeField] private TMP_Text StandingClass;
@@ -18,9 +19,16 @@ public class BattleReadyUI : MonoBehaviour
     [SerializeField] private Button PreviewButton;
     [SerializeField] private Button StartButton;
 
+    IEnumerator StandingEffector;
+
     private void Start()
     {
         StandingLabel.alpha = 0f;
+        for (int i = 0; i < CharacterSelectButton.Count; i++)
+        {
+            int index = i;
+            CharacterSelectButton[index].CharacterButton.onClick.AddListener(() => OnCharacterSelectButtonClicked(index));
+        }
     }
 
     public Sprite SetPortrait { get { return StandingPortrait.sprite; } 
@@ -31,16 +39,20 @@ public class BattleReadyUI : MonoBehaviour
         } 
     }
 
-    [SerializeField] List<Button> CharacterSelectButton;
+    [SerializeField] List<CharacterSelectButton> CharacterSelectButton;
     [SerializeField] List<Button> SelectSlotButton;
     [SerializeField] List<PlayerSlotUI> playerSlots;
 
     public void SetPlayerCharacter(PlayerScriptableObject _player)
     {
+        CurrentPlayer = _player.classType;
         SetPortrait = _player.FullBodyPortrait;
         StandingClass.text = _player.classType.ToString();
         StandingType.text = _player.PlayerBattleType;
-        StartCoroutine(StandingEffect());
+        if(StandingEffector != null) StopCoroutine(StandingEffector);
+        StandingEffector = StandingEffect();
+
+        StartCoroutine(StandingEffector);
     }
 
     public void SetStage(MapData _stage)
@@ -57,15 +69,25 @@ public class BattleReadyUI : MonoBehaviour
         { 
             curFlow += Time.deltaTime * 2f;
             if (curFlow > 1f) curFlow = 1f;
-            StandingPortrait.rectTransform.position = Vector3.Lerp(new Vector3(0f, -270f, 0f), new Vector3(-350f, -270f, 0f), curFlow);
+            StandingPortrait.rectTransform.anchoredPosition = Vector3.Lerp(new Vector2(320f, StandingPortrait.rectTransform.anchoredPosition.y), new Vector2(0f, StandingPortrait.rectTransform.anchoredPosition.y), curFlow);
             StandingPortrait.GetComponent<CanvasGroup>().alpha = Mathf.Lerp(0, 1, curFlow);
+            yield return null;
         }
-        yield return null;
+
     }
 
-    public void OnCharacterSelectButtonClicked()
-    { 
-        
+    public void OnCharacterSelectButtonClicked(int _index)
+    {
+
+        PlayerAnalysis saved = LibraryManager.Instance.dataContainer.playerAnalyses[CharacterSelectButton[_index].classType];
+
+
+        if (saved.isLocked == false)
+        {
+            PlayerScriptableObject data = ResourceManager.Instance.GetPlayerInfo(CharacterSelectButton[_index].classType);
+            SetPlayerCharacter(data);
+        }
+
     }
 
 }
