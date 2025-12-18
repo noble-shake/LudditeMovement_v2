@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 /*
@@ -16,9 +17,14 @@ public class MenuStageUI : MonoBehaviour
     [Header("Character Select Buttons")]
     [SerializeField] private List<MenuStageButton> MenuSelectButton;
     [SerializeField] private MenuStageButton ClickedButton;
+
     [SerializeField] private CanvasGroup CheckCanvas;
-    [SerializeField] private MenuStagecheckButton CheckButton;
+    [SerializeField] private Button CheckButton;
+
+    [SerializeField] private MenuStageMapInfoCanvas StageInfoCanvas;
     public Action ButtonClearAction = new Action(() => { });
+
+    [SerializeField] private BattleReadyUI battleReadyUI;
 
 
     private void Start()
@@ -26,9 +32,13 @@ public class MenuStageUI : MonoBehaviour
         for (int i = 0; i < MenuSelectButton.Count; i++)
         {
             int index = i;
+            MenuSelectButton[index].StageIDValue = index;
+            MenuSelectButton[index].SetClearState();
             MenuSelectButton[index].StageButton.onClick.AddListener(() => OnClickedStageButton(index));
             ButtonClearAction += MenuSelectButton[index].MenuClearAction;
         }
+
+        CheckButton.onClick.AddListener(OnClickedEngageButton);
     }
 
     // Button 최초 클릭 시,
@@ -36,9 +46,32 @@ public class MenuStageUI : MonoBehaviour
     {
         ButtonClearAction.Invoke();
         ClickedButton = MenuSelectButton[order];
-        ClickedButton.MenuClicked();
+        bool LockCheck = ClickedButton.MenuClicked();
         CheckCanvas.gameObject.SetActive(true);
-        
+        if (LockCheck)
+        {
+            CheckButton.interactable = true;
+            StageInfoCanvas.gameObject.SetActive(true);
+            StageInfoCanvas.SetUnclearCover(false);
+            StageInfoCanvas.Mapping(order);
+        }
+        else
+        {
+            CheckButton.interactable = false;
+            StageInfoCanvas.gameObject.SetActive(true);
+            StageInfoCanvas.SetUnclearCover(true);
+        }
+    }
+
+    private void OnClickedEngageButton()
+    {
+        //ClickedButton
+        if (ClickedButton == null) return;
+        battleReadyUI.gameObject.SetActive(true);
+        battleReadyUI.SetStage(ResourceManager.Instance.GetMapData(ClickedButton.StageIDValue));
+        MainMenuUI.Instance.gameObject.SetActive(false);
+        MapManager.Instance.SetMapData(ResourceManager.Instance.GetMapData(ClickedButton.StageIDValue));
+        MapManager.Instance.MapLoad();
     }
 
 

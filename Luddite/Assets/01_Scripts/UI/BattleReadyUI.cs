@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class BattleReadyUI : MonoBehaviour
 {
@@ -16,19 +17,51 @@ public class BattleReadyUI : MonoBehaviour
     [SerializeField] private TMP_Text StageName;
     [SerializeField] private TMP_Text StageStory;
     [SerializeField] private TMP_Text StageHint;
+
+    [Header("Preview")]
+    [SerializeField] private CanvasGroup PreviewTargetPanel;
     [SerializeField] private Button PreviewButton;
+    [SerializeField] private MeshRenderer PreviewSideTop;
+    [SerializeField] private MeshRenderer PreviewSideBottom;
+
+    [Header("Start Preview")]
     [SerializeField] private Button StartButton;
 
+    [SerializeField] List<CharacterSelectButton> CharacterSelectButton;
+    [SerializeField] List<SelectSlot> EntrySlots;
+    [SerializeField] List<Button> SelectSlotButton;
+    [SerializeField] List<PlayerSlotUI> playerSlots;
+
+    [SerializeField] int MemberBatch;
+
     IEnumerator StandingEffector;
+
+    private void Awake()
+    {
+        if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
+    }
 
     private void Start()
     {
         StandingLabel.alpha = 0f;
         for (int i = 0; i < CharacterSelectButton.Count; i++)
         {
-            int index = i;
-            CharacterSelectButton[index].CharacterButton.onClick.AddListener(() => OnCharacterSelectButtonClicked(index));
+            int temp = i;
+            CharacterSelectButton[temp].CharacterButton.onClick.AddListener(() => OnCharacterSelectButtonClicked(temp));
         }
+
+        for (int i = 0; i < EntrySlots.Count; i++)
+        {
+            int temp = i;
+            SelectSlotButton[temp].onClick.AddListener(() => OnClickedEntrySlot(temp));
+        }
+
+        PreviewSideTop.gameObject.SetActive(false);
+        PreviewSideBottom.gameObject.SetActive(false);
+
+        PreviewButton.onClick.AddListener(BattlePreviewButton);
+
+        StartButton.onClick.AddListener(BattleEngageButton);
     }
 
     public Sprite SetPortrait { get { return StandingPortrait.sprite; } 
@@ -39,9 +72,7 @@ public class BattleReadyUI : MonoBehaviour
         } 
     }
 
-    [SerializeField] List<CharacterSelectButton> CharacterSelectButton;
-    [SerializeField] List<Button> SelectSlotButton;
-    [SerializeField] List<PlayerSlotUI> playerSlots;
+
 
     public void SetPlayerCharacter(PlayerScriptableObject _player)
     {
@@ -60,6 +91,16 @@ public class BattleReadyUI : MonoBehaviour
         StageStory.text = _stage.StageStory;
         StageName.text = _stage.StageName;
         StageHint.text = _stage.StageHint;
+        MemberBatch = _stage.BatchMembers;
+        for (int i = 0; i < MemberBatch; i++)
+        {
+            EntrySlots[i].playerClass = PlayerClassType.None;
+            EntrySlots[i].Portrait.sprite = null;
+            EntrySlots[i].BlockedCanvas.gameObject.SetActive(false);
+            playerSlots[i].gameObject.SetActive(true);
+        }
+
+        GameManager.Instance.CurrentMap = _stage;
     }
 
     IEnumerator StandingEffect()
@@ -88,6 +129,123 @@ public class BattleReadyUI : MonoBehaviour
             SetPlayerCharacter(data);
         }
 
+    }
+
+    public void OnClickedEntrySlot(int order)
+    {
+        Debug.Log(order);
+        if (order > MemberBatch - 1) return;
+        if (CurrentPlayer == PlayerClassType.None) return;
+        if (CurrentPlayer == EntrySlots[order].playerClass) return;
+
+        for (int j = 0; j < EntrySlots.Count; j++)
+        {
+            if (j == order) continue;
+            SelectSlot e = EntrySlots[j];
+            
+            if (e.playerClass == CurrentPlayer && e.playerClass != PlayerClassType.None)
+            {
+
+
+                Player player = ResourceManager.Instance.GetPlayerResource(e.playerClass, false).GetComponent<Player>();
+                playerSlots[j].Unmapping();
+                player.statusManager.HPChanged -= playerSlots[j].GetHPValue;
+                player.statusManager.MaxHPChanged -= playerSlots[j].GetMaxHPValue;
+                player.statusManager.ClockSkillChanged -= playerSlots[j].GetClockValue;
+                player.statusManager.ClockSkillReqChanged -= playerSlots[j].GetClockRequire;
+                player.statusManager.CClockSkillChanged -= playerSlots[j].GetCClockValue;
+                player.statusManager.CClockSkillReqChanged -= playerSlots[j].GetCClockRequire;
+
+                e.playerClass = PlayerClassType.None;
+                e.Portrait.sprite = null;
+                e.EmptyCanvas.gameObject.SetActive(true);
+
+                ResourceManager.Instance.SpawnPoints[j].SetPlayerClass(PlayerClassType.None);
+                break;
+            }
+        }
+
+        EntrySlots[order].playerClass = CurrentPlayer;
+        EntrySlots[order].Portrait.sprite = ResourceManager.Instance.GetPlayerInfo(CurrentPlayer).FacePortrait[0];
+        EntrySlots[order].EmptyCanvas.gameObject.SetActive(false);
+
+        // presenter role
+        Player curPlayer = ResourceManager.Instance.GetPlayerResource(CurrentPlayer, false).GetComponent<Player>();
+        curPlayer.statusManager.HPChanged += playerSlots[order].GetHPValue;
+        curPlayer.statusManager.MaxHPChanged += playerSlots[order].GetMaxHPValue;
+        curPlayer.statusManager.ClockSkillChanged += playerSlots[order].GetClockValue;
+        curPlayer.statusManager.ClockSkillReqChanged += playerSlots[order].GetClockRequire;
+        curPlayer.statusManager.CClockSkillChanged += playerSlots[order].GetCClockValue;
+        curPlayer.statusManager.CClockSkillReqChanged += playerSlots[order].GetCClockRequire;
+        playerSlots[order].Mapping();
+        playerSlots[order].SetMaxHP(curPlayer.statusManager.MaxHPValue);
+        playerSlots[order].SetSkillClockWiseRequire(curPlayer.statusManager.ClockwiseSkillRequireValue);
+        playerSlots[order].SetSkillClockWiseRequire(curPlayer.statusManager.CounterClockwiseSkillRequireValue);
+        ResourceManager.Instance.SpawnPoints[order].SetPlayerClass(CurrentPlayer);
+
+        bool isEmpty = false;
+        for (int m = 0; m < MemberBatch; m++)
+        {
+            if (EntrySlots[m].playerClass == PlayerClassType.None)
+            {
+                StartButton.interactable = false;
+                isEmpty = true;
+                break;
+            }
+        }
+
+        if(isEmpty == false)
+        {
+            StartButton.interactable = true;
+        }
+    }
+
+    bool PreviewPlaying;
+
+    public void BattlePreviewButton()
+    {
+        PreviewPlaying = !PreviewPlaying;
+
+        if (PreviewPlaying == true)
+        {
+            PreviewTargetPanel.alpha = 0f;
+            PreviewTargetPanel.blocksRaycasts = false;
+            PreviewTargetPanel.interactable = false;
+
+            Material previewTextureTopMat = PreviewSideTop.material;
+            Material previewTextureBottomMat = PreviewSideBottom.material;
+            previewTextureTopMat.SetTexture("_MainTex", ResourceManager.Instance.BattlePreviewSide);
+            previewTextureBottomMat.SetTexture("_MainTex", ResourceManager.Instance.BattlePreviewSide);
+            PreviewSideTop.material = previewTextureTopMat;
+            PreviewSideBottom.material = previewTextureBottomMat;
+            PreviewSideTop.gameObject.SetActive(true);
+            PreviewSideBottom.gameObject.SetActive(true);
+            foreach (SpawnEnv env in ResourceManager.Instance.SpawnPoints)
+            {
+                env.AllocatedOnOff(true);
+            }
+
+        }
+        else
+        {
+            PreviewTargetPanel.alpha = 1f;
+            PreviewTargetPanel.blocksRaycasts = true;
+            PreviewTargetPanel.interactable = true;
+            PreviewSideTop.gameObject.SetActive(false);
+            PreviewSideBottom.gameObject.SetActive(false);
+
+            foreach (SpawnEnv env in ResourceManager.Instance.SpawnPoints)
+            {
+                env.AllocatedOnOff(false);
+            }
+        }
+
+    }
+
+
+    public void BattleEngageButton()
+    {
+        BattleEngageUI.Instance.BattleEngageStart();
     }
 
 }

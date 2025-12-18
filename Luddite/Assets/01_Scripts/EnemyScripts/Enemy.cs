@@ -35,11 +35,15 @@ public abstract class Enemy : MonoBehaviour
     protected bool isAttack = false;
     protected bool isMove;
     protected bool isCharging;
+    protected bool isStunned;
 
     public bool isIdleCheck { get { return isIdle; } set { isIdle = value;} }
     public bool isBerserkCheck { get { return isBerserk; } set { isBerserk = value;} }
     public bool isDeadCheck { get { return isDead; } set { isDead = value;} }
     public bool isAttackCheck { get { return isAttack; } set { isAttack = value;} }
+    public bool isMoveCheck { get { return isMove; } set { isMove = value;} }
+    public bool isChargingCheck { get { return isCharging; } set { isCharging = value;} }
+    public bool isStunCheck { get { return isStunned; } set { isStunned = value;} }
 
     private Awaitable HitAwait;
 
@@ -87,7 +91,12 @@ public abstract class Enemy : MonoBehaviour
     public Animator GetAnimator() { return anim; }
 
     public virtual void OrbInteracted()
-    { 
-        
+    {
+        if (isStunned)
+        { 
+            // Analysis On
+        }
+
+
     }
 }

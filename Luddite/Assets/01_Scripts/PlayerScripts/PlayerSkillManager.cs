@@ -140,6 +140,16 @@ public class PlayerSkillManager : MonoBehaviour
         Mapping(treeMap, normalTree, SlotType.Normal, _class);
         Mapping(treeMap, Active1Tree, SlotType.Skill1, _class);
         Mapping(treeMap, Active2Tree, SlotType.Skill2, _class);
+
+        if (LibraryManager.Instance.playerAnalyses[_class].CurrentActive1 == null)
+        {
+            LibraryManager.Instance.playerAnalyses[_class].CurrentActive1 = Active1Tree.StartNode;
+        }
+        if (LibraryManager.Instance.playerAnalyses[_class].CurrentActive2 == null)
+        {
+            LibraryManager.Instance.playerAnalyses[_class].CurrentActive2 = Active2Tree.StartNode;
+        }
+
     }
 
     private void Mapping(SkillTreeMap _treeMap, SkillTree _tree, SlotType _slot, PlayerClassType _class)

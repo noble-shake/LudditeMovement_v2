@@ -14,8 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillScriptableObject
   Icon: {fileID: 21300000, guid: 0e1ab67eb67874542b1606233616c377, type: 3}
   Name: "\uBA54\uAC00 \uC2AC\uB798\uC2DC"
+  InstanceName: KnightMegaSlash
   Description: "\uD798\uC744 \uBAA8\uC544 \uAC15\uB825\uD55C \uBCA0\uAE30 \uACF5\uACA9\uC744
     \uAC00\uD55C\uB2E4."
   isCharging: 1
   NodeIndex: 0
   skillType: 1
+  passiveType: 0
+  Params: []
+  isSynergy: 0
+  SynergySkill1: {fileID: 0}
+  SynergySkill2: {fileID: 0}

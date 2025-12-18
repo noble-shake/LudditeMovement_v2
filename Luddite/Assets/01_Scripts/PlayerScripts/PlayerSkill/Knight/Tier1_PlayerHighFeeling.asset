@@ -14,12 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillScriptableObject
   Icon: {fileID: 21300000, guid: 0e1ab67eb67874542b1606233616c377, type: 3}
   Name: "\uC804\uD22C \uACE0\uC870"
+  InstanceName: KnightHighFeeling
   Description: "$\"{Params[0]} \uCD08 \uB3D9\uC548 \uACF5\uACA9 \uC18D\uB3C4\uAC00
     {Params[1]}%, \uC774\uB3D9 \uC18D\uB3C4\uAC00 {Params[2]}% \uC99D\uAC00\uD569\uB2C8\uB2E4.\""
   isCharging: 0
   NodeIndex: 0
   skillType: 1
+  passiveType: 0
   Params:
   - 10
   - 20
   - 10
+  isSynergy: 0
+  SynergySkill1: {fileID: 0}
+  SynergySkill2: {fileID: 0}

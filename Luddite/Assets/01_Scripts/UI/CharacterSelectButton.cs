@@ -33,7 +33,7 @@ public class CharacterSelectButton : MonoBehaviour, IPointerDownHandler, IPointe
             isLocked = false;
         }
 
-        CharacterButton.targetGraphic.color = PersonalColors.GetColors(classType);
+        // CharacterButton.targetGraphic.color = PersonalColors.GetColors(classType);
         // Library Check.
     }
 
@@ -66,9 +66,8 @@ public class CharacterSelectButton : MonoBehaviour, IPointerDownHandler, IPointe
                     Skill1Canvas.alpha = 1f;
                     Skill1Canvas.blocksRaycasts = true;
                     Skill1Canvas.interactable = true;
-                    GameObject pInfo = ResourceManager.Instance.GetPlayerResource(classType, false);
-                    PlayerSkillScriptableObject skillObject = null;
-                    if (pInfo.GetComponent<Player>().ClockWiseSkill != null) skillObject = pInfo.GetComponent<Player>().ClockWiseSkill;
+                    TreeNode Active1Tree = LibraryManager.Instance.playerAnalyses[classType].CurrentActive1;
+                    PlayerSkillScriptableObject skillObject = Active1Tree.SkillObject;
 
                     if (skillObject == null)
                     {
@@ -90,9 +89,8 @@ public class CharacterSelectButton : MonoBehaviour, IPointerDownHandler, IPointe
                     Skill2Canvas.alpha = 1f;
                     Skill2Canvas.blocksRaycasts = true;
                     Skill2Canvas.interactable = true;
-                    GameObject pInfo = ResourceManager.Instance.GetPlayerResource(classType, false);
-                    PlayerSkillScriptableObject skillObject = null;
-                    if (pInfo.GetComponent<Player>().CClockWiseSkill != null) skillObject = pInfo.GetComponent<Player>().CClockWiseSkill;
+                    TreeNode Active2Tree = LibraryManager.Instance.playerAnalyses[classType].CurrentActive2;
+                    PlayerSkillScriptableObject skillObject = Active2Tree.SkillObject;
 
                     if (skillObject == null)
                     {
@@ -103,7 +101,7 @@ public class CharacterSelectButton : MonoBehaviour, IPointerDownHandler, IPointe
                     else
                     {
                         Skill2Icon.sprite = skillObject.Icon;
-                        Skill2Icon.color = Color.black;
+                        Skill2Icon.color = Color.white;
                         Skill2Text.text = $"[{skillObject.Name}] \n {skillObject.Description}";
                     }
                     Debug.Log("Skill2 Info");

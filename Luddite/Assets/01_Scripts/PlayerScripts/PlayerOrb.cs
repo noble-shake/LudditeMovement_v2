@@ -2,16 +2,17 @@ using UnityEngine;
 
 public class PlayerOrb : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private ParticleSystem EngageParticle;
+    [SerializeField] private ParticleSystem LostParticle;
+
+    private void OnEnable()
     {
-        
+        // EngageParticle.Play();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public void LostSoul()
+    { 
+        // LostParticle.Play();
     }
 
     // Circle Collider로부터 값을 받아온다.

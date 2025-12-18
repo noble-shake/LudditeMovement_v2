@@ -23,6 +23,8 @@ public class EnemySlime : EnemyGround, IEnemyBehavior
         int diff = (int)GameManager.Instance.difficulty;
         //StartCoroutine(SlimeShot(diff));
         StartCoroutine(AttackPattern.Attack());
+        isAttackCheck = false;
+        status.SetAP(-status.MaxAPValue);
     }
 
     public void Charging()
@@ -52,15 +54,13 @@ public class EnemySlime : EnemyGround, IEnemyBehavior
         base.Update();
 
         if (isIdleCheck) return;
+        if (isStunCheck) return;
+        if (MovePattern.MoveDone() && isAttackCheck) Move();
 
-        curFlow -= Time.deltaTime;
-        if (curFlow < 0f)
-        {
-            curFlow = interval;
-            Attack();
-        }
+        if (isAttackCheck == false) return;
+        Attack();
 
-        if(MovePattern.MoveDone()) Move();
+
     }
 
 

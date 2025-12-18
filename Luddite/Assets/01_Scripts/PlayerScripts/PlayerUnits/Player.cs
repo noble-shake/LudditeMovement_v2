@@ -1,4 +1,6 @@
+using DTT.AreaOfEffectRegions;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.Rendering;
@@ -19,7 +21,7 @@ public abstract class Player : MonoBehaviour
     [SerializeField] protected SpriteRenderer MainSprite;
     [SerializeField] protected SpriteRenderer OutlineSprite;
     [SerializeField] protected SpriteRenderer OutlineInnerSprite;
-    [SerializeField] protected PlayerClassType playerType;
+    [SerializeField] public PlayerClassType playerType;
 
 
     [Header("OrbInteraction")]
@@ -33,16 +35,41 @@ public abstract class Player : MonoBehaviour
     [SerializeField] bool isActivated = false;
     [SerializeField] bool isAttack = false;
     [SerializeField] bool isMove = false;
+    [SerializeField] bool isCharging = false;
 
     [Header("Indicators")]
     [SerializeField] PlayerIndicator lineIndicator;
-    [SerializeField] SkillReadyUI test;
+    [SerializeField] ArcRegion ArcIndicator;
+    [SerializeField] CanvasGroup CycleUI;
+    [SerializeField] TMP_Text CycleText;
 
     [SerializeField] private PlayerScriptableObject playerScriptableObject;
-    [SerializeField] public PlayerSkillScriptableObject ClockWiseSkill;
-    [SerializeField] public PlayerSkillScriptableObject CClockWiseSkill;
+    [SerializeField] private IPlaySkill Active1Skill;
+    [SerializeField] private IPlaySkill Active2Skill;
+    //[SerializeField] public PlayerSkillScriptableObject ClockWiseSkill;
+    //[SerializeField] public PlayerSkillScriptableObject CClockWiseSkill;
 
     public PlayerScriptableObject PlayerInfo { get { return playerScriptableObject; } set { playerScriptableObject = value; } }
+
+    public PlayerIndicator GetLineIndicator()
+    { 
+        return lineIndicator;
+    }
+
+    public ArcRegion GetArcIndicator()
+    {
+        return ArcIndicator;
+    }
+
+    public CanvasGroup GetCycleUI()
+    {
+        return CycleUI;
+    }
+
+    public TMP_Text GetCycleText()
+    {
+        return CycleText;
+    }
 
     public bool ActivatedCheck
     { get { return isActivated; } 
@@ -67,6 +94,7 @@ public abstract class Player : MonoBehaviour
             }
         } }
     public bool AttackCheck { get { return isAttack; } set { isAttack = value; } }
+    public bool ChargeCheck { get { return isCharging; } set { isCharging = value; } }
     public bool MoveCheck { get { return isMove; } set { isMove = value; } }
 
     protected virtual void Start()
@@ -104,17 +132,27 @@ public abstract class Player : MonoBehaviour
 
         if (isDetected)
         {
-            Debug.Log($"Remained = {OrbDetectRemained}");
             OrbDetectRemained -= Time.deltaTime;
         }
 
         if (OrbDetectRemained < 0f)
         {
+            CycleUI.gameObject.SetActive(false);
+            CycleText.text = statusManager.RequireCycleValue.ToString();
+            statusManager.CurRequireCycleValue = statusManager.RequireCycleValue;
             OrbDetectRemained = 0.5f;
             isDetected = false;
         }
 
-        MoveUpdate();
+        if (isCharging == false)
+        {
+            MoveUpdate();
+
+        }
+
+        Active1Skill.SkillUpdate(Time.deltaTime);
+        Active2Skill.SkillUpdate(Time.deltaTime);
+
     }
 
     public void MovePoint(Vector3 Destination)
@@ -227,7 +265,7 @@ public abstract class Player : MonoBehaviour
         CurInteractDelay = 1f;
 
         isDetected = true;
-        OrbDetectRemained = 0.5f;
+        OrbDetectRemained = 2f;
 
         if (isActivated == false)
         {
@@ -235,8 +273,18 @@ public abstract class Player : MonoBehaviour
             if (PlayerManager.Instance.SoulValue < RequireAP) return;
             PlayerManager.Instance.SoulValue -= RequireAP;
             GetHPEffect.Play();
-            int RequireCycle = statusManager.RequireCycleValue;
-            statusManager.HPValue += statusManager.MaxHPValue * (1 / RequireCycle);
+
+            statusManager.CurRequireCycleValue--;
+            CycleUI.gameObject.SetActive(true);
+            CycleText.text = statusManager.CurRequireCycleValue.ToString();
+            if (statusManager.CurRequireCycleValue <= 0)
+            {
+                ActivatedCheck = true;
+                CycleUI.gameObject.SetActive(false);
+                statusManager.CurRequireCycleValue = statusManager.RequireCycleValue;
+                statusManager.HPValue = statusManager.MaxHPValue;
+            }
+
 
             return;
         }
@@ -246,11 +294,15 @@ public abstract class Player : MonoBehaviour
             // isClockwise == false => CounterClockwise
             if (isClockwise)
             {
-
+                isCharging = true;
+                animator.Play("SkillReady");
+                Active1Skill.SkillActivated();
             }
             else
-            { 
-                
+            {
+                isCharging = true;
+                animator.Play("SkillReady");
+                Active2Skill.SkillActivated();
             }
         }
     }
@@ -337,5 +389,16 @@ public abstract class Player : MonoBehaviour
     }
 
     #endregion
+
+    public void GetSkillInstance()
+    {
+        PlayerSkillScriptableObject skill1 = LibraryManager.Instance.playerAnalyses[playerType].CurrentActive1.SkillObject;
+        Active1Skill = ResourceManager.Instance.GetPlayerSkillInstance(skill1);
+        Active1Skill.Init(this);
+
+        PlayerSkillScriptableObject skill2 = LibraryManager.Instance.playerAnalyses[playerType].CurrentActive2.SkillObject;
+        Active2Skill = ResourceManager.Instance.GetPlayerSkillInstance(skill2);
+        Active2Skill.Init(this);
+    }
 
 }

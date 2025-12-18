@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public enum GameCondition
 { 
@@ -24,8 +25,17 @@ public class GameManager : MonoBehaviour
     public int CurrentStageScore;
     public Difficulty difficulty;
     public GameCondition currentCondition;
+    private float PlayTime;
+    public MapData CurrentMap;
+
+    public float PlayTimeValue { get { return PlayTime; } set { PlayTime = value; PlayTimeEvent?.Invoke(value); } }
+
+    public PlayerManager playerManager;
+    public TopBorderUI topBorderUI;
 
     public Action SpawnAction = new Action(() => { }); // From Spawn Environment.
+    public event Action<float> PlayTimeEvent;
+    public event Action<int> StageScoreEvent;
 
     public void CharacterSpawn()
     {
@@ -42,6 +52,19 @@ public class GameManager : MonoBehaviour
         difficulty = Difficulty.Normal;
         currentCondition = GameCondition.Menu;
         Cursor.visible = true;
+        MappingTopBorder();
+    }
+
+    private void MappingTopBorder()
+    {
+        topBorderUI.MaxHPValue = playerManager.MaxHPValue;
+        topBorderUI.MaxSPValue = playerManager.MaxSoulValue;
+        playerManager.OnHPEvent += topBorderUI.GetHPValue;
+        playerManager.OnSPEvent += topBorderUI.GetSPValue;
+        playerManager.OnMaxHPEvent += topBorderUI.GetMaxHPValue;
+        playerManager.OnMaxSPEvent += topBorderUI.GetMaxSPValue;
+        PlayTimeEvent += topBorderUI.GetPlayTime;
+        StageScoreEvent += topBorderUI.GetScore;
     }
 
     // TEST
@@ -76,5 +99,43 @@ public class GameManager : MonoBehaviour
     public void TimeSlow()
     {
         Time.timeScale = 0.3f;
+    }
+
+
+    List<StageData> EnemyProgression;
+    private void BuildSpawnEnemy()
+    {
+        
+        EnemyProgression = CurrentMap.EnemyProgression.ToList<StageData>();
+    }
+
+
+    public void GameStart()
+    {
+        currentCondition = GameCondition.Game;
+        InputManager.Instance.PlayerInputBind();
+        Cursor.visible = false;
+        BuildSpawnEnemy();
+    }
+
+    private void Update()
+    {
+        if (currentCondition == GameCondition.Menu) return;
+
+        PlayTimeValue += Time.deltaTime;
+
+
+        if (EnemyProgression.Count <= 0) return;
+
+        for (int i = EnemyProgression.Count - 1; i >= 0; i--)
+        {
+            StageData t = EnemyProgression[i];
+            if (t.SpawnTime > PlayTimeValue) continue;
+
+            GameObject enemy = ResourceManager.Instance.GerEnemyResource(t.MonsterType);
+            enemy.transform.position = new Vector3(-7.5f + t.SpawnColumn, 0f, -4.0f + t.SpawnRow);
+            EnemyProgression.Remove(t);
+        }
+
     }
 }

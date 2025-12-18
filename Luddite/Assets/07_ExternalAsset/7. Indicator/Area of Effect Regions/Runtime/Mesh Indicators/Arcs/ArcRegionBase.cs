@@ -34,16 +34,18 @@ namespace DTT.AreaOfEffectRegions
             get => _radius;
             set => _radius = value;
         }
-        
+
         /// <summary>
         /// The angle in euler for the left side of the arc.
         /// </summary>
         public float LeftAngle => _angle + transform.eulerAngles.y - _arc / 2;
-        
+        //public float LeftAngle => _angle + transform.eulerAngles.z - _arc / 2;
+
         /// <summary>
         /// The angle in euler for the right side of the arc.
         /// </summary>
         public float RightAngle => _angle + transform.eulerAngles.y + _arc / 2;
+        //public float RightAngle => _angle + transform.eulerAngles.z + _arc / 2;
 
         /// <summary>
         /// The end position of the left side of the arc. 

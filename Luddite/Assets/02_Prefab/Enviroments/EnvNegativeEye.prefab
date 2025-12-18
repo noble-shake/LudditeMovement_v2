@@ -315,6 +315,10 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 2128395779313173791, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: -876546973899608171, guid: 56300e7ecfe1ec24c9cc1b3af5705121, type: 3}
     - target: {fileID: 3738408408698860400, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.397
@@ -371,6 +375,10 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6250821296113964330, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: -876546973899608171, guid: 56300e7ecfe1ec24c9cc1b3af5705121, type: 3}
     - target: {fileID: 6868958710751573116, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}
       propertyPath: m_Color.a
       value: 1
@@ -391,6 +399,10 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6868958710751573116, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: -876546973899608171, guid: 56300e7ecfe1ec24c9cc1b3af5705121, type: 3}
     - target: {fileID: 7947911505737750448, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -483,6 +495,10 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 9183256227791019032, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: -876546973899608171, guid: 56300e7ecfe1ec24c9cc1b3af5705121, type: 3}
     m_RemovedComponents:
     - {fileID: 5997224648939805555, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}
     - {fileID: 2440844624711060802, guid: c5bdca1933fde624698bb8c6d6daa44b, type: 3}

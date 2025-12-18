@@ -9,15 +9,39 @@ public enum PlayerSkillType
     Active,
 }
 
+[Serializable]
+public enum PassiveSkill
+{ 
+    None,
+    HP,
+    HPRegen,
+    Attack,
+    AttackSpeed,
+    AttackSoulDrop,
+    AttackHPRegen,
+    Speed,
+    Critical,
+    ReduceDamage,
+    ReduceRequireAP,
+    ReduceCycle,
+    BuffDuration,
+    ReduceCharging,
+    ReduceCooldown,
+    DamageSouldrop,
+
+}
+
 [CreateAssetMenu(fileName = "PlayerSkillObject", menuName = "Lucide-Boundary/PlayerSkill", order = -1)]
 public class PlayerSkillScriptableObject : ScriptableObject
 {
     [SerializeField]public Sprite Icon;
     public string Name;
+    public string InstanceName;
     [TextArea] public string Description;
     public bool isCharging;
     public int NodeIndex;
     public PlayerSkillType skillType;
+    public PassiveSkill passiveType;
     public float[] Params;
     public bool isSynergy;
     public PlayerSkillScriptableObject SynergySkill1;
@@ -26,7 +50,7 @@ public class PlayerSkillScriptableObject : ScriptableObject
     public IPlaySkill GetInstance()
     {
         Assembly assembly = Assembly.GetExecutingAssembly();
-        System.Type t = assembly.GetType(Name);
+        System.Type t = assembly.GetType(InstanceName);
         object obj = System.Activator.CreateInstance(t);
 
         if (null == obj)
@@ -38,19 +62,31 @@ public class PlayerSkillScriptableObject : ScriptableObject
 
     }
 
-    public string GetDescription(string _name)
+    public float GetPassiveValue()
     {
-        if (_name == "전투 고조")
+        switch (passiveType)
         {
-            return $"[3번 사이클을 돌려 발동] {Params[0]} 초 동안 공격 속도가 {Params[1]}%, 이동 속도가 {Params[2]}% 증가합니다.";
-        }
-        else if (_name == "체력 증가")
-        {
-            return $"[현재 {Params[0]}% 증가] 체력 2% 증가";
-        }
-        else
-        {
-            return Description;
+            default:
+            case PassiveSkill.None:
+                return 0;
+            case PassiveSkill.HP:
+            case PassiveSkill.Attack:
+            case PassiveSkill.AttackSpeed:
+            case PassiveSkill.BuffDuration:
+            case PassiveSkill.ReduceCharging:
+            case PassiveSkill.ReduceCooldown:
+            case PassiveSkill.Speed:
+                return 2;
+            case PassiveSkill.HPRegen:
+            case PassiveSkill.AttackSoulDrop:
+            case PassiveSkill.ReduceCycle:
+            case PassiveSkill.ReduceDamage:
+            case PassiveSkill.DamageSouldrop:
+            case PassiveSkill.AttackHPRegen:
+                return 1;
+            case PassiveSkill.ReduceRequireAP:
+                return 5;
+
         }
     }
 }

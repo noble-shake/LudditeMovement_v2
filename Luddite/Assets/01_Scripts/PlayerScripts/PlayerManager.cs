@@ -4,24 +4,19 @@ using Unity.UI.Shaders.Sample;
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance;
     bool isSoulGaugeChanged;
     [Header("HP")]
-    [SerializeField] Meter HPGauge;
-    [SerializeField] Meter HPGaugeBackground;
-    [SerializeField] TMP_Text HPText;
     [SerializeField] float HP;
     [SerializeField] float MaxHP = 100;
     float HPRegen = 3f;
     bool isDead;
 
     [Header("Soul")]
-    [SerializeField] Meter SoulGauge;
-    [SerializeField] Meter SoulGaugeBackground;
-    [SerializeField] TMP_Text SoulText;
     [SerializeField] float Souls = 0;
     [SerializeField] float MaxSouls = 1000;
     private Color SoulColor;
@@ -36,24 +31,20 @@ public class PlayerManager : MonoBehaviour
     private bool isClockwise = false;
     private bool isCounterClockwise = false;
 
+    public event Action<float> OnHPEvent;
+    public event Action<float> OnMaxHPEvent;
+    public event Action<float> OnSPEvent;
+    public event Action<float> OnMaxSPEvent;
+
     public float SoulValue
     {
         get { return Souls; }
         set {
-            if (value > Souls)
-            {
-                SoulUp();
-            }
-            else if (value < Souls)
-            {
-                SoulDown();
-            }
             Souls = value;
             if (Souls <= 0f) Souls = 0f;
             if (Souls > 1000) Souls = 1000;
-            if (SoulText != null) SoulText.text = $"{((int)Souls).ToString()}/1000";
-            if (SoulGauge != null) SoulGauge.Value = Mathf.Lerp(SoulGauge.Value, Souls / 1000f, Time.deltaTime * 5f);
-            Invoke("SoulChanged", 0.3f);
+
+            OnSPEvent?.Invoke(Souls);
         }
     }
 
@@ -70,10 +61,31 @@ public class PlayerManager : MonoBehaviour
                 HP = 0f;
             } 
             if (HP > MaxHP) HP= MaxHP;
+            OnHPEvent?.Invoke(HP);
 
-            Invoke("HPChanged", 0.3f);
         }
     }
+
+    public float MaxHPValue
+    {
+        get { return MaxHP; }
+        set
+        {
+            MaxHP = value;
+            OnMaxHPEvent?.Invoke(value);
+        }
+    }
+
+    public float MaxSoulValue
+    {
+        get { return MaxSouls; }
+        set
+        {
+            MaxSouls = value;
+            OnMaxSPEvent?.Invoke(value);
+        }
+    }
+
 
     private void Awake()
     {
@@ -83,70 +95,24 @@ public class PlayerManager : MonoBehaviour
 
     private void Start()
     {
-        SoulColor = SoulGauge.GetComponent<Image>().color;
-        HP = MaxHP;
         PositionRecords = new Vector3[RecordIndex];
         ClockCheckArray = new int[RecordIndex - 1];
-        if (SoulGauge != null) SoulGauge.Value = 0f;
-        if (SoulText != null) SoulText.text = $"0/1000";
-        player.gameObject.SetActive(false);
     }
 
-    #region Gauge Effect
-    private void SoulGaugeCheck()
+    public void BattleInit()
     {
-
-
-        if (isSoulGaugeChanged)
-        {
-            if (SoulGaugeBackground != null) SoulGaugeBackground.Value = Mathf.Lerp(SoulGaugeBackground.Value, SoulGauge.Value, Time.deltaTime * 10f);
-            if (SoulGauge.Value >= SoulGaugeBackground.Value - 0.01f)
-            {
-                isSoulGaugeChanged = false;
-                SoulGaugeBackground.Value = SoulGauge.Value;
-            }
-        }
+        HPValue = MaxHP;
+        SoulValue = 0;
     }
 
-    private void HPGaugeCheck()
-    { 
-        
-    }
 
-    private void SoulChanged()
-    {
-        isSoulGaugeChanged = true;
-    }
-
-    private void SoulDown()
-    {
-        SoulGauge.GetComponent<Image>().color = Color.red;
-        Invoke("SoulColorChanged", 0.3f);
-    }
-
-    private void SoulUp()
-    {
-        SoulGauge.GetComponent<Image>().color = Color.white;
-        Invoke("SoulColorChanged", 0.3f);
-    }
-
-    private void SoulColorChanged()
-    {
-        SoulGauge.GetComponent<Image>().color = SoulColor;
-    }
-
-    private void HPChanged()
-    {
-        isSoulGaugeChanged = true;
-    }
-    #endregion
 
     private void Update()
     {
         if (GameManager.Instance.currentCondition == GameCondition.Menu) return;
 
-        HPGaugeCheck();
-        SoulGaugeCheck();
+        //HPGaugeCheck();
+        //SoulGaugeCheck();
         HPRegen -= Time.deltaTime;
         SoulDecay -= Time.deltaTime;
         if (HPRegen <= 0f && isDead)
@@ -260,19 +226,15 @@ public class PlayerManager : MonoBehaviour
 
     private void MoveUpdate()
     {
-        Vector3 CameraInput = GetMoveVector();
-        if (Vector3.Distance(CameraInput, player.transform.position) < 0.01f)
+        Vector3 CameraInput = GetMoveVector(); // Camera Move Pos.
+        if (Vector3.Distance(CameraInput, player.transform.position) > 0.01f)
         {
-            player.transform.position = CameraInput;
-        }
-        else
-        {
-            Vector3 DifferPosition = player.transform.position + (CameraInput - player.transform.position).normalized * Time.deltaTime * Speed;
+            Vector3 DifferPosition = CameraInput;
+            DifferPosition = Vector3.Lerp(player.transform.position, DifferPosition, Time.deltaTime * Speed);
             player.transform.position = new Vector3(Mathf.Clamp(DifferPosition.x, -8f, 8f), DifferPosition.y, Mathf.Clamp(DifferPosition.z, -4.5f, 4.5f));
-
         }
 
-
+        
 
         float MaxDist = -1f;
         float MinDist = Mathf.Infinity;

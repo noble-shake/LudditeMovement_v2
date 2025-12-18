@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: EnemySlime
   m_EditorClassIdentifier: Assembly-CSharp::EnemyScriptableObject
   Name: "\uC2AC\uB77C\uC784"
+  enemyName: 1
   EnemyDescription: "\uB048\uC801\uD558\uACE0 \uB290\uB9BF\uD558\uB2E4. \uC57D\uD574\uBCF4\uC774\uC9C0\uB9CC,
     \uCE58\uBA85\uC801\uC778 \uACF5\uACA9\uC73C\uB85C \uC218\uB9CE\uC740 \uBAA9\uC228\uC744
     \uC557\uC544\uAC14\uB2E4."
@@ -20,5 +21,6 @@ MonoBehaviour:
   Comment2: "... ...!!! (\uC880 \uB354, \uBA39\uC744\uAC8C \uD544\uC694\uD574!!!..)"
   Comment3: "...??!! (\uC800\uAC74.. \uBA39\uC744 \uC218 \uC788\uB294\uAC74\uAC00??!)"
   Sound: {fileID: 0}
+  Portrait: {fileID: 0}
   EnemyPrefab: {fileID: 8199468940793596056, guid: 23a6292c44b061c43a66b4c6064e16af, type: 3}
   isBoss: 0

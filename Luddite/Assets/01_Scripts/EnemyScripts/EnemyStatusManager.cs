@@ -17,15 +17,22 @@ public class EnemyStatusManager : MonoBehaviour
     [SerializeField] private Meter BPBackground;
     private bool isBPChanged;
 
-    #region Status Proerties
-    [SerializeField] public int HP { get; private set; }
-    [SerializeField] public int MaxHP { get; private set; }
-    [SerializeField] public int AP { get; private set; }
-    [SerializeField] public int MaxAP { get; private set; }
-    [SerializeField] public int BP { get; private set; }
-    [SerializeField] public int MaxBP { get; private set; }
+    [Header("Status")]
+    [SerializeField] private float HP;
+    [SerializeField] private float MaxHP;
+    [SerializeField] private float AP;
+    [SerializeField] private float MaxAP;
+    [SerializeField] private float BP;
+    [SerializeField] private float MaxBP;
 
-    public void SetHP(int value)
+
+
+    #region Status Proerties
+    [SerializeField] public float MaxHPValue { get {return MaxHP;} set {MaxHP =value;} }
+    [SerializeField] public float MaxAPValue { get {return MaxAP;} set {MaxAP =value;} }
+    [SerializeField] public float MaxBPValue { get {return MaxBP;} set {MaxBP =value;} }
+
+    public void SetHP(float value)
     {
         HP += value;
 
@@ -44,7 +51,7 @@ public class EnemyStatusManager : MonoBehaviour
         Invoke("HPChanged", 0.3f);
     }
 
-    public void SetAP(int value)
+    public void SetAP(float value)
     {
         AP += value;
 
@@ -55,13 +62,14 @@ public class EnemyStatusManager : MonoBehaviour
 
         if (AP > MaxAP)
         {
+            owner.isAttackCheck = true;
             AP = MaxAP;
         }
 
         Invoke("APChanged", 0.3f);
     }
 
-    public void SetBP(int value)
+    public void SetBP(float value)
     {
         BP += value;
 
@@ -72,7 +80,13 @@ public class EnemyStatusManager : MonoBehaviour
 
         if (BP > MaxBP)
         {
+            owner.isAttackCheck = false;
+            owner.isIdleCheck = false;
+            owner.isMoveCheck = false;
+            owner.isStunCheck = true;
+            AP = 0;
             BP = MaxBP;
+            // Stunned.
         }
 
         Invoke("BPChanged", 0.3f);
@@ -151,5 +165,29 @@ public class EnemyStatusManager : MonoBehaviour
     private void Start()
     {
         owner = GetComponent<Enemy>();
+    }
+
+    private void Update()
+    {
+        SetAP(Time.deltaTime);
+
+        if (BP < MaxBP)
+        {
+            SetBP(-Time.deltaTime * 2f);
+        }
+
+
+
+    }
+
+    public void OnHit(float value)
+    {
+        SetHP(value);
+        SetAP(1);
+        if (value < 0f)
+        {
+            SetBP(Mathf.Abs(value));
+        }
+
     }
 }

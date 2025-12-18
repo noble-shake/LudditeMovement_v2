@@ -19,5 +19,9 @@ MonoBehaviour:
   isCharging: 0
   NodeIndex: 0
   skillType: 0
+  passiveType: 11
   Params:
   - 1
+  isSynergy: 0
+  SynergySkill1: {fileID: 0}
+  SynergySkill2: {fileID: 0}

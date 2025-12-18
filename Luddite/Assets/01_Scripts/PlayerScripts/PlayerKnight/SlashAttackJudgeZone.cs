@@ -24,6 +24,8 @@ public class SlashAttackJudgeZone : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        if (knight.ChargeCheck) return;
+
         if (other.CompareTag("Enemy") && knight.ActivatedCheck)
         {
             // coll.enabled = false;

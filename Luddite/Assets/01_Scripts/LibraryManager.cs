@@ -33,12 +33,14 @@ public class PlayerAnalysis
     public SkillTree NormalSkillTree;
     public SkillTree Active1SkillTree;
     public SkillTree Active2SkillTree;
+    public TreeNode CurrentActive1;
+    public TreeNode CurrentActive2;
 }
 
 [Serializable]
 public class StageAnalysis
 {
-    public MapData mapData;
+    public int StageID;
     public float PlayTime;
     public int EasyScore;
     public int NormalScore;
@@ -115,6 +117,7 @@ public class LibraryManager : MonoBehaviour
             dataContainer = new DataContainer();
             EnemyLibraryInitialize();
             PlayerLibraryInitialize();
+            StageLibraryInitialize();
 
             // Create. 
             string data = JsonConvert.SerializeObject(dataContainer);
@@ -210,16 +213,16 @@ public class LibraryManager : MonoBehaviour
         {
             StageAnalysis stageAnalysis = new StageAnalysis()
             {
-                mapData = m,
+                StageID = cnt,
                 PlayTime = 0,
                 EasyScore = 0,
                 NormalScore = 0,
                 HardScore = 0,
                 NightmareScore = 0,
-                isLocked = false,
+                isLocked = true,
                 isCleared = false
             };
-            if (cnt == 0) stageAnalysis.isLocked = true;
+            if (cnt == 0) stageAnalysis.isLocked = false;
             stageAnalyses[cnt++] = stageAnalysis;
         }
 
