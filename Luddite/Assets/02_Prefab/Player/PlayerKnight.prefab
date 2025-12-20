@@ -16255,6 +16255,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4959673387738588304, guid: 5afb3314b03ccd549b1ca575f70757a9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7014786664718586565}
+    - targetCorrespondingSourceObject: {fileID: 4959673387738588304, guid: 5afb3314b03ccd549b1ca575f70757a9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7400342968293202040}
   m_SourcePrefab: {fileID: 100100000, guid: 5afb3314b03ccd549b1ca575f70757a9, type: 3}
 --- !u!4 &8345494280575617692 stripped
 Transform:
@@ -16298,3 +16301,16 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 2.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7400342968293202040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8345494280575617698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60fd9a87e3c6d0c4986e2f10f307a607, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArcRangeCheck
+  enemyList: []

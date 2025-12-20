@@ -15,6 +15,7 @@ public interface IPlaySkill
     public void SkillReady();
 
     public void SkillExecute();
+    public void SkillDone();
 
     public void SkillUpdate(float deltaTime);
 }

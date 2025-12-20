@@ -24,7 +24,7 @@ public class EnemySlime : EnemyGround, IEnemyBehavior
         //StartCoroutine(SlimeShot(diff));
         StartCoroutine(AttackPattern.Attack());
         isAttackCheck = false;
-        status.SetAP(-status.MaxAPValue);
+        status.APValue-= status.MaxAPValue;
     }
 
     public void Charging()

@@ -46,8 +46,7 @@ public abstract class Player : MonoBehaviour
     [SerializeField] private PlayerScriptableObject playerScriptableObject;
     [SerializeField] private IPlaySkill Active1Skill;
     [SerializeField] private IPlaySkill Active2Skill;
-    //[SerializeField] public PlayerSkillScriptableObject ClockWiseSkill;
-    //[SerializeField] public PlayerSkillScriptableObject CClockWiseSkill;
+    [SerializeField] private IPlaySkill CurrentSkill;
 
     public PlayerScriptableObject PlayerInfo { get { return playerScriptableObject; } set { playerScriptableObject = value; } }
 
@@ -297,12 +296,14 @@ public abstract class Player : MonoBehaviour
                 isCharging = true;
                 animator.Play("SkillReady");
                 Active1Skill.SkillActivated();
+                CurrentSkill = Active1Skill;
             }
             else
             {
                 isCharging = true;
                 animator.Play("SkillReady");
                 Active2Skill.SkillActivated();
+                CurrentSkill = Active2Skill;
             }
         }
     }
@@ -382,10 +383,20 @@ public abstract class Player : MonoBehaviour
         MainSprite.color = Color.white;
     }
 
-
     public virtual void AttackProcess()
     { 
         
+    }
+
+
+    public void SkillExecute()
+    {
+        CurrentSkill.SkillExecute();
+    }
+
+    public void SkillDone()
+    {
+        CurrentSkill.SkillDone();
     }
 
     #endregion

@@ -79,7 +79,7 @@ public class SlashColliderZone : MonoBehaviour
             GameObject Impact = ResourceManager.Instance.GetResource(ImpactEffect);
             Impact.transform.position = hitPoint;
             target.GetComponent<Rigidbody>().AddForce((target.transform.position - knight.transform.position).normalized * 0.5f, ForceMode.Impulse);
-            target.GetComponent<Enemy>().OnHit();
+            target.GetComponent<Enemy>().OnHit(knight.statusManager.AttackValue);
         }
         collisions.Clear();
     }

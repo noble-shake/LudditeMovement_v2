@@ -4,9 +4,7 @@
 
 using DTT.AreaOfEffectRegions;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.RuleTile.TilingRuleOutput;
+using System.Collections.Generic;
 
 public class KnightMegaSlash : IPlaySkill
 {
@@ -14,7 +12,8 @@ public class KnightMegaSlash : IPlaySkill
     bool ischarging;
     float CurFlow;
     ArcRegion arcRegion;
-    
+    SphereCollider arcCollider;
+
     public KnightMegaSlash() 
     {
         CurFlow = 0f;
@@ -24,20 +23,25 @@ public class KnightMegaSlash : IPlaySkill
     {
         player = _player;
         arcRegion = player.GetArcIndicator();
+        arcCollider = arcRegion.GetComponent<SphereCollider>();
     }
 
     public void SkillActivated()
     {
+        arcCollider.radius = 0.5f;
         arcRegion.gameObject.SetActive(true);
         ischarging = true;
     }
 
     public void SkillExecute()
     {
-        float DamageRatio = CurFlow / 3f;
+        List<Enemy> targets = arcRegion.GetComponent<ArcRangeCheck>().GetRangedTarget();
         arcRegion.gameObject.SetActive(false);
-        ischarging = false;
-        CurFlow = 3f;
+        foreach (Enemy e in targets)
+        {
+            e.OnHit(player.statusManager.AttackValue * 3f);
+        }
+
     }
     public void SkillUpdate(float deltaTime)
     {
@@ -47,13 +51,10 @@ public class KnightMegaSlash : IPlaySkill
 
         float angleRad = Mathf.Atan2(direction.z, direction.x);
 
-        // 라디안을 도로 변환
         float angleDeg = angleRad * Mathf.Rad2Deg;
         if (angleDeg < 0f) angleDeg += 360f;
         if (angleDeg > 360f) angleDeg = 0f;
         arcRegion.Angle = 360f - (angleDeg - 90f);
-
-        Debug.Log($"{angleDeg}, {arcRegion.Angle}");
 
         CurFlow += deltaTime;
         if (CurFlow > 3f) CurFlow = 3f;
@@ -61,16 +62,18 @@ public class KnightMegaSlash : IPlaySkill
         if (CurFlow / 3f < 0.5f)
         {
             arcRegion.FillProgress = 0.5f;
+            arcCollider.radius = 0.5f;
         }
         else
         {
             arcRegion.FillProgress = CurFlow / 3f;
+            arcCollider.radius = 2.5f * (CurFlow / 3f);
         }
 
         if (InputManager.Instance.AttackInput)
         {
             InputManager.Instance.AttackInput = false;
-            SkillExecute();
+            SkillReady();
 
         }
 
@@ -78,6 +81,14 @@ public class KnightMegaSlash : IPlaySkill
 
     public void SkillReady()
     {
+        float DamageRatio = CurFlow / 3f;
+        player.GetAnim().Play("SkillExecute");
+        ischarging = false;
+        CurFlow = 3f;
+    }
 
+    public void SkillDone()
+    {
+        player.ChargeCheck = false;
     }
 }

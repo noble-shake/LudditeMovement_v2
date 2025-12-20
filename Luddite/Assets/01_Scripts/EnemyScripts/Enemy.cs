@@ -65,9 +65,10 @@ public abstract class Enemy : MonoBehaviour
         OutlineSprite.SetActive(false);
     }
 
-    public void OnHit()
+    public void OnHit(float value)
     {
         HitEffect();
+        status.OnHit(value);
     }
 
     async Awaitable HitEffect()

@@ -5,7 +5,7 @@
 using TMPro;
 using UnityEngine;
 
-public class KnightHighFeeling: IPlaySkill
+public class KnightHighFeeling : IPlaySkill
 {
     Player player;
     bool ischarging;
@@ -51,5 +51,10 @@ public class KnightHighFeeling: IPlaySkill
     public void SkillReady()
     {
 
+    }
+
+    public void SkillDone()
+    {
+        throw new System.NotImplementedException();
     }
 }

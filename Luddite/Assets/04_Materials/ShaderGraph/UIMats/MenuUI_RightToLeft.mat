@@ -43,7 +43,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0.5
     - _ColorMask: 15
-    - _Progression: 0
+    - _Progression: 1
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0

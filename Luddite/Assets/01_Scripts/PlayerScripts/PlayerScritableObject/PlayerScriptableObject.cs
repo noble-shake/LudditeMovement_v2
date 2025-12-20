@@ -68,7 +68,7 @@ public class PlayerScriptableObject : ScriptableObject
 
     public float GetAttack()
     {
-        return HP;
+        return Attack;
     }
 
     public float GetCritical()
