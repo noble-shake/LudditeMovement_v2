@@ -24,3 +24,10 @@ MonoBehaviour:
   Portrait: {fileID: 0}
   EnemyPrefab: {fileID: 8199468940793596056, guid: 23a6292c44b061c43a66b4c6064e16af, type: 3}
   isBoss: 0
+  HP: 100
+  AP: 5
+  BP: 35
+  Attack:
+  - {fileID: 11400000, guid: a7230ab641d9e5d449d58ca49b28aac2, type: 2}
+  Move:
+  - {fileID: 11400000, guid: e0955390f30d2a045b3717d43cd1dae3, type: 2}

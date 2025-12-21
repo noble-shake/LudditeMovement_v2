@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum EnemyName
@@ -27,6 +27,13 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected EnemyType enemyType;
     [SerializeField] protected EnemyName enemyName;
 
+    [SerializeField] public EnemyBehaviour CurrentState;
+
+    [SerializeField] protected List<IEnemyAttack> AttackPattern;
+    [SerializeField] protected IEnemyAttack CurrentAttackPattern;
+    [SerializeField] protected List<IEnemyMove> MovePattern;
+    [SerializeField] protected IEnemyMove CurrentMovePattern;
+
     [SerializeField] protected Rigidbody rigid;
     protected AppearEffect appearEffect;
     protected bool isIdle = true;
@@ -36,6 +43,8 @@ public abstract class Enemy : MonoBehaviour
     protected bool isMove;
     protected bool isCharging;
     protected bool isStunned;
+
+    float stunnedTime;
 
     public bool isIdleCheck { get { return isIdle; } set { isIdle = value;} }
     public bool isBerserkCheck { get { return isBerserk; } set { isBerserk = value;} }
@@ -100,4 +109,56 @@ public abstract class Enemy : MonoBehaviour
 
 
     }
+
+    #region FSM
+
+    public enum EnemyBehaviour
+    { 
+        IDLE,
+        MOVE,
+        ATTACK,
+        CHARGE,
+        STUNNED,
+    }
+
+    // AP는 계속 지속적으로 찬다.
+    // Charge 기술일 경우, AP는 움직이지 않는다.
+    // Stunned일 경우에는 Charge도 막는다.
+
+    public void FSM_Update()
+    {
+        if (GameManager.Instance.currentCondition != GameCondition.Game) return;
+
+        switch (CurrentState)
+        {
+            default:
+            case EnemyBehaviour.IDLE:
+                break;
+            case EnemyBehaviour.ATTACK:  // Attack to Charge or Idle.
+                CurrentAttackPattern?.Attack();
+                break;
+            case EnemyBehaviour.MOVE:
+                CurrentMovePattern?.Move();
+                break;
+            case EnemyBehaviour.CHARGE:
+                CurrentAttackPattern?.Charge();
+                break;
+            case EnemyBehaviour.STUNNED:
+                if (isStunned)
+                {
+                    stunnedTime -= Time.deltaTime;
+                    if (stunnedTime < 0f)
+                    {
+                        isStunned = false;
+                        stunnedTime = 5f;
+                        CurrentState = EnemyBehaviour.IDLE;
+                    }
+                }
+                break;
+
+        }
+    }
+
+
+    #endregion
 }

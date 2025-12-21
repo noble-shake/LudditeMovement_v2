@@ -23,8 +23,6 @@ public class MapManager : MonoBehaviour
         OriginPoint = transform.position;
 
         gridPathfinding = new GridPathfinding(16, 9, 1, new Vector3(-7.5f, 0f, -4f));
-        //gridPathfinding.SetWalkable(MapDataset.Tiles, MapDataset.Buildings);
-        // InvokeRepeating("Test", 1f, 2f);
     }
 
     public void SetMapData(MapData data)

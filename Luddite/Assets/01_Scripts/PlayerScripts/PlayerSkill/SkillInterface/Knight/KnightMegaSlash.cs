@@ -5,6 +5,8 @@
 using DTT.AreaOfEffectRegions;
 using UnityEngine;
 using System.Collections.Generic;
+using static UnityEngine.GraphicsBuffer;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class KnightMegaSlash : IPlaySkill
 {
@@ -28,6 +30,8 @@ public class KnightMegaSlash : IPlaySkill
 
     public void SkillActivated()
     {
+        CurFlow = 0f;
+        arcRegion.FillProgress = 0.5f;
         arcCollider.radius = 0.5f;
         arcRegion.gameObject.SetActive(true);
         ischarging = true;
@@ -35,11 +39,19 @@ public class KnightMegaSlash : IPlaySkill
 
     public void SkillExecute()
     {
-        List<Enemy> targets = arcRegion.GetComponent<ArcRangeCheck>().GetRangedTarget();
+        List<Collider> targets = arcRegion.GetComponent<ArcRangeCheck>().GetRangedTarget();
         arcRegion.gameObject.SetActive(false);
-        foreach (Enemy e in targets)
+        GameObject Slash = ResourceManager.Instance.GetResource(player.GetComponent<PlayerKnight>().MegaSlashEffect);
+        Slash.transform.position = player.transform.position;
+        Slash.transform.rotation = Quaternion.Euler(0f, arcRegion.Angle, 0f);
+
+        foreach (Collider e in targets)
         {
-            e.OnHit(player.statusManager.AttackValue * 3f);
+            Enemy enemy = e.GetComponent<Enemy>();
+            enemy.OnHit(player.statusManager.AttackValue * 3f);
+            GameObject Impact = ResourceManager.Instance.GetResource(player.SlashEffect);
+            Impact.transform.position = e.ClosestPoint(player.transform.position);
+            enemy.GetComponent<Rigidbody>().AddForce((enemy.transform.position - player.transform.position).normalized * 2f, ForceMode.Impulse);
         }
 
     }
@@ -48,6 +60,15 @@ public class KnightMegaSlash : IPlaySkill
         if (ischarging == false) return;
 
         Vector3 direction = PlayerManager.Instance.GetPlayerTrs().position - player.transform.position;
+        if (PlayerManager.Instance.GetPlayerTrs().position.x > player.transform.position.x)
+        {
+            player.PlayerFlip(false);
+        }
+        else if (PlayerManager.Instance.GetPlayerTrs().position.x < player.transform.position.x)
+        {
+            player.PlayerFlip(true);
+        }
+
 
         float angleRad = Mathf.Atan2(direction.z, direction.x);
 
@@ -81,6 +102,7 @@ public class KnightMegaSlash : IPlaySkill
 
     public void SkillReady()
     {
+        GameManager.Instance.PlayerSkillAction(ResourceManager.Instance.GetPlayerInfo(player.playerType).FullBodyPortrait, ResourceManager.Instance.GetPlayerInfo(player.playerType).FullBodySilouhettePortrait);
         float DamageRatio = CurFlow / 3f;
         player.GetAnim().Play("SkillExecute");
         ischarging = false;

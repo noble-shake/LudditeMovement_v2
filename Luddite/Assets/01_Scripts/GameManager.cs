@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using System;
 using System.Linq;
 
@@ -138,4 +139,48 @@ public class GameManager : MonoBehaviour
         }
 
     }
+
+    [SerializeField] private PlayerSkillActionCanvas SkillCanvas;
+    private IEnumerator PlayerSkillEffect;
+    private WaitUntil waitYield;
+    public void PlayerSkillAction(Sprite main, Sprite bg)
+    {
+        if (PlayerSkillEffect != null) StopCoroutine(PlayerSkillEffect);
+        SkillCanvas.gameObject.SetActive(true);
+        SkillCanvas.SetSprite(bg, main);
+        waitYield = new WaitUntil(() => SkillCanvas.animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f);
+        TimeStop();
+        PlayerSkillEffect = SkillActionEffect();
+        StartCoroutine(PlayerSkillEffect);
+    }
+
+    IEnumerator SkillActionEffect()
+    {
+        float curFlow = 0f;
+        SkillCanvas.animator.Play("Appear");
+        while (curFlow < 6f)
+        {
+            curFlow += Time.unscaledDeltaTime * 30f;
+            if (curFlow > 6f) curFlow = 6f;
+            SkillCanvas.SetLineMat(3f - curFlow);
+            yield return null;
+        }
+        yield return waitYield;
+
+        curFlow = 0f;
+
+        while (curFlow < 6f)
+        {
+            curFlow += Time.unscaledDeltaTime * 30f;
+            if (curFlow > 6f) curFlow = 6f;
+            SkillCanvas.SetLineMat(-3f + curFlow);
+
+            yield return null;
+        }
+
+        TimeContinue();
+        SkillCanvas.gameObject.SetActive(false);
+    }
+
+
 }

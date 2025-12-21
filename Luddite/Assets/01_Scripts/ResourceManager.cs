@@ -71,7 +71,7 @@ public class ResourceManager : MonoBehaviour
         CreatePlayerInstance(PlayerObjects);
         CreateEnemyInstance(EnemyObjects);
         CreateInstance(BulletObjects, 256);
-        CreateInstance(Effects, 128);
+        CreateInstance(Effects, 4);
         CreatedSoulInstance();
         CreatePlayerSkillInstance();
 

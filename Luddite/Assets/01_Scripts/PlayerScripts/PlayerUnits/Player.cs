@@ -48,6 +48,10 @@ public abstract class Player : MonoBehaviour
     [SerializeField] private IPlaySkill Active2Skill;
     [SerializeField] private IPlaySkill CurrentSkill;
 
+    [Header("Effects")]
+    [SerializeField] public GameObject SlashEffect;
+    [SerializeField] public GameObject ChargeEffect;
+
     public PlayerScriptableObject PlayerInfo { get { return playerScriptableObject; } set { playerScriptableObject = value; } }
 
     public PlayerIndicator GetLineIndicator()
@@ -136,9 +140,10 @@ public abstract class Player : MonoBehaviour
 
         if (OrbDetectRemained < 0f)
         {
-            CycleUI.gameObject.SetActive(false);
-            CycleText.text = statusManager.RequireCycleValue.ToString();
-            statusManager.CurRequireCycleValue = statusManager.RequireCycleValue;
+            // 초기화 해버리니까, 다시 사이클 돌려야 하는게 힘들 수 있다.
+            //CycleUI.gameObject.SetActive(false);
+            //CycleText.text = statusManager.RequireCycleValue.ToString();
+            //statusManager.CurRequireCycleValue = statusManager.RequireCycleValue;
             OrbDetectRemained = 0.5f;
             isDetected = false;
         }

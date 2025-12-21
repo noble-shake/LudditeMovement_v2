@@ -43,4 +43,14 @@ public class CircularShot : IEnemyAttack
 
         yield return null;
     }
+
+    public void Charge()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Update()
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -96,18 +96,6 @@ public class LibraryManager : MonoBehaviour
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
     }
 
-    // Initialize
-    // Load
-    // Save
-
-    private void Start()
-    {
-        // After Pooling Done.
-
-        // SaveLoad();
-
-    }
-
     public void SaveLoad()
     {
         FileDirectory = Path.Combine(Application.persistentDataPath, "SaveData.data");

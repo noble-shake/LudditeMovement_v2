@@ -10,6 +10,10 @@ public interface IEnemyAttack
     public void Shot();
 
     public IEnumerator Attack();
+    public void Charge();
+
+    public void Update();
+
 
 
 }

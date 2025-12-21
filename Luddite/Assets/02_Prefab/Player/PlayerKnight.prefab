@@ -15538,7 +15538,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2414216488037609344
 Transform:
   m_ObjectHideFlags: 0
@@ -15658,8 +15658,11 @@ MonoBehaviour:
   CycleUI: {fileID: 7923173371542137167}
   CycleText: {fileID: 8719335863547633736}
   playerScriptableObject: {fileID: 0}
+  SlashEffect: {fileID: 4594937069151995945, guid: 1d5d84d281c8e7648b41ae8f089ebbbb, type: 3}
+  ChargeEffect: {fileID: 1166593180906054, guid: 27bfc8d28fb0d8f428cc00cd7bc30930, type: 3}
   SlashAttackZone: {fileID: 4160351214201340871}
   SlashParticle: {fileID: 3783881403320507406}
+  MegaSlashEffect: {fileID: 2715471840370901047, guid: f9e2acbac1fe6d9409c542caf533845d, type: 3}
 --- !u!136 &3365266097163580866
 CapsuleCollider:
   m_ObjectHideFlags: 0

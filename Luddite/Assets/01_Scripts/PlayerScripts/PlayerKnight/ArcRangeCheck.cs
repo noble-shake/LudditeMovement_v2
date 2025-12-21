@@ -5,15 +5,15 @@ using UnityEngine;
 public class ArcRangeCheck : MonoBehaviour
 {
     ArcRegion arcRegion;
-    public List<Enemy> enemyList;
+    public List<Collider> enemyList;
 
     void Start()
     {
         arcRegion = GetComponent<ArcRegion>();
-        enemyList = new List<Enemy>();
+        enemyList = new List<Collider>();
     }
 
-    public List<Enemy> GetRangedTarget()
+    public List<Collider> GetRangedTarget()
     {
         float left = arcRegion.LeftAngle;
         float right = arcRegion.RightAngle;
@@ -23,22 +23,43 @@ public class ArcRangeCheck : MonoBehaviour
             Vector3 direction = enemyList[index].transform.position - transform.position;
             float angleRad = Mathf.Atan2(direction.z, direction.x);
             float angleDeg = angleRad * Mathf.Rad2Deg;
+            if (angleDeg < 0f)
+            {
+                angleDeg += 360f;
+            }
 
             float tempLeft = (360f - (left - 90f));
             float tempRight= (360f - (right - 90f));
             Debug.Log($"{angleDeg}, {tempLeft}, {tempRight}");
-            if (angleDeg < tempLeft && angleDeg > tempRight)
+            if (tempRight < 0f)
             {
-                Debug.Log("Inner");
+                if (angleDeg < tempLeft && angleDeg > 0f)
+                {
+                    Debug.Log("Inner");
+                }
+                else
+                {
+                    Debug.Log("Outer");
+                    enemyList.RemoveAt(index);
+                }
             }
             else
             {
-                Debug.Log("Outer");
-                enemyList.RemoveAt(index);
+                if (angleDeg < tempLeft && angleDeg > tempRight)
+                {
+                    Debug.Log("Inner");
+                }
+                else
+                {
+                    Debug.Log("Outer");
+                    enemyList.RemoveAt(index);
+                }
             }
+
+
         }
 
-        List<Enemy> targets = enemyList;
+        List<Collider> targets = new List<Collider>(enemyList);
         enemyList.Clear();
         return targets;
     }
@@ -47,9 +68,9 @@ public class ArcRangeCheck : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            if (enemyList.Contains(other.GetComponent<Enemy>()) == false)
+            if (enemyList.Contains(other) == false)
             {
-                enemyList.Add(other.GetComponent<Enemy>());
+                enemyList.Add(other);
             }
         }
     }
@@ -58,9 +79,9 @@ public class ArcRangeCheck : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            if (enemyList.Contains(other.GetComponent<Enemy>()) == true)
+            if (enemyList.Contains(other) == true)
             {
-                enemyList.Remove(other.GetComponent<Enemy>());
+                enemyList.Remove(other);
             }
         }
     }
