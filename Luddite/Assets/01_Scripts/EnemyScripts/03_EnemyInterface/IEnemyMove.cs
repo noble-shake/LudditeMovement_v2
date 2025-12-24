@@ -10,5 +10,5 @@ public interface IEnemyMove
     public void MoveUpdate();
     public bool MoveDone();
 
-    public IEnumerator Move();
+    public void Move();
 }

@@ -243,22 +243,11 @@ public class PlayerManager : MonoBehaviour
 
         for (int i = 0; i < RecordIndex - 1; i++)
         {
-            //Debug.DrawLine(PositionRecords[i], PositionRecords[i + 1], Color.red);
             Vector3 CenterVec = (PositionRecords[i] + PositionRecords[i + 1]) / 2f;
-            // Vector3 CenterYVec = CenterVec + Vector3.up;
-            //if (i == 0 || i == RecordIndex - 2)
-            //{
-            //    Debug.DrawLine(CenterVec, CenterVec + Vector3.Cross(PositionRecords[i + 1] - CenterVec, Vector3.up), Color.red);
-            //}
-            //else
-            //{
-            //    Debug.DrawLine(CenterVec, CenterVec + Vector3.Cross(PositionRecords[i + 1] - CenterVec, Vector3.up), Color.blue);
-            //}
 
             float ldist = Vector3.Distance(PositionRecords[i], PositionRecords[i + 1]);
             if (MaxDist < ldist) MaxDist = ldist;
             if (MinDist > ldist) MinDist = ldist;
-
 
         }
 
@@ -282,15 +271,6 @@ public class PlayerManager : MonoBehaviour
         for (int i = 0; i < RecordIndex - 1; i++)
         {
             Vector3 CenterVec = (PositionRecords[i] + PositionRecords[i + 1]) / 2f;
-
-            //if (i == RecordIndex - 2 || i == 0)
-            //{
-            //    Debug.DrawLine(CenterVec, center, Color.magenta);
-            //}
-            //else
-            //{
-            //    Debug.DrawLine(CenterVec, center, Color.yellow);
-            //}
 
             float dist = Vector3.Distance(CenterVec, center);
             CenterDist += dist;

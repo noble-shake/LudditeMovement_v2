@@ -13,3 +13,9 @@ MonoBehaviour:
   m_Name: CircularShot
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAttackScriptable
   Name: CircularShot
+  Description: 
+  isCharging: 0
+  BulletPrefabs:
+  - {fileID: 8717593373515325033, guid: e608fcf9630c7404092b46b3ed1ac028, type: 3}
+  BulletBehaviours:
+  - {fileID: 11400000, guid: 9725d8d2588f38745ae265d7e1bba9f3, type: 2}

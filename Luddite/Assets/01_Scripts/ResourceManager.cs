@@ -37,7 +37,7 @@ public class ResourceManager : MonoBehaviour
     private List<SoulItem> SoulPool;
 
     [Header("Effect")]
-    [SerializeField] private List<GameObject> Effects;
+    [SerializeField] private List<EffectScriptableObject> EffectObjects;
     [SerializeField] public Texture2D BattleReadySide;
     [SerializeField] public Texture2D BattleEngageSide;
     [SerializeField] public Texture2D BattlePreviewSide;
@@ -47,7 +47,7 @@ public class ResourceManager : MonoBehaviour
     private Dictionary<PlayerClassType, GameObject> PlayerPool = new Dictionary<PlayerClassType, GameObject>();
     private Dictionary<EnemyName, List<GameObject>> EnemyPool = new Dictionary<EnemyName, List<GameObject>>();
     private Dictionary<GameObject, List<GameObject>> ObjectPool = new Dictionary<GameObject, List<GameObject>>(); // Hash값을 이용한다.
-
+    private Dictionary<string, List<GameObject>> EffectPool = new Dictionary<string, List<GameObject>>();
     /*
      * TilePool
      * 1. MapTile Objects
@@ -71,7 +71,7 @@ public class ResourceManager : MonoBehaviour
         CreatePlayerInstance(PlayerObjects);
         CreateEnemyInstance(EnemyObjects);
         CreateInstance(BulletObjects, 256);
-        CreateInstance(Effects, 4);
+        CreateEffectInstance(EffectObjects);
         CreatedSoulInstance();
         CreatePlayerSkillInstance();
 
@@ -97,6 +97,74 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
+    private void CreateEffectInstance(List<EffectScriptableObject> _objects, int num_of_instance = 8)
+    {
+
+        foreach (EffectScriptableObject target in _objects)
+        {
+            target.name = target.Prefab.name;
+
+            if (EffectPool.ContainsKey(target.name) == false) EffectPool[target.name] = new List<GameObject>();
+
+            if (target.NumbOfEffects == 0)
+            {
+                for (int i = 0; i < num_of_instance; i++)
+                {
+                    GameObject newObj = Instantiate(target.Prefab, this.transform);
+                    newObj.name = target.name;
+                    newObj.SetActive(false);
+
+                    EffectPool[target.name].Add(newObj);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < target.NumbOfEffects; i++)
+                {
+                    GameObject newObj = Instantiate(target.Prefab, this.transform);
+                    newObj.name = target.name;
+                    newObj.SetActive(false);
+
+                    EffectPool[target.name].Add(newObj);
+                }
+            }
+        }
+    }
+
+    public GameObject GetEffectResource(string name)
+    {
+        if (EffectPool.ContainsKey(name) == false)
+        {
+            Debug.LogWarning($"{name} Effect not exist !, return null");
+            return null;
+        }
+
+        foreach (GameObject obj in EffectPool[name])
+        {
+            if (obj.activeSelf) continue;
+            obj.gameObject.SetActive(true);
+            obj.transform.SetParent(null);
+            obj.transform.SetAsLastSibling();
+            return obj;
+        }
+
+        GameObject newObj = Instantiate(EffectPool[name][0], null);
+        newObj.name = name;
+        newObj.gameObject.SetActive(true);
+        newObj.transform.SetParent(null);
+        newObj.transform.SetAsLastSibling();
+        EffectPool[name].Add(newObj);
+        return newObj;
+
+    }
+
+    public void EffectRetrieve(GameObject prefab)
+    {
+        prefab.transform.SetParent(this.transform);
+        prefab.gameObject.SetActive(false);
+
+    }
+
     private void CreateEnemyInstance(List<EnemyScriptableObject> _objects, int num_of_instance = 16)
     {
         int currentCnt = 0;
@@ -110,6 +178,25 @@ public class ResourceManager : MonoBehaviour
             {
                 GameObject newObj = Instantiate(target.EnemyPrefab, this.transform);
                 newObj.SetActive(false);
+                newObj.name = target.EnemyPrefab.name;
+                Enemy enemyObject = newObj.GetComponent<Enemy>();
+                enemyObject.SetStatus(target.HP, target.AP, target.BP);
+
+                List<IEnemyMove> mvs = new List<IEnemyMove>();
+                List<IEnemyAttack> atks = new List<IEnemyAttack>();
+                foreach (EnemyMoveScriptable mp in target.Move)
+                {
+                    mvs.Add(mp.GetInstance());
+                }
+                enemyObject.SetMovePattern(mvs);
+
+                foreach (EnemyAttackScriptable ap in target.Attack)
+                {
+                    IEnemyAttack enemyAttack = ap.GetInstance();
+                    enemyAttack.GetNeeds(ap.BulletPrefabs, ap.BulletBehaviours);
+                    atks.Add(enemyAttack);
+                }
+                enemyObject.SetAttackPattern(atks);
 
                 EnemyPool[target.enemyName].Add(newObj);
                 currentCnt++;
@@ -130,6 +217,7 @@ public class ResourceManager : MonoBehaviour
             newObj.SetActive(false);
             Player player = newObj.GetComponent<Player>();
             player.PlayerInfo = target;
+            player.name = target.PlayerPrefab.name;
             // player.statusManager.StatusInit();
             PlayerPool[target.classType] = newObj;
             currentCnt++;
@@ -215,6 +303,7 @@ public class ResourceManager : MonoBehaviour
         {
             if (target.activeSelf == false)
             {
+                target.transform.SetParent(null);
                 target.transform.SetAsLastSibling();
                 target.SetActive(true);
                 return target;

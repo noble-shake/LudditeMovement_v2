@@ -28,7 +28,7 @@ public class OrbTriggerZone : MonoBehaviour
         if(other.CompareTag("Orb"))
         {
             player.MatLitResponseOff();
-            player.PlayActivate();
+            // player.PlayActivate();
 
         }
     }
@@ -46,7 +46,7 @@ public class OrbTriggerZone : MonoBehaviour
         if (other.CompareTag("Orb"))
         {
             player.MatLitResponseOn();
-            player.PlayIdle();
+            // player.PlayIdle();
         }
     }
 }

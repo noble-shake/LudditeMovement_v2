@@ -6,7 +6,6 @@ public class PlayerKnight : Player
 {
     [SerializeField] private SlashAttackJudgeZone SlashAttackZone; // Jduge SlashDirection;
     [SerializeField] private ParticleSystem SlashParticle;
-    [SerializeField] public GameObject MegaSlashEffect;
     public Action SlashAction = new Action(() => { });
 
 

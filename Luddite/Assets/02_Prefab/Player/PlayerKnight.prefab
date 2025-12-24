@@ -15538,7 +15538,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2414216488037609344
 Transform:
   m_ObjectHideFlags: 0
@@ -15662,7 +15662,6 @@ MonoBehaviour:
   ChargeEffect: {fileID: 1166593180906054, guid: 27bfc8d28fb0d8f428cc00cd7bc30930, type: 3}
   SlashAttackZone: {fileID: 4160351214201340871}
   SlashParticle: {fileID: 3783881403320507406}
-  MegaSlashEffect: {fileID: 2715471840370901047, guid: f9e2acbac1fe6d9409c542caf533845d, type: 3}
 --- !u!136 &3365266097163580866
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -16090,7 +16089,6 @@ MonoBehaviour:
   knight: {fileID: 0}
   colliders: []
   collisions: []
-  ImpactEffect: {fileID: 4594937069151995945, guid: 1d5d84d281c8e7648b41ae8f089ebbbb, type: 3}
 --- !u!198 &3783881403320507406 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 1434047639339124811, guid: a013f125f151ed445a1885584ba20bc4, type: 3}

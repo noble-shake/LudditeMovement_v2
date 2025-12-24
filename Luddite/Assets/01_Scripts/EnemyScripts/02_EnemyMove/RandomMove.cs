@@ -3,14 +3,14 @@ using UnityEngine;
 
 public class RandomMove : IEnemyMove
 {
+    float curFlow = 5f;
     public bool isMoveDone = true;
     Transform Owner;
 
     public RandomMove() { }
 
-    public IEnumerator Move()
+    public void Move()
     {
-        isMoveDone = false;
         Vector3 currentPos = Owner.position;
         Vector3 nextDirection;
         while (true)
@@ -41,23 +41,20 @@ public class RandomMove : IEnemyMove
             }
         }
 
-        //while (Vector3.Distance(Owner.position, currentPos + nextDirection) > 0.01f)
-        //{
-        //    Owner.transform.position = Vector3.MoveTowards(Owner.position, currentPos + nextDirection, Time.deltaTime * 2f);
-        //    yield return null;
-        //}
-        //Owner.position = currentPos + nextDirection;
-
         Owner.GetComponent<Rigidbody>().AddForce(nextDirection * 2f, ForceMode.Impulse);
-
-        yield return new WaitForSeconds(5f);
-        isMoveDone = true;
-
-
     }
 
     public void MoveUpdate()
     {
+        curFlow -= Time.deltaTime;
+        if (curFlow < 0f)
+        {
+            curFlow = 5f;
+            if (Owner.GetComponent<Enemy>().CurrentState == EnemyBehaviour.CHARGE) return;
+            if (Owner.GetComponent<Enemy>().CurrentState == EnemyBehaviour.STUNNED) return;
+            isMoveDone = true;
+            Owner.GetComponent<Enemy>().CurrentState = EnemyBehaviour.MOVE;
+        }
 
     }
 

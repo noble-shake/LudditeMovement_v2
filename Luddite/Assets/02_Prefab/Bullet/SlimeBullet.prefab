@@ -31,7 +31,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2494739887419361578}
+  - {fileID: 1453406337208270589}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8717593373515325033
@@ -60,7 +60,7 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_SortAtRoot: 0
---- !u!1 &7347488446847287889
+--- !u!1 &1453737518635550865
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -68,11 +68,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2494739887419361578}
-  - component: {fileID: 7323348237128583300}
-  - component: {fileID: 1875954375362611362}
-  - component: {fileID: 63890843638881631}
-  - component: {fileID: 5467805757071717432}
+  - component: {fileID: 1453406337208270589}
+  - component: {fileID: 788164270100591733}
+  - component: {fileID: 1740982380240375278}
+  - component: {fileID: 2662417748063217058}
+  - component: {fileID: 2651026386918187390}
   m_Layer: 11
   m_Name: BulletSprite
   m_TagString: Untagged
@@ -80,13 +80,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2494739887419361578
+--- !u!4 &1453406337208270589
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7347488446847287889}
+  m_GameObject: {fileID: 1453737518635550865}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -95,13 +95,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2810620229849206422}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!212 &7323348237128583300
+--- !u!212 &788164270100591733
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7347488446847287889}
+  m_GameObject: {fileID: 1453737518635550865}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -153,13 +153,13 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1875954375362611362
+--- !u!114 &1740982380240375278
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7347488446847287889}
+  m_GameObject: {fileID: 1453737518635550865}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
@@ -205,25 +205,25 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   - {x: 0.5, y: 0.5, z: 0}
   - {x: -0.5, y: 0.5, z: 0}
---- !u!114 &63890843638881631
+--- !u!114 &2662417748063217058
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7347488446847287889}
+  m_GameObject: {fileID: 1453737518635550865}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e618f244d417a644aa63e831b9fe6247, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
---- !u!135 &5467805757071717432
+  m_EditorClassIdentifier: Assembly-CSharp::BulletSprite
+--- !u!135 &2651026386918187390
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7347488446847287889}
+  m_GameObject: {fileID: 1453737518635550865}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2

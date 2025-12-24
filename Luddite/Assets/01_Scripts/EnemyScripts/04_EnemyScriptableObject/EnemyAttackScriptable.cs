@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -7,6 +8,8 @@ public class EnemyAttackScriptable : ScriptableObject
     public string Name;
     [TextArea] public string Description;
     public bool isCharging;
+    public List<EnemyBullet> BulletPrefabs;
+    public List<BulletScriptableObject> BulletBehaviours;
 
     public IEnemyAttack GetInstance()
     {

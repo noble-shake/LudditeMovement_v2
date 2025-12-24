@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1434047639339124811}
   - component: {fileID: 8166177956360537635}
   m_Layer: 0
-  m_Name: SlashSmallPurple
+  m_Name: KnightSlashEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

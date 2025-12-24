@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SlimeBullet : IEnemyBullet
@@ -14,7 +15,7 @@ public class SlimeBullet : IEnemyBullet
     {
         ShootTrs = _ShootTrs;
         TargetTrs = _TargetTrs;
-    }
+    }   
 
     public void Update()
     {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI.Extensions;
 
 public class PlayerIndicator : MonoBehaviour
 {
@@ -7,6 +8,8 @@ public class PlayerIndicator : MonoBehaviour
     private void OnEnable()
     {
         if(lineRenderer == null) lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, transform.position);
         lineRenderer.enabled = true;
     }
 

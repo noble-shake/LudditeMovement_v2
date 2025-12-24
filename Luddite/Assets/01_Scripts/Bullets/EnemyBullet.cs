@@ -7,15 +7,8 @@ public class EnemyBullet : Bullet
     public IEnemyBullet pattern;
     public BulletSprite bulletSprite;
 
-    private void Start()
-    {
-
-    }
-
     private void Update()
     {
-        
-
         if (pattern == null) return;
         pattern.Update();
     }

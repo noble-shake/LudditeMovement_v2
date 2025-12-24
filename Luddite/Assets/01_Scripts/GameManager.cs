@@ -68,10 +68,6 @@ public class GameManager : MonoBehaviour
         StageScoreEvent += topBorderUI.GetScore;
     }
 
-    // TEST
-    public EnemyAttackScriptable attackScript;
-    public EnemyMoveScriptable moveScript;
-
     public Difficulty GetDifficulty()
     {
         return difficulty;

@@ -636,7 +636,8 @@ public class GridPathfinding
             iterations++;
             currentNode = FindTarget(currentNode, targetNode);
             if (currentNode == null) continue;
-            float curDist = Vector2.Distance(new Vector2(currentNode.xPos, currentNode.yPos), new Vector2(targetNode.xPos, targetNode.yPos));
+            float curDist = Vector2.Distance(new Vector2(currentNode.xPos, currentNode.yPos),
+                new Vector2(targetNode.xPos, targetNode.yPos));
             if (dist > curDist)
             {
                 dist = curDist;

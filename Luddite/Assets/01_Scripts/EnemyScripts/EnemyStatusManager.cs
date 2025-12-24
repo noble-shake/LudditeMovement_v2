@@ -64,9 +64,10 @@ public class EnemyStatusManager : MonoBehaviour
             if (AP > MaxAP)
             {
                 if (owner.isStunCheck) return;
+                if (owner.CurrentState == EnemyBehaviour.WAIT) return;
                 owner.isAttackCheck = true;
                 AP = MaxAP;
-                owner.CurrentState = Enemy.EnemyBehaviour.ATTACK;
+                owner.CurrentState = EnemyBehaviour.ATTACK;
             }
 
             APBar.Value = AP / MaxAP;
@@ -91,7 +92,7 @@ public class EnemyStatusManager : MonoBehaviour
                 BP = MaxBP;
                 // Stunned.
                 owner.isStunCheck = true;
-                owner.CurrentState = Enemy.EnemyBehaviour.STUNNED;
+                owner.CurrentState = EnemyBehaviour.STUNNED;
             }
 
             BPBar.Value = BP / MaxBP;

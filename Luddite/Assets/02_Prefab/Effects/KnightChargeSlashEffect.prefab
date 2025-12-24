@@ -14696,7 +14696,7 @@ GameObject:
   - component: {fileID: -512128661775789854}
   - component: {fileID: -8490786696028370527}
   m_Layer: 0
-  m_Name: KnightChargeSlash
+  m_Name: KnightChargeSlashEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

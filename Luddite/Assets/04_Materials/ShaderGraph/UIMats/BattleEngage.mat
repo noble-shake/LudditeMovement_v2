@@ -54,7 +54,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Appear: -3
+    - _Appear: 3
     - _Reverse: 0
     - _TimeStrength: 1.5
     m_Colors:

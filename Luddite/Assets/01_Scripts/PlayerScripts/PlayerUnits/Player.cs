@@ -48,10 +48,6 @@ public abstract class Player : MonoBehaviour
     [SerializeField] private IPlaySkill Active2Skill;
     [SerializeField] private IPlaySkill CurrentSkill;
 
-    [Header("Effects")]
-    [SerializeField] public GameObject SlashEffect;
-    [SerializeField] public GameObject ChargeEffect;
-
     public PlayerScriptableObject PlayerInfo { get { return playerScriptableObject; } set { playerScriptableObject = value; } }
 
     public PlayerIndicator GetLineIndicator()
@@ -85,8 +81,8 @@ public abstract class Player : MonoBehaviour
                 PlayBattleIdle();
                 if (ActivatedeEffect != null)
                 {
-                    GameObject effect = ResourceManager.Instance.GetResource(ActivatedeEffect.gameObject);
-                    effect.transform.position = transform.position;
+                    //GameObject effect = ResourceManager.Instance.GetResource(ActivatedeEffect.gameObject);
+                    //effect.transform.position = transform.position;
                 }
 
             }

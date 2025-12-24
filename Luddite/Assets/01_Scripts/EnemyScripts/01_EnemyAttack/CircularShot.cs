@@ -4,21 +4,23 @@ using System.Collections;
 
 public class CircularShot : IEnemyAttack
 {
-    private EnemyBullet BulletPrefab;
+    private List<EnemyBullet> BulletPrefab;
+    private List<BulletScriptableObject> BulletPattern;
     private Transform Owner;
 
     public CircularShot() { }
 
-    public void SetInit(Transform _trs, EnemyBullet _bulletPrefab)
+    public void GetNeeds(List<EnemyBullet> _bullets, List<BulletScriptableObject> _bulletSetting)
     {
-        Owner = _trs;
-        BulletPrefab = _bulletPrefab;
+        BulletPrefab = _bullets;
+        BulletPattern = _bulletSetting;
     }
 
-    public void SetInit(Transform _trs, Transform _target, EnemyBullet _bulletPrefab) { }
+    public void SetInit(Transform _Owner)
+    {
+        Owner = _Owner;
+    }
 
-    public void SetInit(EnemyBullet _bulletPrefab) { }
-    
     public void Shot()
     {
         
@@ -30,10 +32,10 @@ public class CircularShot : IEnemyAttack
         float angle = Quaternion.FromToRotation(Vector3.forward, Vector3.back).eulerAngles.z;
         for (int i = 0; i < 6 + 3 * _diff; i++)
         {
-            EnemyBullet bullet = ResourceManager.Instance.GetResource(BulletPrefab.gameObject).GetComponent<EnemyBullet>();
-            bullet.pattern = new SlimeBullet();
+            EnemyBullet bullet = ResourceManager.Instance.GetResource(BulletPrefab[0].gameObject).GetComponent<EnemyBullet>();
+            bullet.pattern = BulletPattern[0].GetInstance();
             //bullet.pattern = BulletPattern;
-            bullet.pattern.SetBullet(bullet.transform, PlayerManager.Instance.GetPlayerTrs());
+            bullet.pattern.SetBullet(bullet.transform, null);
             bullet.transform.SetParent(null);
             bullet.transform.position = Owner.transform.position;
             bullet.SetAngle(new Vector3(0f, angle, 0f));
@@ -46,11 +48,11 @@ public class CircularShot : IEnemyAttack
 
     public void Charge()
     {
-        throw new System.NotImplementedException();
     }
 
     public void Update()
     {
-        throw new System.NotImplementedException();
     }
+
+
 }

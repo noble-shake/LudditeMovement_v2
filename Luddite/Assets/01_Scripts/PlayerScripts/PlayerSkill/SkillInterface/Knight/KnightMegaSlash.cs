@@ -15,6 +15,7 @@ public class KnightMegaSlash : IPlaySkill
     float CurFlow;
     ArcRegion arcRegion;
     SphereCollider arcCollider;
+    SwitchableEffectObject aura;
 
     public KnightMegaSlash() 
     {
@@ -35,13 +36,16 @@ public class KnightMegaSlash : IPlaySkill
         arcCollider.radius = 0.5f;
         arcRegion.gameObject.SetActive(true);
         ischarging = true;
+        GameObject Slash = ResourceManager.Instance.GetEffectResource("KnightChargeEffect");
+        aura = Slash.gameObject.GetComponent<SwitchableEffectObject>();
+        Slash.transform.position = player.transform.position;
     }
 
     public void SkillExecute()
     {
         List<Collider> targets = arcRegion.GetComponent<ArcRangeCheck>().GetRangedTarget();
         arcRegion.gameObject.SetActive(false);
-        GameObject Slash = ResourceManager.Instance.GetResource(player.GetComponent<PlayerKnight>().MegaSlashEffect);
+        GameObject Slash = ResourceManager.Instance.GetEffectResource("KnightChargeSlashEffect");
         Slash.transform.position = player.transform.position;
         Slash.transform.rotation = Quaternion.Euler(0f, arcRegion.Angle, 0f);
 
@@ -49,7 +53,7 @@ public class KnightMegaSlash : IPlaySkill
         {
             Enemy enemy = e.GetComponent<Enemy>();
             enemy.OnHit(player.statusManager.AttackValue * 3f);
-            GameObject Impact = ResourceManager.Instance.GetResource(player.SlashEffect);
+            GameObject Impact = ResourceManager.Instance.GetEffectResource("KnightSlashHitEffect");
             Impact.transform.position = e.ClosestPoint(player.transform.position);
             enemy.GetComponent<Rigidbody>().AddForce((enemy.transform.position - player.transform.position).normalized * 2f, ForceMode.Impulse);
         }
@@ -103,6 +107,8 @@ public class KnightMegaSlash : IPlaySkill
     public void SkillReady()
     {
         GameManager.Instance.PlayerSkillAction(ResourceManager.Instance.GetPlayerInfo(player.playerType).FullBodyPortrait, ResourceManager.Instance.GetPlayerInfo(player.playerType).FullBodySilouhettePortrait);
+        GameObject CircleEffect = ResourceManager.Instance.GetEffectResource("CircleExpandEffect");
+        CircleEffect.transform.position = player.transform.position;
         float DamageRatio = CurFlow / 3f;
         player.GetAnim().Play("SkillExecute");
         ischarging = false;
@@ -112,5 +118,6 @@ public class KnightMegaSlash : IPlaySkill
     public void SkillDone()
     {
         player.ChargeCheck = false;
+        aura.ResourceRetrieve();
     }
 }

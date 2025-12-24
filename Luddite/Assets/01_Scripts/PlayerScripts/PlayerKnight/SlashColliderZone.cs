@@ -15,7 +15,6 @@ public class SlashColliderZone : MonoBehaviour
     [SerializeField] private PlayerKnight knight;
     [SerializeField] private Collider[] colliders;
     [SerializeField] List<Collider> collisions = new List<Collider>();
-    [SerializeField] GameObject ImpactEffect;
     private IEnumerator SlashEffect;
     private WaitForSeconds SlashDuration = new WaitForSeconds(0.125f);
 
@@ -76,7 +75,7 @@ public class SlashColliderZone : MonoBehaviour
         foreach (Collider target in collisions)
         {
             Vector3 hitPoint = target.ClosestPoint(transform.position);
-            GameObject Impact = ResourceManager.Instance.GetResource(ImpactEffect);
+            GameObject Impact = ResourceManager.Instance.GetEffectResource("KnightSlashHitEffect");
             Impact.transform.position = hitPoint;
             target.GetComponent<Rigidbody>().AddForce((target.transform.position - knight.transform.position).normalized * 0.5f, ForceMode.Impulse);
             target.GetComponent<Enemy>().OnHit(knight.statusManager.AttackValue);

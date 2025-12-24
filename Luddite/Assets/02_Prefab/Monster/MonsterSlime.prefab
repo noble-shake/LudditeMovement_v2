@@ -409,8 +409,8 @@ GameObject:
   - component: {fileID: 1209729003291619711}
   - component: {fileID: 7908447678062891406}
   - component: {fileID: 8193436699369540804}
-  - component: {fileID: 2100423030695722581}
   - component: {fileID: 8697288756021247477}
+  - component: {fileID: 2100423030695722581}
   m_Layer: 0
   m_Name: Meter
   m_TagString: Untagged
@@ -458,7 +458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: 623b434db7018f142a790fb14d059c62, type: 2}
-  m_Color: {r: 0.47450984, g: 0.47450984, b: 0.47450984, a: 1}
+  m_Color: {r: 0.77254903, g: 0.8627451, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -475,6 +475,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8697288756021247477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7214305898112521787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0fdf6750a7499e4faef09a8cc8ddfde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.UI.Shaders.Sample::Unity.UI.Shaders.Sample.RectTransformSize
 --- !u!114 &2100423030695722581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -489,18 +501,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.UI.Shaders.Sample::Unity.UI.Shaders.Sample.Meter
   _value: 0
   defaultMaterial: {fileID: -876546973899608171, guid: 384567c6b4021a441a3ee7156745b2e6, type: 3}
---- !u!114 &8697288756021247477
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7214305898112521787}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0fdf6750a7499e4faef09a8cc8ddfde, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.UI.Shaders.Sample::Unity.UI.Shaders.Sample.RectTransformSize
 --- !u!1 &7493842855170033902
 GameObject:
   m_ObjectHideFlags: 0
@@ -612,7 +612,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6963166336189855593
 Transform:
   m_ObjectHideFlags: 0
@@ -663,6 +663,9 @@ MonoBehaviour:
   OutlineSprite: {fileID: 8374425062295204844}
   enemyType: 0
   enemyName: 1
+  CurrentState: 0
+  AttackIndex: 0
+  MoveIndex: 0
   rigid: {fileID: 0}
   interval: 10
   curFlow: 10
@@ -713,7 +716,7 @@ MonoBehaviour:
   HP: 50
   MaxHP: 50
   AP: 0
-  MaxAP: 10
+  MaxAP: 5
   BP: 0
   MaxBP: 20
 --- !u!95 &2782377658827043317
