@@ -41,8 +41,8 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] public EnemyBehaviour CurrentState;
 
     [SerializeField] protected int AttackIndex;
-    [SerializeField] protected List<IEnemyAttack> AttackPattern;
-    [SerializeField] protected IEnemyAttack CurrentAttackPattern;
+    [SerializeField] protected List<(EnemyAttackScriptable, IEnemyAttack)> AttackPattern;
+    [SerializeField] protected (EnemyAttackScriptable, IEnemyAttack) CurrentAttackPattern;
     [SerializeField] protected int MoveIndex;
     [SerializeField] protected List<IEnemyMove> MovePattern;
     [SerializeField] protected IEnemyMove CurrentMovePattern;
@@ -138,7 +138,7 @@ public abstract class Enemy : MonoBehaviour
     {
         FSM_Update();
         CurrentMovePattern?.MoveUpdate();
-        CurrentAttackPattern?.Update();
+        CurrentAttackPattern.Item2?.Update();
 
     }
 
@@ -170,7 +170,7 @@ public abstract class Enemy : MonoBehaviour
                 CurrentState = EnemyBehaviour.IDLE;
                 break;
             case EnemyBehaviour.CHARGE:
-                CurrentAttackPattern?.Charge();
+                CurrentAttackPattern.Item2?.Charge();
                 break;
             case EnemyBehaviour.STUNNED:
                 if (isStunned)
@@ -203,10 +203,10 @@ public abstract class Enemy : MonoBehaviour
     {
         status.APValue = 0f;
         CurrentAttackPattern = AttackPattern[AttackIndex++];
-        CurrentAttackPattern.SetInit(this.transform);
+        CurrentAttackPattern.Item2.SetInit(this.transform);
         if (AttackIndex >= AttackPattern.Count) AttackIndex = 0;
         if (Wrapper != null) StopCoroutine(Wrapper);
-        Wrapper = AttackWrapper(CurrentAttackPattern?.Attack());
+        Wrapper = AttackWrapper(CurrentAttackPattern.Item2?.Attack());
         StartCoroutine(Wrapper);
         CurrentState = EnemyBehaviour.WAIT;
     }
@@ -239,7 +239,7 @@ public abstract class Enemy : MonoBehaviour
         MovePattern = patterns;
     }
 
-    public void SetAttackPattern(List<IEnemyAttack> patterns)
+    public void SetAttackPattern(List<(EnemyAttackScriptable, IEnemyAttack)> patterns)
     {
         AttackPattern = patterns;
     }

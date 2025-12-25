@@ -183,7 +183,7 @@ public class ResourceManager : MonoBehaviour
                 enemyObject.SetStatus(target.HP, target.AP, target.BP);
 
                 List<IEnemyMove> mvs = new List<IEnemyMove>();
-                List<IEnemyAttack> atks = new List<IEnemyAttack>();
+                List<(EnemyAttackScriptable, IEnemyAttack)> atks = new List<(EnemyAttackScriptable, IEnemyAttack)>();
                 foreach (EnemyMoveScriptable mp in target.Move)
                 {
                     mvs.Add(mp.GetInstance());
@@ -194,7 +194,7 @@ public class ResourceManager : MonoBehaviour
                 {
                     IEnemyAttack enemyAttack = ap.GetInstance();
                     enemyAttack.GetNeeds(ap.BulletPrefabs, ap.BulletBehaviours);
-                    atks.Add(enemyAttack);
+                    atks.Add((ap, enemyAttack));
                 }
                 enemyObject.SetAttackPattern(atks);
 

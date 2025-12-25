@@ -18,4 +18,4 @@ MonoBehaviour:
   BulletPrefabs:
   - {fileID: 6439553092793452115, guid: 255df793cebdd8a4ab891c157b9096f0, type: 3}
   BulletBehaviours:
-  - {fileID: 11400000, guid: 9725d8d2588f38745ae265d7e1bba9f3, type: 2}
+  - {fileID: 11400000, guid: e4d06d4fb4c422f43a054957b2e5af89, type: 2}
