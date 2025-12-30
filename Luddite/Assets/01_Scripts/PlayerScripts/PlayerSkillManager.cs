@@ -66,9 +66,9 @@ public class PlayerSkillManager : MonoBehaviour
 
         foreach(PlayerClassType _class in LibraryManager.Instance.playerAnalyses.Keys)
         {
-            PlayerNormalSkillTreeDict[_class] =  LibraryManager.Instance.playerAnalyses[_class].NormalSkillTree;
-            PlayerActive1SkillTreeDict[_class] =  LibraryManager.Instance.playerAnalyses[_class].Active1SkillTree;
-            PlayerActive2SkillTreeDict[_class] =  LibraryManager.Instance.playerAnalyses[_class].Active2SkillTree;
+            PlayerNormalSkillTreeDict[_class] =  LibraryManager.Instance.playerSkillTrees[_class].NormalSkillTree;
+            PlayerActive1SkillTreeDict[_class] =  LibraryManager.Instance.playerSkillTrees[_class].Active1SkillTree;
+            PlayerActive2SkillTreeDict[_class] =  LibraryManager.Instance.playerSkillTrees[_class].Active2SkillTree;
         }
 
 
@@ -87,23 +87,21 @@ public class PlayerSkillManager : MonoBehaviour
         {
             default:
             case SlotType.Normal:
-                Tree= LibraryManager.Instance.playerAnalyses[_class].NormalSkillTree;
+                Tree= LibraryManager.Instance.playerSkillTrees[_class].NormalSkillTree;
                 _container = GetContainer(_class).Item1;
                 break;
             case SlotType.Skill1:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].Active1SkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].Active1SkillTree;
                 _container = GetContainer(_class).Item2;
                 break;
             case SlotType.Skill2:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].Active2SkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].Active2SkillTree;
                 _container = GetContainer(_class).Item3;
                 break;
         }
 
         Tree.StartNode.isEarned = true;
         int SkillLength = _container.SkillDataset.Count;
-        //PlayerSkillScriptableObject StartSkill = _container.SkillDataset[0].Skills[0];
-        // Tree.StartNode.SkillObject = StartSkill;
         List<TreeNode> TempParents = new List<TreeNode>();
         TempParents.Add(Tree.StartNode);
         for (int i = 1; i < SkillLength; i++) // Tiers
@@ -131,9 +129,9 @@ public class PlayerSkillManager : MonoBehaviour
 
     public void SkillTreeMapping(PlayerClassType _class)
     {
-        SkillTree normalTree = LibraryManager.Instance.playerAnalyses[_class].NormalSkillTree;
-        SkillTree Active1Tree = LibraryManager.Instance.playerAnalyses[_class].Active1SkillTree;
-        SkillTree Active2Tree = LibraryManager.Instance.playerAnalyses[_class].Active2SkillTree;
+        SkillTree normalTree = LibraryManager.Instance.playerSkillTrees[_class].NormalSkillTree;
+        SkillTree Active1Tree = LibraryManager.Instance.playerSkillTrees[_class].Active1SkillTree;
+        SkillTree Active2Tree = LibraryManager.Instance.playerSkillTrees[_class].Active2SkillTree;
 
         SkillTreeMap treeMap = GetSkillTreeMap(_class);
 
@@ -141,13 +139,15 @@ public class PlayerSkillManager : MonoBehaviour
         Mapping(treeMap, Active1Tree, SlotType.Skill1, _class);
         Mapping(treeMap, Active2Tree, SlotType.Skill2, _class);
 
-        if (LibraryManager.Instance.playerAnalyses[_class].CurrentActive1 == null)
+        if (LibraryManager.Instance.playerSkillTrees[_class].CurrentActive1 == null)
         {
-            LibraryManager.Instance.playerAnalyses[_class].CurrentActive1 = Active1Tree.StartNode;
+            LibraryManager.Instance.playerAnalyses[_class].CurrentActive1 = (0, 0);
+            LibraryManager.Instance.playerSkillTrees[_class].CurrentActive1 = Active1Tree.StartNode;
         }
-        if (LibraryManager.Instance.playerAnalyses[_class].CurrentActive2 == null)
+        if (LibraryManager.Instance.playerSkillTrees[_class].CurrentActive2 == null)
         {
-            LibraryManager.Instance.playerAnalyses[_class].CurrentActive2 = Active2Tree.StartNode;
+            LibraryManager.Instance.playerAnalyses[_class].CurrentActive2 = (0, 0);
+            LibraryManager.Instance.playerSkillTrees[_class].CurrentActive2 = Active2Tree.StartNode;
         }
 
     }
@@ -238,15 +238,15 @@ public class PlayerSkillManager : MonoBehaviour
         {
             default:
             case SlotType.Normal:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].NormalSkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].NormalSkillTree;
                 _container = GetContainer(_class).Item1;
                 break;
             case SlotType.Skill1:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].Active1SkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].Active1SkillTree;
                 _container = GetContainer(_class).Item2;
                 break;
             case SlotType.Skill2:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].Active2SkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].Active2SkillTree;
                 _container = GetContainer(_class).Item3;
                 break;
         }
@@ -258,7 +258,7 @@ public class PlayerSkillManager : MonoBehaviour
 
         if (TargetNode.SkillObject.isSynergy)
         {
-            SkillTree otherTree = LibraryManager.Instance.playerAnalyses[_class].Active2SkillTree;
+            SkillTree otherTree = LibraryManager.Instance.playerSkillTrees[_class].Active2SkillTree;
 
             if (Tree.FindSynergyEarned(TargetNode.SkillObject.SynergySkill1) &&
                 otherTree.FindSynergyEarned(TargetNode.SkillObject.SynergySkill1))
@@ -285,15 +285,15 @@ public class PlayerSkillManager : MonoBehaviour
         {
             default:
             case SlotType.Normal:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].NormalSkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].NormalSkillTree;
                 _container = GetContainer(_class).Item1;
                 break;
             case SlotType.Skill1:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].Active1SkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].Active1SkillTree;
                 _container = GetContainer(_class).Item2;
                 break;
             case SlotType.Skill2:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].Active2SkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].Active2SkillTree;
                 _container = GetContainer(_class).Item3;
                 break;
         }
@@ -315,7 +315,7 @@ public class PlayerSkillManager : MonoBehaviour
         // 3. 현재 스킬 획득 조건이 시너지가 필요하다면, 다른 트리까지 참조하여 획득 체크
         if (TargetNode.SkillObject.isSynergy)
         {
-            SkillTree otherTree = LibraryManager.Instance.playerAnalyses[_class].Active2SkillTree;
+            SkillTree otherTree = LibraryManager.Instance.playerSkillTrees[_class].Active2SkillTree;
 
             if (Tree.FindSynergyEarned(TargetNode.SkillObject.SynergySkill1) &&
                 otherTree.FindSynergyEarned(TargetNode.SkillObject.SynergySkill2))
@@ -343,13 +343,13 @@ public class PlayerSkillManager : MonoBehaviour
         {
             default:
             case SlotType.Normal:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].NormalSkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].NormalSkillTree;
                 break;
             case SlotType.Skill1:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].Active1SkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].Active1SkillTree;
                 break;
             case SlotType.Skill2:
-                Tree = LibraryManager.Instance.playerAnalyses[_class].Active2SkillTree;
+                Tree = LibraryManager.Instance.playerSkillTrees[_class].Active2SkillTree;
                 break;
         }
 

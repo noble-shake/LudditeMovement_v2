@@ -5,7 +5,6 @@ using UnityEngine.UI;
 // View
 public class AnalysisUI : MonoBehaviour
 {
-    public static AnalysisUI Instance;
 
     [SerializeField] private TMP_Text Name;
     [SerializeField] private TMP_Text Description;
@@ -16,6 +15,8 @@ public class AnalysisUI : MonoBehaviour
     [SerializeField] private TMP_Text Comment2;
     [SerializeField] private TMP_Text Comment3;
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private Button AudioButton;
+    [SerializeField] private Button ExitButton;
 
     public string NameValue { get { return Name.text; } set { Name.text = value; } }
     public string DescriptionValue { get { return Description.text; } set { Description.text = value; } }
@@ -28,9 +29,12 @@ public class AnalysisUI : MonoBehaviour
     public Sprite PortraitValue { get { return Portrait.sprite; } set { Portrait.sprite = value; } }
     public AudioClip AudioValue { get { return audioSource.clip; } set { audioSource.clip = value; } }
 
-    private void Awake()
+    private void Start()
     {
-        if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
+        AudioButton.onClick.AddListener(() => { if(audioSource.clip != null) audioSource.Play(); });
+        ExitButton.onClick.AddListener(() => { Destroy(gameObject); GameManager.Instance.TimeContinue(); });
     }
+
+    
 
 }

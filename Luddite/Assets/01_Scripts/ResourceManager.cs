@@ -182,11 +182,13 @@ public class ResourceManager : MonoBehaviour
                 Enemy enemyObject = newObj.GetComponent<Enemy>();
                 enemyObject.SetStatus(target.HP, target.AP, target.BP);
 
-                List<IEnemyMove> mvs = new List<IEnemyMove>();
+                List<(EnemyMoveScriptable, IEnemyMove)> mvs = new List<(EnemyMoveScriptable, IEnemyMove)>();
                 List<(EnemyAttackScriptable, IEnemyAttack)> atks = new List<(EnemyAttackScriptable, IEnemyAttack)>();
                 foreach (EnemyMoveScriptable mp in target.Move)
                 {
-                    mvs.Add(mp.GetInstance());
+                    IEnemyMove enemyMove = mp.GetInstance();
+
+                    mvs.Add((mp, enemyMove));
                 }
                 enemyObject.SetMovePattern(mvs);
 
@@ -314,6 +316,16 @@ public class ResourceManager : MonoBehaviour
         EnemyPool[_object].Add(newObj);
         newObj.SetActive(true);
         return newObj;
+    }
+
+    public EnemyScriptableObject GetEnemyInfo(EnemyName _name)
+    {
+        foreach (EnemyScriptableObject target in EnemyObjects)
+        { 
+            if(target.enemyName == _name)  return target;
+        }
+
+        return null;
     }
 
     public void ResourceRetrieve(GameObject _object)

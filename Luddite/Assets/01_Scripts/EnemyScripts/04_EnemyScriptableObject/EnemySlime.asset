@@ -20,8 +20,8 @@ MonoBehaviour:
   Comment1: "...!!! (\uC880 \uB354 \uB9DB\uC788\uB294 \uC601\uD63C\uC744...)"
   Comment2: "... ...!!! (\uC880 \uB354, \uBA39\uC744\uAC8C \uD544\uC694\uD574!!!..)"
   Comment3: "...??!! (\uC800\uAC74.. \uBA39\uC744 \uC218 \uC788\uB294\uAC74\uAC00??!)"
-  Sound: {fileID: 0}
-  Portrait: {fileID: 0}
+  Sound: {fileID: 8300000, guid: 545088b964de0de4fb19e920043eb65e, type: 3}
+  Portrait: {fileID: 21300000, guid: 115d586b52d0721439e05262401033f6, type: 3}
   EnemyPrefab: {fileID: 8199468940793596056, guid: 23a6292c44b061c43a66b4c6064e16af, type: 3}
   isBoss: 0
   HP: 100
@@ -30,5 +30,6 @@ MonoBehaviour:
   Attack:
   - {fileID: 11400000, guid: a7230ab641d9e5d449d58ca49b28aac2, type: 2}
   - {fileID: 11400000, guid: cda23068aa358324bb4a33e3a887ea58, type: 2}
+  - {fileID: 11400000, guid: c5a17db6317d716448b7cbc63267a760, type: 2}
   Move:
   - {fileID: 11400000, guid: e0955390f30d2a045b3717d43cd1dae3, type: 2}

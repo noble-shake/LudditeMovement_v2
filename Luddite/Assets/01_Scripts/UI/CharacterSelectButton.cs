@@ -66,7 +66,7 @@ public class CharacterSelectButton : MonoBehaviour, IPointerDownHandler, IPointe
                     Skill1Canvas.alpha = 1f;
                     Skill1Canvas.blocksRaycasts = true;
                     Skill1Canvas.interactable = true;
-                    TreeNode Active1Tree = LibraryManager.Instance.playerAnalyses[classType].CurrentActive1;
+                    TreeNode Active1Tree = LibraryManager.Instance.playerSkillTrees[classType].CurrentActive1;
                     PlayerSkillScriptableObject skillObject = Active1Tree.SkillObject;
 
                     if (skillObject == null)
@@ -89,7 +89,7 @@ public class CharacterSelectButton : MonoBehaviour, IPointerDownHandler, IPointe
                     Skill2Canvas.alpha = 1f;
                     Skill2Canvas.blocksRaycasts = true;
                     Skill2Canvas.interactable = true;
-                    TreeNode Active2Tree = LibraryManager.Instance.playerAnalyses[classType].CurrentActive2;
+                    TreeNode Active2Tree = LibraryManager.Instance.playerSkillTrees[classType].CurrentActive2;
                     PlayerSkillScriptableObject skillObject = Active2Tree.SkillObject;
 
                     if (skillObject == null)

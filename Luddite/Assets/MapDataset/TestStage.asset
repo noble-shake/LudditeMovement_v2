@@ -26,3 +26,8 @@ MonoBehaviour:
     MonsterLevel: 1
     SpawnColumn: 4
     SpawnRow: 5
+  - SpawnTime: 7
+    MonsterType: 2
+    MonsterLevel: 1
+    SpawnColumn: 1
+    SpawnRow: 8

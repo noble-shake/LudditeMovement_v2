@@ -54,5 +54,8 @@ public class CircularShot : IEnemyAttack
     {
     }
 
-
+    public void Interupt()
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -378,23 +379,28 @@ public class PlayerManager : MonoBehaviour
                 if (isClockwise)
                 {
                     hitInfo.collider.GetComponent<Player>().OrbInteract(true);
+                    return;
                 }
                 else if (isCounterClockwise)
                 {
                     hitInfo.collider.GetComponent<Player>().OrbInteract(false);
+                    return;
                 }
             }
             else if (LayerName.Equals("Enemy"))
             {
                 hitInfo.collider.GetComponent<Enemy>().OrbInteracted();
+                return;
             }
             else if (LayerName.Equals("Props"))
             {
                 hitInfo.collider.GetComponent<Props>().OrbInteracted();
+                return;
             }
             else if (LayerName.Equals("Environment"))
             {
                 hitInfo.collider.GetComponent<Environments>().OrbInteracted();
+                return;
             }
         }
     }

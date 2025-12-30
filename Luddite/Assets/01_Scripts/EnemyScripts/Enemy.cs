@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum EnemyName
 { 
     None,
     Slime,
+    Bat,
 }
 
 
@@ -26,7 +29,7 @@ public enum EnemyBehaviour
     WAIT,
 }
 
-public abstract class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour
 {
     [SerializeField] protected EnemyStatusManager status;
     [SerializeField] protected Animator anim;
@@ -40,22 +43,37 @@ public abstract class Enemy : MonoBehaviour
 
     [SerializeField] public EnemyBehaviour CurrentState;
 
-    [SerializeField] protected int AttackIndex;
-    [SerializeField] protected List<(EnemyAttackScriptable, IEnemyAttack)> AttackPattern;
-    [SerializeField] protected (EnemyAttackScriptable, IEnemyAttack) CurrentAttackPattern;
+    [Header("OrbInteraction")]
+    //[SerializeField] ParticleSystem GetHPEffect;
+    //[SerializeField] EffectObject ActivatedeEffect;
+    [SerializeField] bool isDetected;
+    [SerializeField] float OrbDetectRemained = 0.5f;
+    [SerializeField] float OrbDetectCurFlow;
+    float CurInteractDelay;
+    [SerializeField] ParticleSystem InteractionParticle;
+
+    [Header("IEnemy Instances")]
+    [SerializeField] public int AttackIndex;
+    [SerializeField] public List<(EnemyAttackScriptable, IEnemyAttack)> AttackPattern;
+    [SerializeField] public (EnemyAttackScriptable, IEnemyAttack) CurrentAttackPattern;
     [SerializeField] protected int MoveIndex;
-    [SerializeField] protected List<IEnemyMove> MovePattern;
-    [SerializeField] protected IEnemyMove CurrentMovePattern;
+    [SerializeField] protected List<(EnemyMoveScriptable,IEnemyMove)> MovePattern;
+    [SerializeField] protected (EnemyMoveScriptable, IEnemyMove)CurrentMovePattern;
+
+    [Header("Charge UI")]
+    [SerializeField] public CanvasGroup ChargeUI;
+    [SerializeField] public Image ChargeProgress;
+    [SerializeField] public TMP_Text ChargeCycle;
 
     [SerializeField] protected Rigidbody rigid;
     protected AppearEffect appearEffect;
-    protected bool isIdle = true;
-    protected bool isBerserk = false;
-    protected bool isDead = false;
-    protected bool isAttack = false;
-    protected bool isMove;
-    protected bool isCharging;
-    protected bool isStunned;
+    [SerializeField] protected bool isIdle = true;
+    [SerializeField] protected bool isBerserk = false;
+    [SerializeField] protected bool isDead = false;
+    [SerializeField] protected bool isAttack = false;
+    [SerializeField] protected bool isMove;
+    [SerializeField] protected bool isCharging;
+    [SerializeField] protected bool isStunned;
 
     float stunnedTime;
 
@@ -77,6 +95,20 @@ public abstract class Enemy : MonoBehaviour
         status.MaxBPValue = BP;
     }
 
+    public void SetStunned(float stunned = 5f)
+    {
+        ChargeUI.gameObject.SetActive(false);
+        stunnedTime = stunned;
+        isCharging = false;
+        isStunned = true;
+        status.APValue = 0f;
+        status.BPValue = status.MaxBPValue;
+        CurrentState = EnemyBehaviour.STUNNED;
+        GameObject effect = ResourceManager.Instance.GetEffectResource("BreakEffect");
+        effect.transform.position = this.transform.position;
+        MainSprite.GetComponent<SpriteRenderer>().color = Color.black;
+    }
+
     public void AppearOn()
     {
         statusUI.alpha = 1f;
@@ -84,7 +116,7 @@ public abstract class Enemy : MonoBehaviour
         MainSprite.SetActive(true);
         OutlineSprite.SetActive(true);
         CurrentMovePattern = MovePattern[0];
-        CurrentMovePattern.SetInit(this.transform);
+        CurrentMovePattern.Item2.SetInit(this.transform);
         CurrentState = EnemyBehaviour.MOVE;
     }
 
@@ -126,9 +158,24 @@ public abstract class Enemy : MonoBehaviour
 
     public virtual void OrbInteracted()
     {
+        if (CurInteractDelay > 0f) return;
+        CurInteractDelay = 1f;
+
+        isDetected = true;
+        OrbDetectRemained = 2f;
+
         if (isStunned)
-        { 
+        {
             // Analysis On
+            LibraryManager.Instance.EnemyAnalysisEvent(enemyName, CurrentAttackPattern.Item1.Description, CurrentMovePattern.Item1.Description);
+            InteractionParticle?.Play();
+
+        }
+
+        if (isCharging)
+        {
+            InteractionParticle?.Play();
+            CurrentAttackPattern.Item2?.Interupt();
         }
 
 
@@ -136,8 +183,28 @@ public abstract class Enemy : MonoBehaviour
 
     protected virtual void Update()
     {
+        CurInteractDelay -= Time.deltaTime;
+        if (CurInteractDelay < 0) CurInteractDelay = 0f;
+
+        if (isDetected)
+        {
+            OrbDetectRemained -= Time.deltaTime;
+        }
+
+        if (OrbDetectRemained < 0f)
+        {
+            // 초기화 해버리니까, 다시 사이클 돌려야 하는게 힘들 수 있다.
+            //CycleUI.gameObject.SetActive(false);
+            //CycleText.text = statusManager.RequireCycleValue.ToString();
+            //statusManager.CurRequireCycleValue = statusManager.RequireCycleValue;
+            OrbDetectRemained = 0.5f;
+            isDetected = false;
+        }
+
         FSM_Update();
-        CurrentMovePattern?.MoveUpdate();
+
+        if (isStunned) return;
+        CurrentMovePattern.Item2?.MoveUpdate();
         CurrentAttackPattern.Item2?.Update();
 
     }
@@ -170,7 +237,11 @@ public abstract class Enemy : MonoBehaviour
                 CurrentState = EnemyBehaviour.IDLE;
                 break;
             case EnemyBehaviour.CHARGE:
+                CurrentAttackPattern = AttackPattern[AttackIndex];
+                CurrentAttackPattern.Item2.SetInit(this.transform);
                 CurrentAttackPattern.Item2?.Charge();
+                isCharging = true;
+                CurrentState = EnemyBehaviour.WAIT;
                 break;
             case EnemyBehaviour.STUNNED:
                 if (isStunned)
@@ -179,8 +250,11 @@ public abstract class Enemy : MonoBehaviour
                     if (stunnedTime < 0f)
                     {
                         isStunned = false;
-                        stunnedTime = 5f;
-                        CurrentState = EnemyBehaviour.IDLE;
+                        stunnedTime = 0f;
+                        CurrentState = EnemyBehaviour.MOVE;
+                        status.BPValue = 0f;
+                        status.APValue = 0f;
+                        MainSprite.GetComponent<SpriteRenderer>().color = Color.white;
                     }
                 }
                 break;
@@ -193,14 +267,16 @@ public abstract class Enemy : MonoBehaviour
 
     public void Move()
     {
+        if (isCharging) return;
         CurrentMovePattern = MovePattern[MoveIndex++];
-        CurrentMovePattern.SetInit(this.transform);
+        CurrentMovePattern.Item2.SetInit(this.transform);
         if (MoveIndex >= MovePattern.Count) MoveIndex = 0;
-        CurrentMovePattern?.Move();
+        CurrentMovePattern.Item2?.Move();
     }
 
     public void Attack()
     {
+        isCharging = false;
         status.APValue = 0f;
         CurrentAttackPattern = AttackPattern[AttackIndex++];
         CurrentAttackPattern.Item2.SetInit(this.transform);
@@ -234,7 +310,7 @@ public abstract class Enemy : MonoBehaviour
         CurrentState = EnemyBehaviour.IDLE;
     }
 
-    public void SetMovePattern(List<IEnemyMove> patterns)
+    public void SetMovePattern(List<(EnemyMoveScriptable, IEnemyMove)> patterns)
     { 
         MovePattern = patterns;
     }

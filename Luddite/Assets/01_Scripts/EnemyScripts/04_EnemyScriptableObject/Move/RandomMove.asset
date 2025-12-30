@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: RandomMove
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMoveScriptable
   Name: RandomMove
+  Description: "\uC5B4\uB514\uB85C \uD288\uC9C0 \uC608\uCE21\uD560 \uC218 \uC5C6\uB2E4."

@@ -131,6 +131,11 @@ public class PlayerStatusManager : MonoBehaviour
 
     }
 
+    private void Update()
+    {
+        HPValue -= Time.deltaTime;
+    }
+
     public void StatusInit()
     {
         SkillAdjust();
@@ -159,13 +164,13 @@ public class PlayerStatusManager : MonoBehaviour
 
     public void SkillAdjust()
     {
-        TreeNode normalNode = LibraryManager.Instance.playerAnalyses[player.playerType].NormalSkillTree.StartNode;
+        TreeNode normalNode = LibraryManager.Instance.playerSkillTrees[player.playerType].NormalSkillTree.StartNode;
         TreeSkillAdjust(normalNode);
 
-        TreeNode Active1Node = LibraryManager.Instance.playerAnalyses[player.playerType].Active1SkillTree.StartNode;
+        TreeNode Active1Node = LibraryManager.Instance.playerSkillTrees[player.playerType].Active1SkillTree.StartNode;
         TreeSkillAdjust(Active1Node);
 
-        TreeNode Active2Node = LibraryManager.Instance.playerAnalyses[player.playerType].Active2SkillTree.StartNode;
+        TreeNode Active2Node = LibraryManager.Instance.playerSkillTrees[player.playerType].Active2SkillTree.StartNode;
         TreeSkillAdjust(Active2Node);
     }
 

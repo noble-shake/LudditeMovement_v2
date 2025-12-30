@@ -178,5 +178,48 @@ public class GameManager : MonoBehaviour
         SkillCanvas.gameObject.SetActive(false);
     }
 
+    public Vector3 EdgeRunner(Vector3 HitPoint)
+    {
+        float x = HitPoint.x;
+        x = Mathf.FloorToInt(x) + 0.5f;
 
+        float z = HitPoint.z;
+        if (z - Mathf.FloorToInt(z) < 0.5f)
+        {
+            z = Mathf.FloorToInt(z);
+        }
+        else
+        {
+            z = Mathf.CeilToInt(z);
+        }
+
+        return new Vector3(x, 0f, z);
+    }
+
+    public  (int, int) EdgeIndexer(Vector3 HitPoint)
+    {
+
+        int x = Mathf.FloorToInt(HitPoint.x);
+
+        // -9f, 9f : 16
+        float indexerX = remap(x, -9f, 8f, 0f, 16f);
+
+        float z = HitPoint.z;
+        if (z - Mathf.FloorToInt(z) < 0.5f)
+        {
+            z = Mathf.FloorToInt(z);
+        }
+        else
+        {
+            z = Mathf.CeilToInt(z);
+        }
+        float indexerY = remap(z, -4f, 4f, 0f, 8f);
+
+        return ((int)indexerY, (int)indexerX);
+    }
+
+    private float remap(float val, float in1, float in2, float out1, float out2)
+    {
+        return out1 + (val - in1) * (out2 - out1) / (in2 - in1);
+    }
 }

@@ -65,9 +65,18 @@ public class EnemyStatusManager : MonoBehaviour
             {
                 if (owner.isStunCheck) return;
                 if (owner.CurrentState == EnemyBehaviour.WAIT) return;
+                if (owner.isChargingCheck) return;
                 owner.isAttackCheck = true;
                 AP = MaxAP;
-                owner.CurrentState = EnemyBehaviour.ATTACK;
+                if (owner.AttackPattern[owner.AttackIndex].Item1.isCharging)
+                {
+                    owner.CurrentState = EnemyBehaviour.CHARGE;
+                }
+                else
+                {
+                    owner.CurrentState = EnemyBehaviour.ATTACK;
+                }
+
             }
 
             APBar.Value = AP / MaxAP;
@@ -91,8 +100,8 @@ public class EnemyStatusManager : MonoBehaviour
                 AP = 0;
                 BP = MaxBP;
                 // Stunned.
-                owner.isStunCheck = true;
-                owner.CurrentState = EnemyBehaviour.STUNNED;
+                owner.SetStunned();
+
             }
 
             BPBar.Value = BP / MaxBP;
@@ -108,6 +117,8 @@ public class EnemyStatusManager : MonoBehaviour
     private void Update()
     {
 
+        if (owner.isStunCheck) return;
+
         APValue += Time.deltaTime;
 
         if (BPValue < MaxBPValue)
@@ -122,11 +133,16 @@ public class EnemyStatusManager : MonoBehaviour
     public void OnHit(float value)
     {
         HPValue -= value;
-        APValue += 1;
-        if (value > 0f)
+        if (owner.isStunCheck == false)
         {
-            BPValue  += Mathf.Abs(value);
+            APValue += 1;
+            if (value > 0f)
+            {
+                BPValue += Mathf.Abs(value);
+            }
         }
+
+
 
     }
 }

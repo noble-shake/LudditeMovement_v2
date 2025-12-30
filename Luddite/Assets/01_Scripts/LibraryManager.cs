@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.IO;
-using System.Data;
-using Unity.Collections.LowLevel.Unsafe;
+using System.Threading;
 
 
 [Serializable]
@@ -30,11 +29,11 @@ public class PlayerAnalysis
     public bool Memory2;
     public bool Memory3;
     public bool isLocked;
-    public SkillTree NormalSkillTree;
-    public SkillTree Active1SkillTree;
-    public SkillTree Active2SkillTree;
-    public TreeNode CurrentActive1;
-    public TreeNode CurrentActive2;
+    public List<(int, int)> NormalSkillMapper;
+    public List<(int, int)> Active1SkillMapper;
+    public List<(int, int)> Active2SkillMapper;
+    public (int, int) CurrentActive1;
+    public (int, int) CurrentActive2;
 }
 
 [Serializable]
@@ -66,6 +65,15 @@ public class StageAnalysis
     }
 }
 
+public class SkillMap
+{
+    public SkillTree NormalSkillTree;
+    public SkillTree Active1SkillTree;
+    public SkillTree Active2SkillTree;
+    public TreeNode CurrentActive1;
+    public TreeNode CurrentActive2;
+}
+
 [Serializable]
 public class DataContainer
 {
@@ -89,6 +97,7 @@ public class LibraryManager : MonoBehaviour
     public float TotalPlayTime;
     public Dictionary<EnemyName, EnemyAnalysis> enemyAnalyses;
     public Dictionary<PlayerClassType, PlayerAnalysis> playerAnalyses;
+    public Dictionary<PlayerClassType, SkillMap> playerSkillTrees;
     public Dictionary<int, StageAnalysis> stageAnalyses;
 
     private void Awake()
@@ -128,6 +137,7 @@ public class LibraryManager : MonoBehaviour
         stageAnalyses = dataContainer.stageAnalyses;
         MainMenuUI.Instance.UpdatePlaytime();
 
+        PlayerSkillInitialize();
         List<PlayerScriptableObject> Dataset = ResourceManager.Instance.GetPlayerObjects();
         foreach (PlayerScriptableObject e in Dataset)
         {
@@ -144,13 +154,14 @@ public class LibraryManager : MonoBehaviour
         foreach (EnemyScriptableObject e in Dataset)
         {
             EnemyAnalysis info = new EnemyAnalysis()
-            { 
+            {
+                enemyType = e.enemyName,
                 Name = e.Name,
                 Description = false,
                 Meet = false,
                 Comment1 = false,
                 Comment2 = false,
-                Comment3 = false 
+                Comment3 = false
             };
             enemyAnalyses[e.enemyName] = info;
         }
@@ -161,6 +172,7 @@ public class LibraryManager : MonoBehaviour
     private void PlayerLibraryInitialize()
     {
         playerAnalyses = new Dictionary<PlayerClassType, PlayerAnalysis>();
+
         List<PlayerScriptableObject> Dataset = ResourceManager.Instance.GetPlayerObjects();
         foreach (PlayerScriptableObject e in Dataset)
         {
@@ -170,25 +182,54 @@ public class LibraryManager : MonoBehaviour
                 Memory1 = false,
                 Memory2 = false,
                 Memory3 = false,
-                isLocked = true
+                isLocked = true,
+                NormalSkillMapper = new List<(int, int)>() { (0, 0)},
+                Active1SkillMapper = new List<(int, int)>() { (0, 0)},
+                Active2SkillMapper = new List<(int, int)>() { (0, 0)},
             };
             if (e.classType == PlayerClassType.Knight) info.isLocked = false;
             playerAnalyses[e.classType] = info;
 
-            playerAnalyses[e.classType].NormalSkillTree = new SkillTree("0_0");
-            playerAnalyses[e.classType].Active1SkillTree = new SkillTree("0_0");
-            playerAnalyses[e.classType].Active2SkillTree = new SkillTree("0_0");
+
         }
 
         dataContainer.playerAnalyses = playerAnalyses;
+
+    }
+
+    private void PlayerSkillInitialize()
+    {
+        playerSkillTrees = new Dictionary<PlayerClassType, SkillMap>();
+        List<PlayerScriptableObject> Dataset = ResourceManager.Instance.GetPlayerObjects();
         foreach (PlayerScriptableObject e in Dataset)
         {
+            playerSkillTrees[e.classType] = new SkillMap();
+            playerSkillTrees[e.classType].NormalSkillTree = new SkillTree("0_0");
+            playerSkillTrees[e.classType].Active1SkillTree = new SkillTree("0_0");
+            playerSkillTrees[e.classType].Active2SkillTree = new SkillTree("0_0");
+
             PlayerSkillManager.Instance.BuildSkillTree(e.classType, SlotType.Normal);
             PlayerSkillManager.Instance.BuildSkillTree(e.classType, SlotType.Skill1);
             PlayerSkillManager.Instance.BuildSkillTree(e.classType, SlotType.Skill2);
 
-        }
+            foreach ((int, int) mapper in playerAnalyses[e.classType].NormalSkillMapper)
+            {
+                TreeNode node = playerSkillTrees[e.classType].NormalSkillTree.FindNode(mapper.Item1, mapper.Item2);  // tier, index
+                node.isEarned = true;
+            }
 
+            foreach ((int, int) mapper in playerAnalyses[e.classType].Active1SkillMapper)
+            {
+                TreeNode node = playerSkillTrees[e.classType].Active1SkillTree.FindNode(mapper.Item1, mapper.Item2);  // tier, index
+                node.isEarned = true;
+            }
+
+            foreach ((int, int) mapper in playerAnalyses[e.classType].Active2SkillMapper)
+            {
+                TreeNode node = playerSkillTrees[e.classType].Active2SkillTree.FindNode(mapper.Item1, mapper.Item2);  // tier, index
+                node.isEarned = true;
+            }
+        }
     }
 
     private void StageLibraryInitialize()
@@ -216,4 +257,56 @@ public class LibraryManager : MonoBehaviour
 
         dataContainer.stageAnalyses = stageAnalyses;
     }
+
+    #region Enemy Analysis
+
+    [SerializeField] private AnalysisUI AnalysisPrefab;
+
+    public void EnemyAnalysisEvent(EnemyName _enemy, string AttackPattern, string MovePattern)
+    {
+        EnemyAnalysis analysis = enemyAnalyses[_enemy];
+        if (analysis.Comment1 && analysis.Comment2 && analysis.Comment3) return;
+        EnemyLibraryAdd(_enemy);
+
+        // save
+
+        EnemyScriptableObject enemyInfo = ResourceManager.Instance.GetEnemyInfo(_enemy);
+        AnalysisUI canvas = Instantiate<AnalysisUI>(AnalysisPrefab);
+       
+        canvas.NameValue = enemyInfo.Name;
+        canvas.DescriptionValue = enemyInfo.EnemyDescription;
+        canvas.PortraitValue = enemyInfo.Portrait;
+        canvas.Comment1Value= enemyAnalyses[_enemy].Comment1 ? enemyInfo.Comment1 : "???????";
+        canvas.Comment2Value= enemyAnalyses[_enemy].Comment2 ? enemyInfo.Comment1 : "???????";
+        canvas.Comment3Value= enemyAnalyses[_enemy].Comment3 ? enemyInfo.Comment1 : "???????";
+        canvas.AttackDescriptionValue = AttackPattern;
+        canvas.MoveDescriptionValue = MovePattern;
+        canvas.AudioValue = enemyInfo.Sound;
+
+        byte[] bytes;
+        string data = JsonConvert.SerializeObject(dataContainer);
+        bytes = System.Text.Encoding.UTF8.GetBytes(data);
+        string encoded = System.Convert.ToBase64String(bytes);
+        File.WriteAllText(FileDirectory, encoded);
+
+    }
+
+    public void EnemyLibraryAdd(EnemyName _enemy)
+    {
+        EnemyAnalysis analysis = enemyAnalyses[_enemy];
+        analysis.Meet = true;
+        if (analysis.Comment2)
+        {
+            analysis.Comment3 = true;
+        }
+
+        if (analysis.Comment1)
+        { 
+            analysis.Comment2 = true;
+        }
+
+        analysis.Comment1 = true;
+    }
+
+    #endregion
 }

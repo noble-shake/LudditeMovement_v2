@@ -404,11 +404,11 @@ public abstract class Player : MonoBehaviour
 
     public void GetSkillInstance()
     {
-        PlayerSkillScriptableObject skill1 = LibraryManager.Instance.playerAnalyses[playerType].CurrentActive1.SkillObject;
+        PlayerSkillScriptableObject skill1 = LibraryManager.Instance.playerSkillTrees[playerType].CurrentActive1.SkillObject;
         Active1Skill = ResourceManager.Instance.GetPlayerSkillInstance(skill1);
         Active1Skill.Init(this);
 
-        PlayerSkillScriptableObject skill2 = LibraryManager.Instance.playerAnalyses[playerType].CurrentActive2.SkillObject;
+        PlayerSkillScriptableObject skill2 = LibraryManager.Instance.playerSkillTrees[playerType].CurrentActive2.SkillObject;
         Active2Skill = ResourceManager.Instance.GetPlayerSkillInstance(skill2);
         Active2Skill.Init(this);
     }
