@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAttackScriptable
   Name: BatTraceShot
   Description: "\uC790\uC2E0\uC774 \uC7A1\uC544\uBA39\uC740 \uC601\uD63C\uC744 \uBC1C\uC0AC\uD55C\uB2E4."
-  isCharging: 1
+  isCharging: 0
   BulletPrefabs:
-  - {fileID: 6439553092793452115, guid: 255df793cebdd8a4ab891c157b9096f0, type: 3}
+  - {fileID: 8771381517400149411, guid: 22cbe9d75e65a154a879b39d1cd4c12b, type: 3}
   BulletBehaviours:
-  - {fileID: 11400000, guid: 3bd7c39ea77036345868ec597b3ff048, type: 2}
+  - {fileID: 11400000, guid: e2fcdb105f05f214dbf6c245b6afcbf1, type: 2}

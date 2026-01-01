@@ -4,8 +4,8 @@ using static UnityEngine.GraphicsBuffer;
 
 public class BatTraceBullet : IEnemyBullet
 {
-    float curFlow = 10;
-    float Speed;
+    float curFlow = 5;
+    float Speed = 3f;
     private Transform ShootTrs;
     private Transform TargetTrs;
 
@@ -22,15 +22,24 @@ public class BatTraceBullet : IEnemyBullet
         Vector3 StartPos = ShootTrs.position;
         Vector3 TargetPos = TargetTrs.position;
 
-        Vector2 targetDir = TargetPos - StartPos;
-        Vector3 crossVec = Vector3.Cross(ShootTrs.transform.forward, targetDir);
-        float inner = Vector3.Dot(Vector3.forward, crossVec);
-        float addAngle = inner > 0 ? 10f * Time.fixedDeltaTime : -10f* Time.fixedDeltaTime;
-        float saveAngle = addAngle + ShootTrs.rotation.eulerAngles.y;
-        ShootTrs.rotation = Quaternion.Euler(0, saveAngle, 0);
+        float d = MathF.Sqrt((TargetPos.x - StartPos.x) * (TargetPos.x - StartPos.x) + (TargetPos.z - StartPos.z) * (TargetPos.z - StartPos.z));
+        float x = (TargetPos.x - StartPos.x) / d * Speed;
+        float z = (TargetPos.z - StartPos.z) / d * Speed;
 
-        float moveDirAngle = ShootTrs.rotation.eulerAngles.y * Mathf.Deg2Rad;
-        ShootTrs.position = new Vector3(Mathf.Cos(moveDirAngle), 0f, Mathf.Sin(moveDirAngle));
+        if (d == 0)
+        {
+            x = Speed;
+            z = Speed;
+        }
+
+        ShootTrs.position += new Vector3(x * Time.deltaTime, 0f, z * Time.deltaTime);
+
+        curFlow -= Time.deltaTime;
+        if (curFlow < 0f)
+        {
+            curFlow = 10f;
+            ResourceManager.Instance.ResourceRetrieve(ShootTrs.gameObject);
+        }
 
     }
 }

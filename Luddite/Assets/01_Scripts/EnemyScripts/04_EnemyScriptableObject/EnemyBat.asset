@@ -30,5 +30,6 @@ MonoBehaviour:
   BP: 20
   Attack:
   - {fileID: 11400000, guid: 781848dc8d8d87f40960cb5d80784c6a, type: 2}
+  - {fileID: 11400000, guid: f4e19e44e1c037d48ad155801e2b40f7, type: 2}
   Move:
   - {fileID: 11400000, guid: 1bdd9176a3be1ab429e6dc32bf242057, type: 2}
