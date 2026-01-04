@@ -61,6 +61,7 @@ public class BatMove : IEnemyMove
                 if (Owner.GetComponent<Enemy>().CurrentState == EnemyBehaviour.STUNNED) return;
                 isMoveDone = true;
                 Owner.GetComponent<Enemy>().CurrentState = EnemyBehaviour.MOVE;
+                Owner.GetComponent<Enemy>().GetAnimator().Play("Stop");
             }
         }
 

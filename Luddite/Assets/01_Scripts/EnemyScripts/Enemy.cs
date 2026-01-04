@@ -235,8 +235,10 @@ public class Enemy : MonoBehaviour
             case EnemyBehaviour.MOVE:
                 Move();
                 CurrentState = EnemyBehaviour.IDLE;
+                anim.Play("Move");
                 break;
             case EnemyBehaviour.CHARGE:
+                anim.Play("Charge");
                 CurrentAttackPattern = AttackPattern[AttackIndex];
                 CurrentAttackPattern.Item2.SetInit(this.transform);
                 CurrentAttackPattern.Item2?.Charge();
@@ -305,7 +307,7 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         tempMat.SetFloat("_WhiteValue", 1f);
         MainSprite.GetComponent<SpriteRenderer>().material = tempMat;
-
+        anim.Play("Attack");
         yield return StartCoroutine(Attack);
         CurrentState = EnemyBehaviour.IDLE;
     }

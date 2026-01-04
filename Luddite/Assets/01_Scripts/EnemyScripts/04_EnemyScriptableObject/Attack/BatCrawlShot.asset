@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2298cb42b526404687affea1633259c, type: 3}
+  m_Name: BatCrawlShot
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAttackScriptable
+  Name: BatCrawlAttack
+  Description: "\uC591\uC606\uC73C\uB85C \uD68C\uC804\uD558\uB294 \uD0C4\uB9C9"
+  isCharging: 1
+  BulletPrefabs:
+  - {fileID: 8717593373515325033, guid: e608fcf9630c7404092b46b3ed1ac028, type: 3}
+  BulletBehaviours:
+  - {fileID: 11400000, guid: 9113e8326911237469e474f2cb454a36, type: 2}
