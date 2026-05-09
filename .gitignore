@@ -1,0 +1,22 @@
+# Unity
+Library/
+Temp/
+Logs/
+Builds/
+UserSettings/
+.vs/
+.vscode/
+*.csproj
+*.slnx
+*.sln
+
+# Legacy Unity
+Legacy/Library/
+Legacy/Temp/
+Legacy/Logs/
+Legacy/UserSettings/
+Legacy/.vs/
+
+# OS
+.DS_Store
+Thumbs.db
