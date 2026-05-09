@@ -1,4 +1,4 @@
-﻿using R3;
+using R3;
 using VContainer;
 
 using RottenNoble.Core;
@@ -11,38 +11,38 @@ namespace RottenNoble.MainMenu.StageSelect
     /// </summary>
     public class StageSelectViewModel : ViewModelBase<StageSelectView, StageSelectModel>
     {
-        StageSelectService _service;
-        SaveDataService    _saveData;
+        StageSelectService stageSelectService;
+        SaveDataService    saveDataService;
 
         [Inject]
-        void InjectServices(StageSelectService service, SaveDataService saveData)
+        void InjectServices(StageSelectService stageSelectService, SaveDataService saveDataService)
         {
-            _service  = service;
-            _saveData = saveData;
+            this.stageSelectService = stageSelectService;
+            this.saveDataService    = saveDataService;
         }
 
         public override void Initialize(StageSelectView view, StageSelectModel model)
         {
             base.Initialize(view, model);
 
-            _service.Initialize(_saveData.Data);
+            stageSelectService.Initialize(saveDataService.Data);
 
             view.OnStartButtonClicked()
-                .Subscribe(_ => _service.StartGame())
+                .Subscribe(_ => stageSelectService.StartGame())
                 .AddTo(ref disposableBag);
 
-            _service.CanStartGame
+            stageSelectService.CanStartGame
                 .Subscribe(can => view.SetStartButtonInteractable(can))
                 .AddTo(ref disposableBag);
         }
 
         public void OnHeroClicked(HeroId heroId)
-            => _service.ToggleHero(heroId);
+            => stageSelectService.ToggleHero(heroId);
 
         public void OnStageSelected(int stageId)
-            => _service.SelectedStageId.Value = stageId;
+            => stageSelectService.SelectedStageId.Value = stageId;
 
         public void OnSkillSlotChanged(HeroId h, SkillId cw, SkillId ccw)
-            => _service.SetSkillLoadout(h, cw, ccw);
+            => stageSelectService.SetSkillLoadout(h, cw, ccw);
     }
 }

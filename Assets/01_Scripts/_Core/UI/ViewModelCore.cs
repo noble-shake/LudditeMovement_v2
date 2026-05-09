@@ -1,9 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 using R3;
 using VContainer;
 
-using RottenNoble.Core.Resource;
+using RottenNoble.Core.Services;
 
 namespace RottenNoble.Core.UI
 {
@@ -15,19 +15,16 @@ namespace RottenNoble.Core.UI
     {
         public DisposableBag disposableBag = new();
 
-        protected SceneLoader     sceneLoader;
-        protected ResourceFactory resourceFactory;
-        protected AudioService    audioService;
+        protected DataManager  dataManager;
+        protected UINavigator  uiNavigator;
+        protected AudioService audioService;
 
         [Inject]
-        void InjectCores(
-            SceneLoader     sceneLoader,
-            ResourceFactory resourceFactory,
-            AudioService    audioService)
+        void InjectCores(DataManager dataManager, UINavigator uiNavigator, AudioService audioService)
         {
-            this.sceneLoader     = sceneLoader;
-            this.resourceFactory = resourceFactory;
-            this.audioService    = audioService;
+            this.dataManager  = dataManager;
+            this.uiNavigator  = uiNavigator;
+            this.audioService = audioService;
         }
 
         protected virtual void OnDestroy()

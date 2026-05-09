@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using UnityEngine;
+using System.Threading;
 
 using Cysharp.Threading.Tasks;
 using VContainer;
@@ -7,28 +6,29 @@ using VContainer.Unity;
 
 using RottenNoble.Core;
 using RottenNoble.Core.Resource;
+using RottenNoble.Core.UI;
 using RottenNoble.MainMenu.UI;
 
 /// <summary>
-/// MainMenu 씬 EntryPoint — MainMenuView 프리팹 생성 → MainMenuViewModel에 위임
+/// MainMenu 씬 EntryPoint — MainMenuView 로드 → MainMenuViewModel에 위임
 /// </summary>
 public class MainMenuEntryPoint : EntryPointBase, IAsyncStartable
 {
+    readonly GameConfig gameConfig;
+
     [Inject]
-    public MainMenuEntryPoint(ResourceFactory resourceFactory)
+    public MainMenuEntryPoint(DataManager dataManager, UINavigator uiNavigator, GameConfig gameConfig)
     {
-        this.resourceFactory = resourceFactory;
+        this.dataManager  = dataManager;
+        this.uiNavigator  = uiNavigator;
+        this.gameConfig   = gameConfig;
     }
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var viewGO = await resourceFactory.CreateAsync<GameObject>(
-            ResourceType.Addressable, UIAddress.MainMenuView);
+        var view = await uiNavigator.LoadAsync<MainMenuView>(CanvasType.Hud, gameConfig.uiMainMenuView);
+        AddCache(ResourceType.Addressable, view.gameObject);
 
-        AddCache(ResourceType.Addressable, viewGO);
-
-        var view = viewGO.GetComponent<MainMenuView>();
-        view.Initialize();
         view.InjectPresenter<MainMenuViewModel>()
             .Initialize(view, new MainMenuModel());
 

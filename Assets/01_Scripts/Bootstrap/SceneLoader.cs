@@ -1,48 +1,43 @@
-﻿using UnityEngine.SceneManagement;
+using UnityEngine.SceneManagement;
 
 using Cysharp.Threading.Tasks;
 
-namespace RottenNoble.Core
+using RottenNoble.Core;
+
+/// <summary>
+/// 씬 전환 서비스
+/// BootStrapper → Splash → Patch → Intro → DataLoad → MainMenu → InGame
+/// </summary>
+public class SceneLoader
 {
-    /// <summary>
-    /// 씬 전환 서비스
-    /// BootStrapper → Splash → Patch → Intro → DataLoad → MainMenu → InGame
-    /// </summary>
-    public class SceneLoader
+    readonly GameConfig _config;
+
+    public SceneLoader(GameConfig config)
     {
-        public static class SceneName
-        {
-            public const string BootStrapper = "BootStrapper";
-            public const string Splash       = "Splash";
-            public const string Patch        = "Patch";
-            public const string Intro        = "Intro";
-            public const string DataLoad     = "DataLoad";
-            public const string MainMenu     = "MainMenu";
-            public const string InGame       = "InGame";
-        }
+        _config = config;
+    }
 
-        public UniTask LoadSplashAsync()   => LoadSingleAsync(SceneName.Splash);
-        public UniTask LoadPatchAsync()    => LoadSingleAsync(SceneName.Patch);
-        public UniTask LoadIntroAsync()    => LoadSingleAsync(SceneName.Intro);
-        public UniTask LoadDataLoadAsync() => LoadSingleAsync(SceneName.DataLoad);
-        public UniTask LoadMainMenuAsync() => LoadSingleAsync(SceneName.MainMenu);
+    public UniTask LoadSplashAsync()   => LoadSingleAsync(_config.sceneSplash);
+    public UniTask LoadPatchAsync()    => LoadSingleAsync(_config.scenePatch);
+    public UniTask LoadIntroAsync()    => LoadSingleAsync(_config.sceneIntro);
+    public UniTask LoadDataLoadAsync() => LoadSingleAsync(_config.sceneDataLoad);
+    public UniTask LoadMainMenuAsync() => LoadSingleAsync(_config.sceneMainMenu);
 
-        public UniTask LoadInGameAsync(SessionData sessionData)
-        {
-            SessionData.Current = sessionData;
-            return LoadSingleAsync(SceneName.InGame);
-        }
+    public UniTask LoadInGameAsync(SessionData sessionData)
+    {
+        SessionData.Current = sessionData;
+        return LoadSingleAsync(_config.sceneInGame);
+    }
 
-        async UniTask LoadSingleAsync(string sceneName)
-        {
-            var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-            op.allowSceneActivation = false;
+    async UniTask LoadSingleAsync(string sceneName)
+    {
+        var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+        op.allowSceneActivation = false;
 
-            while (op.progress < 0.9f)
-                await UniTask.Yield();
+        while (op.progress < 0.9f)
+            await UniTask.Yield();
 
-            op.allowSceneActivation = true;
-            await UniTask.WaitUntil(() => op.isDone);
-        }
+        op.allowSceneActivation = true;
+        await UniTask.WaitUntil(() => op.isDone);
     }
 }

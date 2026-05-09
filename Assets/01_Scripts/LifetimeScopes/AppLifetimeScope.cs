@@ -1,9 +1,12 @@
-﻿using VContainer;
+﻿using UnityEngine;
+
+using VContainer;
 using VContainer.Unity;
 
 using RottenNoble.Core;
 using RottenNoble.Core.Resource;
 using RottenNoble.Core.Services;
+using RottenNoble.Core.UI;
 using RottenNoble.MainMenu.StageSelect;
 
 /// <summary>
@@ -13,18 +16,26 @@ using RottenNoble.MainMenu.StageSelect;
 /// </summary>
 public class AppLifetimeScope : LifetimeScope
 {
+    [SerializeField] GameConfig _gameConfig;
+
     protected override void Configure(IContainerBuilder builder)
     {
+        // ── 전역 설정 ─────────────────────────────────
+        builder.RegisterInstance(_gameConfig);
+
         // ── UI ───────────────────────────────────────
         // UIManager는 이 LifetimeScope GameObject의 자식 또는 씬 내 컴포넌트로 배치
         builder.RegisterComponentInHierarchy<UIManager>();
+        builder.Register<UINavigator>(Lifetime.Singleton);
 
-        // ── 리소스 관리 ──────────────────────────────
+        // ── 데이터 관리 ──────────────────────────────
+        // ResourceManager, SceneLoader는 DataManager 내부 의존성
         builder.Register<ResourceManager>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
         builder.Register<ResourceFactory>(Lifetime.Singleton);
-
-        // ── 씬 전환 전반에 걸쳐 공유되는 서비스 ──────
         builder.Register<SceneLoader>(Lifetime.Singleton);
+        builder.Register<DataManager>(Lifetime.Singleton);
+
+        // ── 공유 서비스 ───────────────────────────────
         builder.Register<SaveDataService>(Lifetime.Singleton);
         builder.Register<AudioService>(Lifetime.Singleton);
 

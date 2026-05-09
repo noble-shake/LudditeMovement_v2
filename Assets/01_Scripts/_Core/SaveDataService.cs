@@ -15,8 +15,8 @@ namespace RottenNoble.Core
 
         // Application.persistentDataPath는 메인 스레드에서만 접근 가능.
         // 최초 접근 시 메인 스레드에서 캐싱하고 이후 재사용합니다.
-        string _savePath;
-        string SavePath => _savePath ??= Path.Combine(Application.persistentDataPath, SaveFileName);
+        string savePath;
+        string SavePath => savePath ??= Path.Combine(Application.persistentDataPath, SaveFileName);
 
         public SaveData Data { get; private set; } = new();
 

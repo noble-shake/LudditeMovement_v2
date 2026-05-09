@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 
 using Cysharp.Threading.Tasks;
 using VContainer;
@@ -11,19 +11,19 @@ using RottenNoble.Core;
 /// </summary>
 public class BootstrapEntryPoint : IAsyncStartable
 {
-    readonly SceneLoader     _sceneLoader;
-    readonly SaveDataService _saveData;
+    readonly DataManager    dataManager;
+    readonly SaveDataService saveDataService;
 
     [Inject]
-    public BootstrapEntryPoint(SceneLoader sceneLoader, SaveDataService saveData)
+    public BootstrapEntryPoint(DataManager dataManager, SaveDataService saveDataService)
     {
-        _sceneLoader = sceneLoader;
-        _saveData    = saveData;
+        this.dataManager     = dataManager;
+        this.saveDataService = saveDataService;
     }
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        await _saveData.LoadAsync();
-        await _sceneLoader.LoadSplashAsync();
+        await saveDataService.LoadAsync();
+        await dataManager.Scene.LoadSplashAsync();
     }
 }

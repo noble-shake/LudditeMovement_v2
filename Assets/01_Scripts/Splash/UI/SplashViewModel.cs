@@ -20,7 +20,6 @@ namespace RottenNoble.Splash.UI
                 await UniTask.Delay(2000);
                 await view.FadeOutAsync();
 
-                resourceFactory.DeleteInstance(ResourceType.Addressable, view.gameObject);
                 await sceneLoader.LoadPatchAsync();
             }).Forget();
         }

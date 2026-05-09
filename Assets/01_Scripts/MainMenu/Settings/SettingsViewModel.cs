@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using R3;
 using VContainer;
 
@@ -12,14 +12,14 @@ namespace RottenNoble.MainMenu.Settings
     /// </summary>
     public class SettingsViewModel : ViewModelBase<SettingsView, SettingsModel>
     {
-        AudioService    _audio;
-        SaveDataService _saveData;
+        AudioService    audioService;
+        SaveDataService saveDataService;
 
         [Inject]
-        void InjectServices(AudioService audio, SaveDataService saveData)
+        void InjectServices(AudioService audioService, SaveDataService saveDataService)
         {
-            _audio    = audio;
-            _saveData = saveData;
+            this.audioService    = audioService;
+            this.saveDataService = saveDataService;
         }
 
         public override void Initialize(SettingsView view, SettingsModel model)
@@ -27,11 +27,11 @@ namespace RottenNoble.MainMenu.Settings
             base.Initialize(view, model);
 
             // ── 저장된 볼륨 값 로드 ───────────────────────
-            model.BgmVolume.Value = _saveData.Data.BgmVolume;
-            model.SfxVolume.Value = _saveData.Data.SfxVolume;
+            model.BgmVolume.Value = saveDataService.Data.BgmVolume;
+            model.SfxVolume.Value = saveDataService.Data.SfxVolume;
 
-            _audio.SetBgmVolume(model.BgmVolume.Value);
-            _audio.SetSfxVolume(model.SfxVolume.Value);
+            audioService.SetBgmVolume(model.BgmVolume.Value);
+            audioService.SetSfxVolume(model.SfxVolume.Value);
 
             // ── 볼륨 변경 → 오디오 적용 + 자동 저장 ─────
             model.BgmVolume
@@ -39,9 +39,9 @@ namespace RottenNoble.MainMenu.Settings
                 .ThrottleLast(AppConstants.SliderThrottle)
                 .Subscribe(v =>
                 {
-                    _audio.SetBgmVolume(v);
-                    _saveData.Data.BgmVolume = v;
-                    _saveData.SaveAsync().Forget();
+                    audioService.SetBgmVolume(v);
+                    saveDataService.Data.BgmVolume = v;
+                    saveDataService.SaveAsync().Forget();
                 })
                 .AddTo(ref disposableBag);
 
@@ -50,9 +50,9 @@ namespace RottenNoble.MainMenu.Settings
                 .ThrottleLast(AppConstants.SliderThrottle)
                 .Subscribe(v =>
                 {
-                    _audio.SetSfxVolume(v);
-                    _saveData.Data.SfxVolume = v;
-                    _saveData.SaveAsync().Forget();
+                    audioService.SetSfxVolume(v);
+                    saveDataService.Data.SfxVolume = v;
+                    saveDataService.SaveAsync().Forget();
                 })
                 .AddTo(ref disposableBag);
         }

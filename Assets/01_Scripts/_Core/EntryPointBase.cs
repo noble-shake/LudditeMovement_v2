@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 using RottenNoble.Core.Resource;
+using RottenNoble.Core.UI;
 
 namespace RottenNoble.Core
 {
@@ -12,30 +13,31 @@ namespace RottenNoble.Core
     /// </summary>
     public class EntryPointBase : IDisposable
     {
-        protected ResourceFactory resourceFactory;
+        protected DataManager  dataManager;
+        protected UINavigator  uiNavigator;
 
-        readonly List<(ResourceType type, GameObject obj)> _caches = new();
-        bool _disposed;
+        readonly List<(ResourceType type, GameObject obj)> caches = new();
+        bool disposed;
 
         protected void AddCache(ResourceType type, GameObject obj)
-            => _caches.Add((type, obj));
+            => caches.Add((type, obj));
 
         protected void Cleanup()
         {
-            for (int i = _caches.Count - 1; i >= 0; i--)
+            for (int i = caches.Count - 1; i >= 0; i--)
             {
-                var (t, obj) = _caches[i];
+                var (t, obj) = caches[i];
                 if (obj != null)
-                    resourceFactory.DeleteInstance(t, obj);
-                _caches.RemoveAt(i);
+                    dataManager.Resource.DeleteInstance(t, obj);
+                caches.RemoveAt(i);
             }
         }
 
         public void Dispose()
         {
-            if (_disposed) return;
+            if (disposed) return;
             Cleanup();
-            _disposed = true;
+            disposed = true;
         }
     }
 }

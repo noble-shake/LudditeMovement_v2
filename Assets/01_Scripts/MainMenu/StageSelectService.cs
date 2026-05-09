@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using Cysharp.Threading.Tasks;
@@ -15,23 +15,23 @@ namespace RottenNoble.MainMenu.StageSelect
     /// </summary>
     public class StageSelectService : IDisposable
     {
-        readonly SceneLoader         _sceneLoader;
-        readonly CompositeDisposable _disposables = new();
+        readonly DataManager         dataManager;
+        readonly CompositeDisposable disposables = new();
 
         public ReactiveProperty<int>           SelectedStageId { get; } = new(0);
         public ReactiveProperty<List<HeroId>>  SelectedHeroes  { get; } = new(new());
         public ReactiveProperty<bool>          CanStartGame    { get; } = new(false);
 
-        readonly Dictionary<HeroId, HeroSkillLoadout> _skillLoadouts = new();
+        readonly Dictionary<HeroId, HeroSkillLoadout> skillLoadouts = new();
 
         [Inject]
-        public StageSelectService(SceneLoader sceneLoader)
+        public StageSelectService(DataManager dataManager)
         {
-            _sceneLoader = sceneLoader;
+            this.dataManager = dataManager;
 
             SelectedHeroes
                 .Subscribe(heroes => CanStartGame.Value = heroes.Count == AppConstants.MaxPartySize)
-                .AddTo(_disposables);
+                .AddTo(disposables);
         }
 
         public void Initialize(SaveData saveData)
@@ -59,10 +59,10 @@ namespace RottenNoble.MainMenu.StageSelect
         }
 
         public void SetSkillLoadout(HeroId heroId, SkillId cw, SkillId ccw)
-            => _skillLoadouts[heroId] = new HeroSkillLoadout { CW = cw, CCW = ccw };
+            => skillLoadouts[heroId] = new HeroSkillLoadout { CW = cw, CCW = ccw };
 
         public HeroSkillLoadout GetSkillLoadout(HeroId heroId)
-            => _skillLoadouts.TryGetValue(heroId, out var loadout)
+            => skillLoadouts.TryGetValue(heroId, out var loadout)
                 ? loadout
                 : new HeroSkillLoadout { CW = SkillId.None, CCW = SkillId.None };
 
@@ -74,12 +74,12 @@ namespace RottenNoble.MainMenu.StageSelect
             {
                 StageId        = SelectedStageId.Value,
                 SelectedHeroes = new List<HeroId>(SelectedHeroes.Value),
-                SkillLoadouts  = new Dictionary<HeroId, HeroSkillLoadout>(_skillLoadouts),
+                SkillLoadouts  = new Dictionary<HeroId, HeroSkillLoadout>(skillLoadouts),
             };
 
-            await _sceneLoader.LoadInGameAsync(session);
+            await dataManager.Scene.LoadInGameAsync(session);
         }
 
-        public void Dispose() => _disposables.Dispose();
+        public void Dispose() => disposables.Dispose();
     }
 }

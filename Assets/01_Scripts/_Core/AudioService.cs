@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace RottenNoble.Core
 {
@@ -7,37 +7,37 @@ namespace RottenNoble.Core
     /// </summary>
     public class AudioService
     {
-        AudioSource _bgmSource;
-        AudioSource _sfxSource;
+        AudioSource bgmSource;
+        AudioSource sfxSource;
 
         public void SetBgmVolume(float volume)
         {
-            if (_bgmSource != null)
-                _bgmSource.volume = Mathf.Clamp01(volume);
+            if (bgmSource != null)
+                bgmSource.volume = Mathf.Clamp01(volume);
         }
 
         public void SetSfxVolume(float volume)
         {
-            if (_sfxSource != null)
-                _sfxSource.volume = Mathf.Clamp01(volume);
+            if (sfxSource != null)
+                sfxSource.volume = Mathf.Clamp01(volume);
         }
 
         public void PlayBgm(AudioClip clip, bool loop = true)
         {
-            if (_bgmSource == null) return;
-            _bgmSource.clip = clip;
-            _bgmSource.loop = loop;
-            _bgmSource.Play();
+            if (bgmSource == null) return;
+            bgmSource.clip = clip;
+            bgmSource.loop = loop;
+            bgmSource.Play();
         }
 
-        public void StopBgm() => _bgmSource?.Stop();
+        public void StopBgm() => bgmSource?.Stop();
 
-        public void PlaySfx(AudioClip clip) => _sfxSource?.PlayOneShot(clip);
+        public void PlaySfx(AudioClip clip) => sfxSource?.PlayOneShot(clip);
 
         public void Setup(AudioSource bgm, AudioSource sfx)
         {
-            _bgmSource = bgm;
-            _sfxSource = sfx;
+            bgmSource = bgm;
+            sfxSource = sfx;
         }
     }
 }

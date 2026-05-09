@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using UnityEngine;
+using System.Threading;
 
 using Cysharp.Threading.Tasks;
 using VContainer;
@@ -7,28 +6,29 @@ using VContainer.Unity;
 
 using RottenNoble.Core;
 using RottenNoble.Core.Resource;
+using RottenNoble.Core.UI;
 using RottenNoble.DataLoad.UI;
 
 /// <summary>
-/// DataLoad 씬 EntryPoint — DataLoadView 프리팹 생성 → DataLoadViewModel에 위임
+/// DataLoad 씬 EntryPoint — DataLoadView 로드 → DataLoadViewModel에 위임
 /// </summary>
 public class DataLoadEntryPoint : EntryPointBase, IAsyncStartable
 {
+    readonly GameConfig gameConfig;
+
     [Inject]
-    public DataLoadEntryPoint(ResourceFactory resourceFactory)
+    public DataLoadEntryPoint(DataManager dataManager, UINavigator uiNavigator, GameConfig gameConfig)
     {
-        this.resourceFactory = resourceFactory;
+        this.dataManager  = dataManager;
+        this.uiNavigator  = uiNavigator;
+        this.gameConfig   = gameConfig;
     }
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var viewGO = await resourceFactory.CreateAsync<GameObject>(
-            ResourceType.Addressable, UIAddress.DataLoadView);
+        var view = await uiNavigator.LoadAsync<DataLoadView>(CanvasType.Hud, gameConfig.uiDataLoadView);
+        AddCache(ResourceType.Addressable, view.gameObject);
 
-        AddCache(ResourceType.Addressable, viewGO);
-
-        var view = viewGO.GetComponent<DataLoadView>();
-        view.Initialize();
         view.InjectPresenter<DataLoadViewModel>()
             .Initialize(view, new DataLoadModel());
 

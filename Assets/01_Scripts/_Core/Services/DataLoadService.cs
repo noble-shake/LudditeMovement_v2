@@ -24,7 +24,7 @@ namespace RottenNoble.Core.Services
             public const string Audio       = "Audio";
         }
 
-        readonly string[] _loadOrder =
+        readonly string[] loadOrder =
         {
             Labels.HeroData,
             Labels.MonsterData,
@@ -35,11 +35,11 @@ namespace RottenNoble.Core.Services
 
         public async UniTask LoadAllAsync(CancellationToken cancellation = default)
         {
-            int total = _loadOrder.Length;
+            int total = loadOrder.Length;
 
             for (int i = 0; i < total; i++)
             {
-                var label = _loadOrder[i];
+                var label = loadOrder[i];
                 StatusText.Value = $"{label} 로드 중...";
 
                 await Addressables.LoadAssetsAsync<Object>(
