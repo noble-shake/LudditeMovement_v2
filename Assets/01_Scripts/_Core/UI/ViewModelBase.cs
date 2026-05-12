@@ -22,6 +22,12 @@ namespace RottenNoble.Core.UI
             Model = model;
         }
 
+        /// <summary>
+        /// 모델만 교체합니다. 구독 재설정 없이 Model 참조만 갱신합니다.
+        /// UINavigator가 캐시 히트 시 새 모델을 반영할 때 사용합니다.
+        /// </summary>
+        public void UpdateModel(TModel model) => Model = model;
+
         public static T Get<T>(string objectName) where T : ViewModelBase<TView, TModel>
         {
             return FindObjectsByType<ViewModelBase<TView, TModel>>(
