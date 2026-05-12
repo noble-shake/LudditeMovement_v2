@@ -1,7 +1,5 @@
-﻿using System;
 using UnityEngine.UI;
 
-using Cysharp.Threading.Tasks;
 using R3;
 
 using RottenNoble.Core;
@@ -11,6 +9,7 @@ namespace RottenNoble.MainMenu.StageSelect
 {
     /// <summary>
     /// 스테이지 선택 탭 View — 스테이지 목록 / 파티 구성 / 스킬 슬롯 UI 담당
+    /// Show/Hide 는 ViewBase 기본 동작(SetActive) 사용
     /// </summary>
     public class StageSelectView : ViewBase
     {
@@ -26,38 +25,6 @@ namespace RottenNoble.MainMenu.StageSelect
         public void SetStartButtonInteractable(bool interactable)
         {
             if (startButton != null) startButton.interactable = interactable;
-        }
-
-        public override async UniTask ShowAsync(Action onComplete = null)
-        {
-            VisibleState = VisibleState.Appearing;
-            gameObject.SetActive(true);
-            VisibleState = VisibleState.Appeared;
-            onComplete?.Invoke();
-            await UniTask.CompletedTask;
-        }
-
-        public override void ShowImmediate()
-        {
-            VisibleState = VisibleState.Appearing;
-            gameObject.SetActive(true);
-            VisibleState = VisibleState.Appeared;
-        }
-
-        public override async UniTask HideAsync(Action onComplete = null)
-        {
-            VisibleState = VisibleState.Disappearing;
-            gameObject.SetActive(false);
-            VisibleState = VisibleState.Disappeared;
-            onComplete?.Invoke();
-            await UniTask.CompletedTask;
-        }
-
-        public override void HideImmediate()
-        {
-            VisibleState = VisibleState.Disappearing;
-            gameObject.SetActive(false);
-            VisibleState = VisibleState.Disappeared;
         }
     }
 }

@@ -9,7 +9,8 @@ using RottenNoble.Core.UI;
 using RottenNoble.DataLoad.UI;
 
 /// <summary>
-/// DataLoad 씬 EntryPoint — DataLoadView 로드 → ViewModel/Model 주입 → 표시
+/// DataLoad 씬 EntryPoint — DataLoadView 로드.
+/// 리소스 로드 · 페이드아웃 · 씬 전환은 DataLoadViewModel이 Model.OnComplete를 통해 처리합니다.
 /// </summary>
 public class DataLoadEntryPoint : EntryPointBase, IAsyncStartable
 {
@@ -23,16 +24,16 @@ public class DataLoadEntryPoint : EntryPointBase, IAsyncStartable
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var viewModel = await uiNavigator.LoadAsync<DataLoadView, DataLoadViewModel, DataLoadModel>(
+        var model = new DataLoadModel
+        {
+            OnComplete = () => dataManager.ScenePath.LoadMainMenuAsync()
+        };
+
+        await uiNavigator.LoadAsync<DataLoadView, DataLoadViewModel, DataLoadModel>(
             path:       uiConfig.uiDataLoadView,
-            model:      new DataLoadModel(),
+            model:      model,
             canvasType: CanvasType.Hud);
 
-        await uiNavigator.ShowAsync<DataLoadView>();
-        AddUICache<DataLoadView>();
-
-        await UniTask.WaitUntil(
-            () => viewModel.View.VisibleState == VisibleState.Disappeared,
-            cancellationToken: cancellation);
+        // 이후 흐름은 DataLoadViewModel.DataLoadSequenceAsync가 담당합니다.
     }
 }

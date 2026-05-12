@@ -9,7 +9,7 @@ using RottenNoble.Core.UI;
 namespace RottenNoble.DataLoad.UI
 {
     /// <summary>
-    /// DataLoad 씬 ViewModel — DataLoadService 바인딩 후 완료 시 MainMenu 씬 전환
+    /// DataLoad 씬 ViewModel — 리소스 로드 진행률 바인딩 → 완료 시 페이드아웃 → Model.OnComplete 실행
     /// </summary>
     public class DataLoadViewModel : ViewModelBase<DataLoadView, DataLoadModel>
     {
@@ -35,10 +35,16 @@ namespace RottenNoble.DataLoad.UI
                 .Subscribe(s => view.SetStatus(s))
                 .AddTo(ref disposableBag);
 
-            await dataLoadService.LoadAllAsync();
-            await saveDataService.LoadAsync();
+            DataLoadSequenceAsync().Forget();
+        }
 
-            await dataManager.ScenePath.LoadMainMenuAsync();
+        async UniTaskVoid DataLoadSequenceAsync()
+        {
+            await dataLoadService.LoadAllAsync();   // 리소스 로드
+            await saveDataService.LoadAsync();       // 세이브 데이터 로드
+            await View.HideAsync();                  // 페이드아웃 → Disappeared
+            if (Model.OnComplete != null)
+                await Model.OnComplete.Invoke();     // EntryPoint 주입 액션 (씬 전환)
         }
     }
 }

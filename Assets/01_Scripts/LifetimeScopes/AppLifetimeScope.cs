@@ -4,6 +4,7 @@ using VContainer;
 using VContainer.Unity;
 
 using RottenNoble.Core;
+using RottenNoble.Core.Input;
 using RottenNoble.Core.Resource;
 using RottenNoble.Core.Services;
 using RottenNoble.Core.UI;
@@ -50,6 +51,9 @@ public class AppLifetimeScope : LifetimeScope
         builder.Register<ResourceFactory>(Lifetime.Singleton);
         builder.Register<SceneLoader>(Lifetime.Singleton);
         builder.Register<DataManager>(Lifetime.Singleton);
+
+        // ── 입력 ─────────────────────────────────────
+        builder.Register<InputManager>(Lifetime.Singleton);
 
         // ── 공유 서비스 ───────────────────────────────
         builder.Register<SaveDataService>(Lifetime.Singleton);

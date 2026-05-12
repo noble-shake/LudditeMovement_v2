@@ -37,6 +37,19 @@
 > Unity 6는 기본으로 `.slnx` 포맷을 생성하는데 OmniSharp가 이를 인식하지 못함.
 > 이 패키지가 있어야 OmniSharp 호환 `.sln` + `.csproj`가 생성됨.
 
+### Asset Store / 수동 설치 (git 미포함)
+
+| 패키지 | 경로 | 용도 |
+|---|---|---|
+| **DOTween Pro** | `Assets/Plugins/Demigiant/` | 트윈 애니메이션 |
+
+> **DOTween Pro 설치 방법**
+> 1. [Asset Store](https://assetstore.unity.com/packages/tools/animation/dotween-hotween-v2-27676) 에서 구매 후 Unity Package Manager로 import
+> 2. `Assets/Plugins/Demigiant/` 경로에 설치됨
+> 3. 설치 후 `Tools → DOTween Utility Panel → Setup DOTween…` 실행 필수
+>
+> 해당 폴더는 `.gitignore`에 등록되어 있으므로 팀원 각자 직접 설치해야 합니다.
+
 ### NuGet (via NuGetForUnity)
 
 | 패키지 | 버전 | 용도 |
@@ -66,9 +79,14 @@
 
 ```
 EntryPoint
-  └─ UINavigator.LoadAsync<TView>()   ← 프리팹 로드 + Canvas 배치
-       └─ view.InjectPresenter<TViewModel>()
-            └─ viewModel.Initialize(view, model)
+  └─ UINavigator.LoadAsync<TView, TViewModel, TModel>(path, model, onReveal, onHide)
+       ├─ Initialize(view, model)    ← ViewModel 초기화
+       ├─ view.ShowAsync()           ← 자동 표시 (페이드인 등)
+       └─ onReveal?.Invoke()         ← 표시 완료 콜백
+
+씬 전환 패턴 (Model-Action)
+  └─ Model.OnComplete = () => dataManager.ScenePath.LoadXxxAsync()
+       └─ ViewModel이 시퀀스 완료 후 Model.OnComplete 호출
 ```
 
 ### 씬 흐름
@@ -218,32 +236,32 @@ DataManager data;                  // 단축 별칭 (타입명과 다름)
 ### EntryPoint에서 View 띄우기
 
 ```csharp
-// 1. UINavigator로 로드 + Canvas 배치
-var view = await uiNavigator.LoadAsync<SplashView>(CanvasType.Hud, gameConfig.uiSplashView);
+// LoadAsync 한 번으로 Initialize → ShowAsync → OnReveal 까지 처리됨
+var model = new SplashModel
+{
+    OnComplete = () => dataManager.ScenePath.LoadPatchAsync()
+};
 
-// 2. 정리 대상 등록
-AddCache(ResourceType.Addressable, view.gameObject);
-
-// 3. ViewModel 주입 + 초기화
-view.InjectPresenter<SplashViewModel>()
-    .Initialize(view, new SplashModel());
-
-// 4. View가 사라질 때까지 대기
-await UniTask.WaitUntil(
-    () => view.VisibleState == VisibleState.Disappeared,
-    cancellationToken: cancellation);
+await uiNavigator.LoadAsync<SplashView, SplashViewModel, SplashModel>(
+    path:       uiConfig.uiSplashView,
+    model:      model,
+    canvasType: CanvasType.Hud);
+// UINavigator가 View를 자동 추적 → EntryPoint.Dispose 시 DestroyAll() 자동 호출
 ```
 
-### ViewModel에서 씬 전환
+### ViewModel에서 씬 전환 (Model-Action 패턴)
 
 ```csharp
-await dataManager.Scene.LoadMainMenuAsync();
+// ViewModel 시퀀스 완료 후 EntryPoint가 주입한 액션 실행
+await View.HideAsync();
+if (Model.OnComplete != null)
+    await Model.OnComplete.Invoke();
 ```
 
-### ViewModel에서 팝업 띄우기
+### 숨겨진 View 재표시 (re-show)
 
 ```csharp
-var popup = await uiNavigator.ShowAsync<AlertView>(CanvasType.Popup, "UI.Alert");
+await uiNavigator.ShowAsync<SomeView>();  // HideAsync 후 다시 표시할 때만 사용
 ```
 
 ### `Object` 모호성 해결 (System + UnityEngine 동시 using 시)

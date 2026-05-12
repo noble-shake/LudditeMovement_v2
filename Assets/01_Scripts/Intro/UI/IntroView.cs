@@ -1,55 +1,68 @@
-﻿using System;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 using Cysharp.Threading.Tasks;
-using R3;
 
-using RottenNoble.Core;
 using RottenNoble.Core.UI;
-using TMPro;
 
 namespace RottenNoble.Intro.UI
 {
     /// <summary>
-    /// Intro 씬 View — 게임 타이틀 및 "게임 시작" 버튼 담당
+    /// Intro 씬 View — 타이틀 표시 + 클릭 유도 텍스트
+    /// 페이드인으로 등장, 클릭 후 페이드아웃으로 퇴장
     /// </summary>
     public class IntroView : ViewBase
     {
         [Header("[ Intro ]")]
-        [field : SerializeField] public TMP_Text IntroText {get; set;}
-        
+        [SerializeField] CanvasGroup canvasGroup;
+        [SerializeField] TMP_Text    titleText;
+        [SerializeField] TMP_Text    promptText;
 
-        public override async UniTask ShowAsync(Action onComplete = null)
+        [Header("[ Fade ]")]
+        [SerializeField] float fadeInDuration  = 1.0f;
+        [SerializeField] float fadeOutDuration = 0.6f;
+
+        protected override async UniTask OnShowAsync()
         {
-            VisibleState = VisibleState.Appearing;
             gameObject.SetActive(true);
-            VisibleState = VisibleState.Appeared;
-            onComplete?.Invoke();
-            await UniTask.CompletedTask;
+            await FadeAsync(0f, 1f, fadeInDuration);
         }
 
-        public override void ShowImmediate()
+        protected override async UniTask OnHideAsync()
         {
-            VisibleState = VisibleState.Appearing;
+            await FadeAsync(1f, 0f, fadeOutDuration);
+            gameObject.SetActive(false);
+        }
+
+        protected override void OnShowImmediate()
+        {
             gameObject.SetActive(true);
-            VisibleState = VisibleState.Appeared;
+            if (canvasGroup != null) canvasGroup.alpha = 1f;
         }
 
-        public override async UniTask HideAsync(Action onComplete = null)
+        protected override void OnHideImmediate()
         {
-            VisibleState = VisibleState.Disappearing;
+            if (canvasGroup != null) canvasGroup.alpha = 0f;
             gameObject.SetActive(false);
-            VisibleState = VisibleState.Disappeared;
-            onComplete?.Invoke();
-            await UniTask.CompletedTask;
         }
 
-        public override void HideImmediate()
+        // ── Helper ────────────────────────────────────────────────────────
+
+        async UniTask FadeAsync(float from, float to, float duration)
         {
-            VisibleState = VisibleState.Disappearing;
-            gameObject.SetActive(false);
-            VisibleState = VisibleState.Disappeared;
+            if (canvasGroup == null) return;
+
+            float elapsed = 0f;
+            canvasGroup.alpha = from;
+
+            while (elapsed < duration)
+            {
+                elapsed           += Time.deltaTime;
+                canvasGroup.alpha  = Mathf.Lerp(from, to, elapsed / duration);
+                await UniTask.Yield(PlayerLoopTiming.Update);
+            }
+
+            canvasGroup.alpha = to;
         }
     }
 }

@@ -17,6 +17,10 @@ Legacy/Logs/
 Legacy/UserSettings/
 Legacy/.vs/
 
+# Third-party paid plugins (not redistributable)
+Assets/Plugins/Demigiant/
+Assets/Plugins/Demigiant.meta
+
 # OS
 .DS_Store
 Thumbs.db

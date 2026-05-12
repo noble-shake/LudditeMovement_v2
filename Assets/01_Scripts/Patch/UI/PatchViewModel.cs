@@ -2,14 +2,13 @@ using Cysharp.Threading.Tasks;
 using R3;
 using VContainer;
 
-using RottenNoble.Core;
 using RottenNoble.Core.Services;
 using RottenNoble.Core.UI;
 
 namespace RottenNoble.Patch.UI
 {
     /// <summary>
-    /// Patch 씬 ViewModel — PatchService 진행률 바인딩 및 완료 시 Intro 씬 전환
+    /// Patch 씬 ViewModel — 패치 진행률 바인딩 → 완료 시 페이드아웃 → Model.OnComplete 실행
     /// </summary>
     public class PatchViewModel : ViewModelBase<PatchView, PatchModel>
     {
@@ -30,6 +29,17 @@ namespace RottenNoble.Patch.UI
             patchService.StatusText
                 .Subscribe(s => view.SetStatus(s))
                 .AddTo(ref disposableBag);
+
+            PatchSequenceAsync().Forget();
+        }
+
+        async UniTaskVoid PatchSequenceAsync()
+        {
+            await patchService.CheckAndUpdateAsync();  // 패치 진행
+            await UniTask.Delay(1000);                  // 완료 후 짧은 대기
+            await View.HideAsync();                     // 페이드아웃 → Disappeared
+            if (Model.OnComplete != null)
+                await Model.OnComplete.Invoke();        // EntryPoint 주입 액션 (씬 전환)
         }
     }
 }

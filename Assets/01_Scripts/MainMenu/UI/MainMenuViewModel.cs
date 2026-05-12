@@ -52,8 +52,6 @@ namespace RottenNoble.MainMenu.UI
             model.CurrentTab
                 .Subscribe(OnTabChanged)
                 .AddTo(ref disposableBag);
-
-            view.ShowImmediate();
         }
 
         void OnTabChanged(MainMenuTab tab)

@@ -10,31 +10,26 @@ namespace RottenNoble.Core.UI
     /// <summary>
     /// View 로드 · 캐싱 · 표시 · 숨김 · 삭제를 통합 관리합니다.
     ///
-    /// ┌────────────────────────────────────────────────────────────────────────────┐
-    /// │  단계             │  설명                                                  │
-    /// ├────────────────────────────────────────────────────────────────────────────┤
-    /// │  LoadAsync        │  로드 + ViewModel/Model 주입 + Canvas 배치             │
-    /// │                   │  캐시에 없을 때만 Initialize 호출. ViewModel 반환.     │
-    /// │  ShowAsync(false) │  view.ShowAsync() 완료 → OnReveal() → onReveal cb     │
-    /// │  ShowAsync(true)  │  view.ShowImmediate() → OnReveal() → onReveal cb      │
-    /// │  HideAsync(false) │  view.HideAsync() 완료 → OnComplete() → onComplete cb │
-    /// │  HideAsync(true)  │  view.HideImmediate() → OnComplete() → onComplete cb  │
-    /// │  Destroy          │  Addressable 해제 + 캐시 제거 (다음 Load 시 재Initialize) │
-    /// └────────────────────────────────────────────────────────────────────────────┘
+    /// ┌──────────────────────────────────────────────────────────────────────────────────┐
+    /// │  단계              │  설명                                                       │
+    /// ├──────────────────────────────────────────────────────────────────────────────────┤
+    /// │  LoadAsync         │  로드 + Initialize + ShowAsync + OnReveal 콜백까지 처리.    │
+    /// │                    │  캐시에 있으면 재초기화 없이 콜백만 갱신 후 즉시 반환.       │
+    /// │  ShowAsync         │  숨겨진 View를 다시 표시 (LoadAsync 이후 re-show 전용).     │
+    /// │  HideAsync(false)  │  view.HideAsync() → view.OnHide() → onHide 콜백.           │
+    /// │  HideAsync(true)   │  view.HideImmediate() → view.OnHide() → onHide 콜백.       │
+    /// │  Destroy           │  Addressable 해제 + 캐시 제거 (다음 Load 시 재Initialize). │
+    /// └──────────────────────────────────────────────────────────────────────────────────┘
     ///
     /// EntryPoint 패턴:
-    ///   var vm = await uiNavigator.LoadAsync&lt;SplashView, SplashViewModel, SplashModel&gt;(
-    ///       path:       gameConfig.uiSplashView,
-    ///       model:      new SplashModel(),
+    ///   await uiNavigator.LoadAsync&lt;SplashView, SplashViewModel, SplashModel&gt;(
+    ///       path:       uiConfig.uiSplashView,
+    ///       model:      new SplashModel { OnComplete = () => ... },
     ///       canvasType: CanvasType.Hud,
-    ///       onReveal:   async () => { ... },
-    ///       onComplete: async () => { ... });
+    ///       onReveal:   async () => { ... },   // ShowAsync 완료 직후 실행
+    ///       onHide:     async () => { ... });  // HideAsync 완료 직후 실행
     ///
-    ///   await uiNavigator.ShowAsync&lt;SplashView&gt;();
-    ///   AddUICache&lt;SplashView&gt;();
-    ///
-    ///   await UniTask.WaitUntil(() => vm.View.VisibleState == VisibleState.Disappeared,
-    ///       cancellationToken: cancellation);
+    ///   AddUICache&lt;SplashView&gt;();  // 씬 언로드 시 Destroy 예약
     /// </summary>
     public class UINavigator
     {
@@ -45,18 +40,18 @@ namespace RottenNoble.Core.UI
             public ResourceType  ResourceType { get; }
             public ViewBase      View         { get; }
             public Func<UniTask> OnReveal     { get; }
-            public Func<UniTask> OnComplete   { get; }
+            public Func<UniTask> OnHide       { get; }
 
             public CachedEntry(
                 ResourceType  resourceType,
                 ViewBase      view,
                 Func<UniTask> onReveal,
-                Func<UniTask> onComplete)
+                Func<UniTask> onHide)
             {
                 ResourceType = resourceType;
                 View         = view;
                 OnReveal     = onReveal;
-                OnComplete   = onComplete;
+                OnHide       = onHide;
             }
         }
 
@@ -72,31 +67,31 @@ namespace RottenNoble.Core.UI
             this.uiManager       = uiManager;
         }
 
-        // ── Load (View + ViewModel + Model) ──────────────────────────────
+        // ── Load + Show (View + ViewModel + Model) ───────────────────────
 
         /// <summary>
-        /// Addressable path에서 View를 로드하고 ViewModel · Model을 주입합니다.
-        /// 이미 캐시에 있으면 재로드하지 않고 기존 ViewModel을 반환합니다.
+        /// Addressable에서 View를 로드하고 ViewModel · Model을 초기화한 뒤 ShowAsync까지 완료합니다.
+        /// 캐시에 있으면 재로드 · 재초기화하지 않고 콜백만 갱신 후 반환합니다.
         /// </summary>
         public async UniTask<TViewModel> LoadAsync<TView, TViewModel, TModel>(
             string        path,
             TModel        model,
-            CanvasType    canvasType  = CanvasType.Hud,
-            Func<UniTask> onReveal    = null,
-            Func<UniTask> onComplete  = null)
+            CanvasType    canvasType = CanvasType.Hud,
+            Func<UniTask> onReveal   = null,
+            Func<UniTask> onHide     = null)
             where TView      : ViewBase
             where TViewModel : ViewModelBase<TView, TModel>
             where TModel     : ModelBase
         {
             if (TryGetEntry<TView>(out var cached))
             {
-                // 콜백만 갱신
+                // 콜백만 갱신 — 이미 표시된 View는 다시 띄우지 않음
                 viewCache[typeof(TView)] = new CachedEntry(
-                    cached.ResourceType, cached.View, onReveal, onComplete);
+                    cached.ResourceType, cached.View, onReveal, onHide);
                 return cached.View.gameObject.GetComponent<TViewModel>();
             }
 
-            var go   = await resourceFactory.CreateAsync<UnityEngine.GameObject>(ResourceType.Addressable, path);
+            var go = await resourceFactory.CreateAsync<UnityEngine.GameObject>(ResourceType.Addressable, path);
             uiManager.Attach(canvasType, go);
 
             var view = go.GetComponent<TView>();
@@ -105,45 +100,57 @@ namespace RottenNoble.Core.UI
             var viewModel = view.InjectPresenter<TViewModel>();
             await viewModel.Initialize(view, model);
 
-            viewCache[typeof(TView)] = new CachedEntry(ResourceType.Addressable, view, onReveal, onComplete);
+            var entry = new CachedEntry(ResourceType.Addressable, view, onReveal, onHide);
+            viewCache[typeof(TView)] = entry;
+
+            // Initialize 완료 후 자동 표시
+            await view.ShowAsync();
+            view.OnReveal();
+            if (onReveal != null) await onReveal.Invoke();
+
             return viewModel;
         }
 
-        // ── Load (View only) ─────────────────────────────────────────────
+        // ── Load + Show (View only) ──────────────────────────────────────
 
         /// <summary>
-        /// ViewModel 주입 없이 View만 로드합니다.
-        /// 기존 EntryPoint 패턴 또는 ViewModel이 필요 없는 뷰에 사용합니다.
+        /// ViewModel 없이 View만 로드하고 ShowAsync까지 완료합니다.
         /// </summary>
         public async UniTask<TView> LoadAsync<TView>(
             string        path,
             CanvasType    canvasType   = CanvasType.Hud,
             ResourceType  resourceType = ResourceType.Addressable,
             Func<UniTask> onReveal     = null,
-            Func<UniTask> onComplete   = null)
+            Func<UniTask> onHide       = null)
             where TView : ViewBase
         {
             if (TryGetEntry<TView>(out var cached))
             {
                 viewCache[typeof(TView)] = new CachedEntry(
-                    cached.ResourceType, cached.View, onReveal, onComplete);
+                    cached.ResourceType, cached.View, onReveal, onHide);
                 return (TView)cached.View;
             }
 
-            var go   = await resourceFactory.CreateAsync<UnityEngine.GameObject>(resourceType, path);
+            var go = await resourceFactory.CreateAsync<UnityEngine.GameObject>(resourceType, path);
             uiManager.Attach(canvasType, go);
 
             var view = go.GetComponent<TView>();
             view.Initialize();
 
-            viewCache[typeof(TView)] = new CachedEntry(resourceType, view, onReveal, onComplete);
+            var entry = new CachedEntry(resourceType, view, onReveal, onHide);
+            viewCache[typeof(TView)] = entry;
+
+            await view.ShowAsync();
+            view.OnReveal();
+            if (onReveal != null) await onReveal.Invoke();
+
             return view;
         }
 
-        // ── Show ──────────────────────────────────────────────────────────
+        // ── Show (re-show: 숨겨진 View를 다시 표시) ──────────────────────
 
         /// <summary>
-        /// 캐시된 View를 표시합니다.
+        /// HideAsync로 숨겨진 View를 다시 표시합니다. (LoadAsync 이후 re-show 전용)
         /// immediate = true 이면 ShowImmediate(), false 이면 ShowAsync() 완료를 기다립니다.
         /// 완료 후 view.OnReveal() → onReveal 콜백 순서로 호출합니다.
         /// </summary>
@@ -164,9 +171,8 @@ namespace RottenNoble.Core.UI
         // ── Hide (캐시 유지) ──────────────────────────────────────────────
 
         /// <summary>
-        /// 캐시된 View를 숨깁니다. GameObject는 유지됩니다 (다시 ShowAsync로 재표시 가능).
-        /// immediate = true 이면 HideImmediate(), false 이면 HideAsync() 완료를 기다립니다.
-        /// 완료 후 view.OnComplete() → onComplete 콜백 순서로 호출합니다.
+        /// 캐시된 View를 숨깁니다. GameObject는 유지됩니다 (ShowAsync로 재표시 가능).
+        /// 완료 후 view.OnHide() → onHide 콜백 순서로 호출합니다.
         /// </summary>
         public async UniTask HideAsync<TView>(bool immediate = false) where TView : ViewBase
         {
@@ -177,16 +183,16 @@ namespace RottenNoble.Core.UI
             else
                 await entry.View.HideAsync();
 
-            entry.View.OnComplete();
-            if (entry.OnComplete != null)
-                await entry.OnComplete.Invoke();
+            entry.View.OnHide();
+            if (entry.OnHide != null)
+                await entry.OnHide.Invoke();
         }
 
         // ── Destroy (캐시 제거 + Addressable 해제) ────────────────────────
 
         /// <summary>
         /// 캐시를 제거하고 Addressable 인스턴스를 해제합니다.
-        /// 다음 LoadAsync 호출 시 새로 로드하고 Initialize부터 재실행합니다.
+        /// 다음 LoadAsync 시 새로 로드하여 Initialize부터 재실행합니다.
         /// </summary>
         public void Destroy<TView>() where TView : ViewBase
         {

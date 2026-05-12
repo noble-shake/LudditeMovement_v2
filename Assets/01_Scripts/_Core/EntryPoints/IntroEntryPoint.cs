@@ -9,7 +9,8 @@ using RottenNoble.Core.UI;
 using RottenNoble.Intro.UI;
 
 /// <summary>
-/// Intro 씬 EntryPoint — IntroView 로드 → ViewModel/Model 주입 → 표시
+/// Intro 씬 EntryPoint — IntroView 로드 · 표시.
+/// 클릭 감지 · 페이드아웃 · 씬 전환은 IntroViewModel이 Model.OnComplete를 통해 처리합니다.
 /// </summary>
 public class IntroEntryPoint : EntryPointBase, IAsyncStartable
 {
@@ -23,16 +24,16 @@ public class IntroEntryPoint : EntryPointBase, IAsyncStartable
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var viewModel = await uiNavigator.LoadAsync<IntroView, IntroViewModel, IntroModel>(
+        var model = new IntroModel
+        {
+            OnComplete = () => dataManager.ScenePath.LoadDataLoadAsync()
+        };
+
+        await uiNavigator.LoadAsync<IntroView, IntroViewModel, IntroModel>(
             path:       uiConfig.uiIntroView,
-            model:      new IntroModel(),
+            model:      model,
             canvasType: CanvasType.Hud);
-
-        await uiNavigator.ShowAsync<IntroView>();
-        AddUICache<IntroView>();
-
-        await UniTask.WaitUntil(
-            () => viewModel.View.VisibleState == VisibleState.Disappeared,
-            cancellationToken: cancellation);
+        // LoadAsync 내부에서 ShowAsync까지 완료합니다.
+        // 이후 흐름은 IntroViewModel.OnClickedAsync가 담당합니다.
     }
 }

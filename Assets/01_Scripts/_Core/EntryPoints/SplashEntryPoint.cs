@@ -9,7 +9,8 @@ using RottenNoble.Core.UI;
 using RottenNoble.Splash.UI;
 
 /// <summary>
-/// Splash 씬 EntryPoint — SplashView 로드 → ViewModel/Model 주입 → 표시
+/// Splash 씬 EntryPoint — SplashView 로드 · 표시.
+/// 대기(2s) · 페이드아웃 · 씬 전환은 SplashViewModel이 Model.OnComplete를 통해 처리합니다.
 /// </summary>
 public class SplashEntryPoint : EntryPointBase, IAsyncStartable
 {
@@ -23,20 +24,16 @@ public class SplashEntryPoint : EntryPointBase, IAsyncStartable
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var viewModel = await uiNavigator.LoadAsync<SplashView, SplashViewModel, SplashModel>(
+        var model = new SplashModel
+        {
+            OnComplete = () => dataManager.ScenePath.LoadPatchAsync()
+        };
+
+        await uiNavigator.LoadAsync<SplashView, SplashViewModel, SplashModel>(
             path:       uiConfig.uiSplashView,
-            model:      new SplashModel(),
-            canvasType: CanvasType.Hud,
-            onComplete: async () =>
-            {
-                await dataManager.ScenePath.LoadPatchAsync();
-            });
-
-        await uiNavigator.ShowAsync<SplashView>();
-        AddUICache<SplashView>();
-
-        await UniTask.WaitUntil(
-            () => viewModel.View.VisibleState == VisibleState.Disappeared,
-            cancellationToken: cancellation);
+            model:      model,
+            canvasType: CanvasType.Hud);
+        // LoadAsync 내부에서 ShowAsync까지 완료합니다.
+        // 이후 흐름은 SplashViewModel.SplashSequenceAsync가 담당합니다.
     }
 }
