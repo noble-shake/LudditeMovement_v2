@@ -33,6 +33,14 @@ namespace RottenNoble.Core.UI
         /// <summary>모델만 교체합니다. 구독 재설정 없이 Model 참조만 갱신합니다.</summary>
         public void UpdateModel(TModel model) => Model = model;
 
+        /// <summary>
+        /// UINavigator를 통해 View를 숨깁니다.
+        /// View를 직접 호출하지 않고 Navigator가 중재하도록 합니다.
+        /// 완료 후 UINavigator가 onHide 콜백을 자동 실행합니다.
+        /// </summary>
+        protected UniTask HideViewAsync(bool immediate = false)
+            => uiNavigator.HideAsync<TView>(immediate);
+
         public static T Get<T>(string objectName) where T : ViewModelBase<TView, TModel>
         {
             return FindObjectsByType<ViewModelBase<TView, TModel>>(

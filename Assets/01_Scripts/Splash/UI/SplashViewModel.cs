@@ -18,7 +18,7 @@ namespace RottenNoble.Splash.UI
         async UniTaskVoid SplashSequenceAsync()
         {
             await UniTask.Delay(2000);          // 로고 노출 대기
-            await View.HideAsync();             // 페이드아웃 → Disappeared
+            await HideViewAsync();              // Navigator 경유 → 페이드아웃 → Disappeared
             if (OnComplete != null)
                 await OnComplete.Invoke();       // EntryPoint 주입 액션 (씬 전환)
         }

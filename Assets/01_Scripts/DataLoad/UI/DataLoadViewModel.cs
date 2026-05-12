@@ -42,7 +42,7 @@ namespace RottenNoble.DataLoad.UI
         {
             await dataLoadService.LoadAllAsync();   // 리소스 로드
             await saveDataService.LoadAsync();       // 세이브 데이터 로드
-            await View.HideAsync();                  // 페이드아웃 → Disappeared
+            await HideViewAsync();                   // Navigator 경유 → 페이드아웃 → Disappeared
             if (OnComplete != null)
                 await OnComplete.Invoke();           // EntryPoint 주입 액션 (씬 전환)
         }

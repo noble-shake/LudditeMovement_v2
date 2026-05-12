@@ -37,7 +37,7 @@ namespace RottenNoble.Intro.UI
         {
             inputManager.SetInputMode(InputManager.InputMode.UI); // 추가 클릭 무시
 
-            await View.HideAsync();                               // 페이드아웃 → Disappeared
+            await HideViewAsync();                                // Navigator 경유 → 페이드아웃 → Disappeared
 
             if (OnComplete != null)
                 await OnComplete.Invoke();                        // EntryPoint 주입 액션 (씬 전환)
