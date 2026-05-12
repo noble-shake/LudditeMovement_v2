@@ -5,35 +5,31 @@ using VContainer;
 using VContainer.Unity;
 
 using RottenNoble.Core;
-using RottenNoble.Core.Resource;
 using RottenNoble.Core.UI;
 using RottenNoble.Patch.UI;
 
 /// <summary>
-/// Patch 씬 EntryPoint — PatchView 로드 → PatchViewModel에 위임
+/// Patch 씬 EntryPoint — PatchView 로드.
+/// 패치 진행 · 페이드아웃 · 씬 전환은 PatchViewModel이 Model.OnComplete를 통해 처리합니다.
 /// </summary>
 public class PatchEntryPoint : EntryPointBase, IAsyncStartable
 {
-    readonly GameConfig gameConfig;
+    readonly UIConfigSO uiConfig;
 
     [Inject]
-    public PatchEntryPoint(DataManager dataManager, UINavigator uiNavigator, GameConfig gameConfig)
+    public PatchEntryPoint(UIConfigSO uiConfig)
     {
-        this.dataManager  = dataManager;
-        this.uiNavigator  = uiNavigator;
-        this.gameConfig   = gameConfig;
+        this.uiConfig = uiConfig;
     }
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var view = await uiNavigator.LoadAsync<PatchView>(CanvasType.Hud, gameConfig.uiPatchView);
-        AddCache(ResourceType.Addressable, view.gameObject);
+        await uiNavigator.LoadAsync<PatchView, PatchViewModel, PatchModel>(
+            path:       uiConfig.uiPatchView,
+            model:      new PatchModel(),
+            canvasType: CanvasType.Hud,
+            onComplete: () => dataManager.ScenePath.LoadIntroAsync());
 
-        view.InjectPresenter<PatchViewModel>()
-            .Initialize(view, new PatchModel());
-
-        await UniTask.WaitUntil(
-            () => view.VisibleState == VisibleState.Disappeared,
-            cancellationToken: cancellation);
+        // 이후 흐름은 PatchViewModel.PatchSequenceAsync가 담당합니다.
     }
 }

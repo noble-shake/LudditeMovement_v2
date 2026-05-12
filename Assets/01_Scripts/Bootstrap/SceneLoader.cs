@@ -10,23 +10,23 @@ using RottenNoble.Core;
 /// </summary>
 public class SceneLoader
 {
-    readonly GameConfig _config;
+    readonly SceneConfigSO sceneConfig;
 
-    public SceneLoader(GameConfig config)
+    public SceneLoader(SceneConfigSO sceneConfig)
     {
-        _config = config;
+        this.sceneConfig = sceneConfig;
     }
 
-    public UniTask LoadSplashAsync()   => LoadSingleAsync(_config.sceneSplash);
-    public UniTask LoadPatchAsync()    => LoadSingleAsync(_config.scenePatch);
-    public UniTask LoadIntroAsync()    => LoadSingleAsync(_config.sceneIntro);
-    public UniTask LoadDataLoadAsync() => LoadSingleAsync(_config.sceneDataLoad);
-    public UniTask LoadMainMenuAsync() => LoadSingleAsync(_config.sceneMainMenu);
+    public UniTask LoadSplashAsync()   => LoadSingleAsync(sceneConfig.sceneSplash);
+    public UniTask LoadPatchAsync()    => LoadSingleAsync(sceneConfig.scenePatch);
+    public UniTask LoadIntroAsync()    => LoadSingleAsync(sceneConfig.sceneIntro);
+    public UniTask LoadDataLoadAsync() => LoadSingleAsync(sceneConfig.sceneDataLoad);
+    public UniTask LoadMainMenuAsync() => LoadSingleAsync(sceneConfig.sceneMainMenu);
 
     public UniTask LoadInGameAsync(SessionData sessionData)
     {
         SessionData.Current = sessionData;
-        return LoadSingleAsync(_config.sceneInGame);
+        return LoadSingleAsync(sceneConfig.sceneInGame);
     }
 
     async UniTask LoadSingleAsync(string sceneName)

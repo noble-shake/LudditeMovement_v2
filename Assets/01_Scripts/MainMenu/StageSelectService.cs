@@ -77,7 +77,7 @@ namespace RottenNoble.MainMenu.StageSelect
                 SkillLoadouts  = new Dictionary<HeroId, HeroSkillLoadout>(skillLoadouts),
             };
 
-            await dataManager.Scene.LoadInGameAsync(session);
+            await dataManager.ScenePath.LoadInGameAsync(session);
         }
 
         public void Dispose() => disposables.Dispose();

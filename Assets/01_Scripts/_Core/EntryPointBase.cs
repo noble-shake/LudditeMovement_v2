@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+using VContainer;
+
 using RottenNoble.Core.Resource;
 using RottenNoble.Core.UI;
 
@@ -9,27 +11,45 @@ namespace RottenNoble.Core
 {
     /// <summary>
     /// 씬 EntryPoint 공통 기반.
-    /// Addressables로 생성한 GameObject 캐시를 추적하고 씬 종료 시 일괄 해제합니다.
+    ///
+    /// UINavigator에서 LoadAsync한 View는 자동으로 추적됩니다.
+    /// Dispose 시 uiNavigator.DestroyAll()로 일괄 해제됩니다.
+    ///
+    /// UINavigator를 거치지 않고 직접 생성한 오브젝트는 AddCache(type, go)로 등록하세요.
     /// </summary>
     public class EntryPointBase : IDisposable
     {
-        protected DataManager  dataManager;
-        protected UINavigator  uiNavigator;
+        protected DataManager dataManager;
+        protected UINavigator uiNavigator;
 
-        readonly List<(ResourceType type, GameObject obj)> caches = new();
+        [Inject]
+        public void InjectInternal(DataManager dataManager, UINavigator uiNavigator)
+        {
+            this.dataManager = dataManager;
+            this.uiNavigator = uiNavigator;
+        }
+
+        // UINavigator를 거치지 않고 직접 생성한 오브젝트
+        readonly List<(ResourceType type, GameObject obj)> rawCaches = new();
+
         bool disposed;
 
+        /// <summary>UINavigator를 거치지 않고 직접 생성한 오브젝트를 정리 목록에 등록합니다.</summary>
         protected void AddCache(ResourceType type, GameObject obj)
-            => caches.Add((type, obj));
+            => rawCaches.Add((type, obj));
 
-        protected void Cleanup()
+        void Cleanup()
         {
-            for (int i = caches.Count - 1; i >= 0; i--)
+            // UINavigator가 관리하는 모든 View 일괄 해제
+            uiNavigator?.DestroyAll();
+
+            // 직접 관리 오브젝트 해제
+            for (int i = rawCaches.Count - 1; i >= 0; i--)
             {
-                var (t, obj) = caches[i];
+                var (t, obj) = rawCaches[i];
                 if (obj != null)
-                    dataManager.Resource.DeleteInstance(t, obj);
-                caches.RemoveAt(i);
+                    dataManager.ResourcePath.DeleteInstance(t, obj);
+                rawCaches.RemoveAt(i);
             }
         }
 

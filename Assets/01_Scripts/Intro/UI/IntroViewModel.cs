@@ -1,34 +1,46 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using R3;
+using VContainer;
 
-using RottenNoble.Core;
+using RottenNoble.Core.Input;
 using RottenNoble.Core.UI;
 
 namespace RottenNoble.Intro.UI
 {
     /// <summary>
-    /// Intro 씬 ViewModel — 시작 버튼 구독 → DataLoad 씬 전환
+    /// Intro 씬 ViewModel — 좌클릭 감지 → 페이드아웃 → Model.OnComplete 실행
     /// </summary>
     public class IntroViewModel : ViewModelBase<IntroView, IntroModel>
     {
-        public override void Initialize(IntroView view, IntroModel model)
+        InputManager inputManager;
+
+        [Inject]
+        void InjectServices(InputManager inputManager)
+            => this.inputManager = inputManager;
+
+        public override async UniTask Initialize(IntroView view, IntroModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
-            view.ShowAsync(onComplete: () =>
-            {
-                view.OnStartClicked()
-                    .Subscribe(_ => OnStartAsync().Forget())
-                    .AddTo(ref disposableBag);
+            // Intro 화면에서 좌클릭 감지를 위해 Game 모드 활성화
+            inputManager.SetInputMode(InputManager.InputMode.Game);
 
-            }).Forget();
+            // 좌클릭 한 번 → 뷰 숨김 (Take(1)로 중복 발동 방지)
+            inputManager.LeftClick
+                .Where(pressed => pressed)
+                .Take(1)
+                .Subscribe(_ => OnClickedAsync().Forget())
+                .AddTo(ref disposableBag);
         }
 
-        async UniTaskVoid OnStartAsync()
+        async UniTaskVoid OnClickedAsync()
         {
-            await View.HideAsync();
-            resourceFactory.DeleteInstance(ResourceType.Addressable, View.gameObject);
-            await sceneLoader.LoadDataLoadAsync();
+            inputManager.SetInputMode(InputManager.InputMode.UI); // 추가 클릭 무시
+
+            await HideViewAsync();                                // Navigator 경유 → 페이드아웃 → Disappeared
+
+            if (OnComplete != null)
+                await OnComplete.Invoke();                        // EntryPoint 주입 액션 (씬 전환)
         }
     }
 }

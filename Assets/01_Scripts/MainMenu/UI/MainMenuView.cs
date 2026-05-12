@@ -1,7 +1,5 @@
-﻿using System;
 using UnityEngine.UI;
 
-using Cysharp.Threading.Tasks;
 using R3;
 
 using RottenNoble.Core;
@@ -15,6 +13,7 @@ namespace RottenNoble.MainMenu.UI
 {
     /// <summary>
     /// MainMenu 씬 루트 View — 하단 탭 버튼 및 각 탭 패널 참조를 보유합니다.
+    /// 애니메이션 없음 — ViewBase 기본 Show/Hide 동작 사용
     /// </summary>
     public class MainMenuView : ViewBase
     {
@@ -33,7 +32,7 @@ namespace RottenNoble.MainMenu.UI
         public StageSelectView StageSelectPanel => stageSelectPanel;
         public CharacterView   CharacterPanel   => characterPanel;
         public CollectionView  CollectionPanel  => collectionPanel;
-        public SettingsView    SettingsPanel     => settingsPanel;
+        public SettingsView    SettingsPanel    => settingsPanel;
 
         public Observable<Unit> OnStageSelectTabClicked()
             => stageSelectTabButton.OnClickAsObservable()
@@ -50,37 +49,5 @@ namespace RottenNoble.MainMenu.UI
         public Observable<Unit> OnSettingsTabClicked()
             => settingsTabButton.OnClickAsObservable()
                 .ThrottleFirst(AppConstants.ButtonThrottle).Share();
-
-        public override async UniTask ShowAsync(Action onComplete = null)
-        {
-            VisibleState = VisibleState.Appearing;
-            gameObject.SetActive(true);
-            VisibleState = VisibleState.Appeared;
-            onComplete?.Invoke();
-            await UniTask.CompletedTask;
-        }
-
-        public override void ShowImmediate()
-        {
-            VisibleState = VisibleState.Appearing;
-            gameObject.SetActive(true);
-            VisibleState = VisibleState.Appeared;
-        }
-
-        public override async UniTask HideAsync(Action onComplete = null)
-        {
-            VisibleState = VisibleState.Disappearing;
-            gameObject.SetActive(false);
-            VisibleState = VisibleState.Disappeared;
-            onComplete?.Invoke();
-            await UniTask.CompletedTask;
-        }
-
-        public override void HideImmediate()
-        {
-            VisibleState = VisibleState.Disappearing;
-            gameObject.SetActive(false);
-            VisibleState = VisibleState.Disappeared;
-        }
     }
 }

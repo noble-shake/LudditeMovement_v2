@@ -1,4 +1,5 @@
-﻿using VContainer;
+using Cysharp.Threading.Tasks;
+using VContainer;
 
 using RottenNoble.Core;
 using RottenNoble.Core.UI;
@@ -10,14 +11,15 @@ namespace RottenNoble.MainMenu.Collection
     /// </summary>
     public class CollectionViewModel : ViewModelBase<CollectionView, CollectionModel>
     {
-        SaveDataService _saveData;
+        SaveDataService saveDataService;
 
         [Inject]
-        void InjectServices(SaveDataService saveData) => _saveData = saveData;
+        void InjectServices(SaveDataService saveDataService)
+            => this.saveDataService = saveDataService;
 
-        public override void Initialize(CollectionView view, CollectionModel model)
+        public override async UniTask Initialize(CollectionView view, CollectionModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
             // TODO: 도감 데이터 로드 및 UI 바인딩
         }

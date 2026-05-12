@@ -1,47 +1,45 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using R3;
 using VContainer;
 
-using RottenNoble.Core;
 using RottenNoble.Core.Services;
 using RottenNoble.Core.UI;
 
 namespace RottenNoble.Patch.UI
 {
     /// <summary>
-    /// Patch 씬 ViewModel — PatchService 진행률 바인딩 및 완료 시 Intro 씬 전환
+    /// Patch 씬 ViewModel — 패치 진행률 바인딩 → 완료 시 페이드아웃 → Model.OnComplete 실행
     /// </summary>
     public class PatchViewModel : ViewModelBase<PatchView, PatchModel>
     {
-        PatchService _patchService;
+        PatchService patchService;
 
         [Inject]
         void InjectServices(PatchService patchService)
-            => _patchService = patchService;
+            => this.patchService = patchService;
 
-        public override void Initialize(PatchView view, PatchModel model)
+        public override async UniTask Initialize(PatchView view, PatchModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
-            view.ShowAsync(onComplete: async () =>
-            {
-                _patchService.Progress
-                    .Subscribe(p => view.SetProgress(p))
-                    .AddTo(ref disposableBag);
+            patchService.Progress
+                .Subscribe(p => view.SetProgress(p))
+                .AddTo(ref disposableBag);
 
-                _patchService.StatusText
-                    .Subscribe(s => view.SetStatus(s))
-                    .AddTo(ref disposableBag);
+            patchService.StatusText
+                .Subscribe(s => view.SetStatus(s))
+                .AddTo(ref disposableBag);
 
-                await _patchService.CheckAndUpdateAsync();
+            PatchSequenceAsync().Forget();
+        }
 
-                await view.HideAsync(onComplete: async () =>
-                {
-                    resourceFactory.DeleteInstance(ResourceType.Addressable, view.gameObject);
-                    await sceneLoader.LoadIntroAsync();
-                });
-
-            }).Forget();
+        async UniTaskVoid PatchSequenceAsync()
+        {
+            await patchService.CheckAndUpdateAsync();  // 패치 진행
+            await UniTask.Delay(1000);                  // 완료 후 짧은 대기
+            await HideViewAsync();                      // Navigator 경유 → 페이드아웃 → Disappeared
+            if (OnComplete != null)
+                await OnComplete.Invoke();              // EntryPoint 주입 액션 (씬 전환)
         }
     }
 }

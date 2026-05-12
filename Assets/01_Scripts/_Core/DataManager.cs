@@ -12,13 +12,13 @@ namespace RottenNoble.Core
     /// </summary>
     public class DataManager
     {
-        public SceneLoader     Scene    { get; }
-        public ResourceFactory Resource { get; }
+        public SceneLoader     ScenePath    { get; }
+        public ResourceFactory ResourcePath { get; }
 
         public DataManager(SceneLoader scene, ResourceFactory resource)
         {
-            Scene    = scene;
-            Resource = resource;
+            ScenePath    = scene;
+            ResourcePath = resource;
         }
     }
 }

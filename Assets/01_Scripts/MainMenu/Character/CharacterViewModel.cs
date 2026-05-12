@@ -1,4 +1,5 @@
-﻿using VContainer;
+using Cysharp.Threading.Tasks;
+using VContainer;
 
 using RottenNoble.Core;
 using RottenNoble.Core.UI;
@@ -10,14 +11,15 @@ namespace RottenNoble.MainMenu.Character
     /// </summary>
     public class CharacterViewModel : ViewModelBase<CharacterView, CharacterModel>
     {
-        SaveDataService _saveData;
+        SaveDataService saveDataService;
 
         [Inject]
-        void InjectServices(SaveDataService saveData) => _saveData = saveData;
+        void InjectServices(SaveDataService saveDataService)
+            => this.saveDataService = saveDataService;
 
-        public override void Initialize(CharacterView view, CharacterModel model)
+        public override async UniTask Initialize(CharacterView view, CharacterModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
             // TODO: 해금된 영웅 목록 표시, 선택 버튼 바인딩
         }

@@ -5,35 +5,31 @@ using VContainer;
 using VContainer.Unity;
 
 using RottenNoble.Core;
-using RottenNoble.Core.Resource;
 using RottenNoble.Core.UI;
 using RottenNoble.DataLoad.UI;
 
 /// <summary>
-/// DataLoad 씬 EntryPoint — DataLoadView 로드 → DataLoadViewModel에 위임
+/// DataLoad 씬 EntryPoint — DataLoadView 로드.
+/// 리소스 로드 · 페이드아웃 · 씬 전환은 DataLoadViewModel이 Model.OnComplete를 통해 처리합니다.
 /// </summary>
 public class DataLoadEntryPoint : EntryPointBase, IAsyncStartable
 {
-    readonly GameConfig gameConfig;
+    readonly UIConfigSO uiConfig;
 
     [Inject]
-    public DataLoadEntryPoint(DataManager dataManager, UINavigator uiNavigator, GameConfig gameConfig)
+    public DataLoadEntryPoint(UIConfigSO uiConfig)
     {
-        this.dataManager  = dataManager;
-        this.uiNavigator  = uiNavigator;
-        this.gameConfig   = gameConfig;
+        this.uiConfig = uiConfig;
     }
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var view = await uiNavigator.LoadAsync<DataLoadView>(CanvasType.Hud, gameConfig.uiDataLoadView);
-        AddCache(ResourceType.Addressable, view.gameObject);
+        await uiNavigator.LoadAsync<DataLoadView, DataLoadViewModel, DataLoadModel>(
+            path:       uiConfig.uiDataLoadView,
+            model:      new DataLoadModel(),
+            canvasType: CanvasType.Hud,
+            onComplete: () => dataManager.ScenePath.LoadMainMenuAsync());
 
-        view.InjectPresenter<DataLoadViewModel>()
-            .Initialize(view, new DataLoadModel());
-
-        await UniTask.WaitUntil(
-            () => view.VisibleState == VisibleState.Disappeared,
-            cancellationToken: cancellation);
+        // 이후 흐름은 DataLoadViewModel.DataLoadSequenceAsync가 담당합니다.
     }
 }
