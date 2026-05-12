@@ -24,15 +24,11 @@ public class IntroEntryPoint : EntryPointBase, IAsyncStartable
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var model = new IntroModel
-        {
-            OnComplete = () => dataManager.ScenePath.LoadDataLoadAsync()
-        };
-
         await uiNavigator.LoadAsync<IntroView, IntroViewModel, IntroModel>(
             path:       uiConfig.uiIntroView,
-            model:      model,
-            canvasType: CanvasType.Hud);
+            model:      new IntroModel(),
+            canvasType: CanvasType.Hud,
+            onComplete: () => dataManager.ScenePath.LoadDataLoadAsync());
         // LoadAsync 내부에서 ShowAsync까지 완료합니다.
         // 이후 흐름은 IntroViewModel.OnClickedAsync가 담당합니다.
     }

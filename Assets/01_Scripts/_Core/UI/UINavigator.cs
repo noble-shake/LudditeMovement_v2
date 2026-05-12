@@ -71,23 +71,26 @@ namespace RottenNoble.Core.UI
 
         /// <summary>
         /// Addressable에서 View를 로드하고 ViewModel · Model을 초기화한 뒤 ShowAsync까지 완료합니다.
-        /// 캐시에 있으면 재로드 · 재초기화하지 않고 콜백만 갱신 후 반환합니다.
+        /// 캐시에 있으면 재로드 · 재초기화하지 않고 모델 · 콜백만 갱신 후 ShowAsync를 실행합니다.
+        /// onComplete — View 시퀀스 완료 시 ViewModel이 호출하는 액션 (씬 전환 등).
         /// </summary>
         public async UniTask<TViewModel> LoadAsync<TView, TViewModel, TModel>(
             string        path,
             TModel        model,
-            CanvasType    canvasType = CanvasType.Hud,
-            Func<UniTask> onReveal   = null,
-            Func<UniTask> onHide     = null)
+            CanvasType    canvasType  = CanvasType.Hud,
+            Func<UniTask> onComplete  = null,
+            Func<UniTask> onReveal    = null,
+            Func<UniTask> onHide      = null)
             where TView      : ViewBase
             where TViewModel : ViewModelBase<TView, TModel>
             where TModel     : ModelBase
         {
             if (TryGetEntry<TView>(out var cached))
             {
-                // 모델 교체 + 콜백 갱신 후 ShowAsync — Initialize는 건너뜀
+                // 모델·콜백 갱신 후 ShowAsync — Initialize는 건너뜀
                 var viewModel = cached.View.gameObject.GetComponent<TViewModel>();
                 viewModel.UpdateModel(model);
+                viewModel.OnComplete = onComplete;
 
                 viewCache[typeof(TView)] = new CachedEntry(cached.ResourceType, cached.View, onReveal, onHide);
 
@@ -105,12 +108,12 @@ namespace RottenNoble.Core.UI
             view.Initialize();
 
             var viewModel = view.InjectPresenter<TViewModel>();
+            viewModel.OnComplete = onComplete;
             await viewModel.Initialize(view, model);
 
             var entry = new CachedEntry(ResourceType.Addressable, view, onReveal, onHide);
             viewCache[typeof(TView)] = entry;
 
-            // Initialize 완료 후 자동 표시
             await view.ShowAsync();
             view.OnReveal();
             if (onReveal != null) await onReveal.Invoke();

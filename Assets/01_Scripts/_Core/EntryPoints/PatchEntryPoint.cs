@@ -24,15 +24,11 @@ public class PatchEntryPoint : EntryPointBase, IAsyncStartable
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var model = new PatchModel
-        {
-            OnComplete = () => dataManager.ScenePath.LoadIntroAsync()
-        };
-
         await uiNavigator.LoadAsync<PatchView, PatchViewModel, PatchModel>(
             path:       uiConfig.uiPatchView,
-            model:      model,
-            canvasType: CanvasType.Hud);
+            model:      new PatchModel(),
+            canvasType: CanvasType.Hud,
+            onComplete: () => dataManager.ScenePath.LoadIntroAsync());
 
         // 이후 흐름은 PatchViewModel.PatchSequenceAsync가 담당합니다.
     }

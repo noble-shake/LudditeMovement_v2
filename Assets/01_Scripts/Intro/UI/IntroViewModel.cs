@@ -39,8 +39,8 @@ namespace RottenNoble.Intro.UI
 
             await View.HideAsync();                               // 페이드아웃 → Disappeared
 
-            if (Model.OnComplete != null)
-                await Model.OnComplete.Invoke();                  // EntryPoint 주입 액션 (씬 전환)
+            if (OnComplete != null)
+                await OnComplete.Invoke();                        // EntryPoint 주입 액션 (씬 전환)
         }
     }
 }

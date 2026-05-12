@@ -24,15 +24,11 @@ public class SplashEntryPoint : EntryPointBase, IAsyncStartable
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var model = new SplashModel
-        {
-            OnComplete = () => dataManager.ScenePath.LoadPatchAsync()
-        };
-
         await uiNavigator.LoadAsync<SplashView, SplashViewModel, SplashModel>(
             path:       uiConfig.uiSplashView,
-            model:      model,
-            canvasType: CanvasType.Hud);
+            model:      new SplashModel(),
+            canvasType: CanvasType.Hud,
+            onComplete: () => dataManager.ScenePath.LoadPatchAsync());
         // LoadAsync 내부에서 ShowAsync까지 완료합니다.
         // 이후 흐름은 SplashViewModel.SplashSequenceAsync가 담당합니다.
     }

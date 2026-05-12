@@ -24,15 +24,11 @@ public class DataLoadEntryPoint : EntryPointBase, IAsyncStartable
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var model = new DataLoadModel
-        {
-            OnComplete = () => dataManager.ScenePath.LoadMainMenuAsync()
-        };
-
         await uiNavigator.LoadAsync<DataLoadView, DataLoadViewModel, DataLoadModel>(
             path:       uiConfig.uiDataLoadView,
-            model:      model,
-            canvasType: CanvasType.Hud);
+            model:      new DataLoadModel(),
+            canvasType: CanvasType.Hud,
+            onComplete: () => dataManager.ScenePath.LoadMainMenuAsync());
 
         // 이후 흐름은 DataLoadViewModel.DataLoadSequenceAsync가 담당합니다.
     }
