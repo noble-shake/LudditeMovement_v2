@@ -251,12 +251,26 @@ await uiNavigator.LoadAsync<SplashView, SplashViewModel, SplashModel>(
 
 ### ViewModel에서 씬 전환 (Model-Action 패턴)
 
+View의 완료 시점 — 씬 전환, 다음 단계 진행 등 — 은 **반드시 Model-Action 패턴**으로 처리합니다.
+`WaitUntil(VisibleState == Disappeared)` 같은 폴링은 View 관련 흐름에서 사용하지 않습니다.
+
 ```csharp
-// ViewModel 시퀀스 완료 후 EntryPoint가 주입한 액션 실행
-await View.HideAsync();
-if (Model.OnComplete != null)
-    await Model.OnComplete.Invoke();
+// ✅ 올바른 방식 — ViewModel이 시퀀스 완료 후 EntryPoint 주입 액션 실행
+async UniTaskVoid SplashSequenceAsync()
+{
+    await UniTask.Delay(2000);
+    await View.HideAsync();
+    if (Model.OnComplete != null)
+        await Model.OnComplete.Invoke();
+}
+
+// ❌ 지양하는 방식 — View 상태를 외부에서 폴링
+await UniTask.WaitUntil(() => viewModel.View.VisibleState == VisibleState.Disappeared);
+await dataManager.ScenePath.LoadXxxAsync();
 ```
+
+> `WaitUntil` / `WaitWhile` 자체는 금지가 아닙니다.
+> View · 씬 전환과 **무관한** 비동기 대기(서비스 완료 대기 등)에는 자유롭게 사용합니다.
 
 ### 숨겨진 View 재표시 (re-show)
 
@@ -269,6 +283,36 @@ await uiNavigator.ShowAsync<SomeView>();  // HideAsync 후 다시 표시할 때�
 ```csharp
 using Object = UnityEngine.Object;
 ```
+
+---
+
+## 커밋 메세지 규칙
+
+```
+:이모지:[Type] 커밋 메세지
+:이모지:[Type][Claude] 커밋 메세지   ← Claude를 통해 수정한 경우
+```
+
+| Type | 용도 |
+|---|---|
+| `Add` | 새 기능 / 파일 추가 |
+| `Update` | 기존 기능 수정 / 개선 |
+| `Fix` | 버그 수정 |
+| `Refactor` | 동작 변경 없는 구조 개선 |
+| `Remove` | 코드 / 파일 삭제 |
+| `Chore` | 빌드 설정, 패키지, 메타 등 기타 |
+
+**이모지 예시**
+
+| 이모지 | 코드 | 상황 |
+|---|---|---|
+| 🔨 | `:hammer:` | 구조 설계 / 리팩터 |
+| ✨ | `:sparkles:` | 새 기능 |
+| 🐛 | `:bug:` | 버그 수정 |
+| 🎨 | `:art:` | 코드 정리 |
+| 📦 | `:package:` | 패키지 / 빌드 |
+| 📝 | `:memo:` | 문서 |
+| 🔧 | `:wrench:` | 설정 변경 |
 
 ---
 
