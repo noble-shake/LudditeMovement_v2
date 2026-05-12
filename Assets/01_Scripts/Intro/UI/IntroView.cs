@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 using Cysharp.Threading.Tasks;
@@ -6,6 +7,7 @@ using R3;
 
 using RottenNoble.Core;
 using RottenNoble.Core.UI;
+using TMPro;
 
 namespace RottenNoble.Intro.UI
 {
@@ -14,13 +16,9 @@ namespace RottenNoble.Intro.UI
     /// </summary>
     public class IntroView : ViewBase
     {
-        [UnityEngine.Header("[ Intro ]")]
-        [UnityEngine.SerializeField] Button startButton;
-
-        public Observable<Unit> OnStartClicked()
-            => startButton.OnClickAsObservable()
-                          .ThrottleFirst(AppConstants.ButtonThrottle)
-                          .Share();
+        [Header("[ Intro ]")]
+        [field : SerializeField] public TMP_Text IntroText {get; set;}
+        
 
         public override async UniTask ShowAsync(Action onComplete = null)
         {

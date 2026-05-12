@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 using VContainer;
 using VContainer.Unity;
@@ -16,20 +16,36 @@ using RottenNoble.MainMenu.StageSelect;
 /// </summary>
 public class AppLifetimeScope : LifetimeScope
 {
-    [SerializeField] GameConfig _gameConfig;
+    [Header("[ Config ]")]
+    [SerializeField] SceneConfigSO sceneConfig;
+    [SerializeField] UIConfigSO    uiConfig;
+    [SerializeField] AppConfigSO   appConfig;
+
+    [Header("[ Resource ]")]
+    [SerializeField] HeroResourceSO  heroResource;
+    [SerializeField] EnemyResourceSO enemyResource;
+    [SerializeField] StageResourceSO stageResource;
+
+    [Header("[ UI ]")]
+    [SerializeField] UIManager uiManager;
 
     protected override void Configure(IContainerBuilder builder)
     {
-        // ── 전역 설정 ─────────────────────────────────
-        builder.RegisterInstance(_gameConfig);
+        // ── Config SO ────────────────────────────────
+        builder.RegisterInstance(sceneConfig);
+        builder.RegisterInstance(uiConfig);
+        builder.RegisterInstance(appConfig);
+
+        // ── Resource SO ───────────────────────────────
+        builder.RegisterInstance(heroResource);
+        builder.RegisterInstance(enemyResource);
+        builder.RegisterInstance(stageResource);
 
         // ── UI ───────────────────────────────────────
-        // UIManager는 이 LifetimeScope GameObject의 자식 또는 씬 내 컴포넌트로 배치
         builder.RegisterComponentInHierarchy<UIManager>();
         builder.Register<UINavigator>(Lifetime.Singleton);
 
         // ── 데이터 관리 ──────────────────────────────
-        // ResourceManager, SceneLoader는 DataManager 내부 의존성
         builder.Register<ResourceManager>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
         builder.Register<ResourceFactory>(Lifetime.Singleton);
         builder.Register<SceneLoader>(Lifetime.Singleton);
@@ -47,5 +63,8 @@ public class AppLifetimeScope : LifetimeScope
         // ViewBase.InjectPresenter<T>()가 AppLifetimeScope의 resolver를 사용하므로
         // ViewModel에서 주입받는 서비스는 여기에 등록합니다.
         builder.Register<StageSelectService>(Lifetime.Singleton);
+
+        // ── Prefab 기반의 서비스 ──────────────────────────
+        builder.RegisterComponentInNewPrefab<UIManager>(uiManager, Lifetime.Singleton).DontDestroyOnLoad();
     }
 }

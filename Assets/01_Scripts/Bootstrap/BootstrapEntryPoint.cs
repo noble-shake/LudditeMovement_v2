@@ -24,6 +24,6 @@ public class BootstrapEntryPoint : IAsyncStartable
     public async UniTask StartAsync(CancellationToken cancellation)
     {
         await saveDataService.LoadAsync();
-        await dataManager.Scene.LoadSplashAsync();
+        await dataManager.ScenePath.LoadSplashAsync();
     }
 }

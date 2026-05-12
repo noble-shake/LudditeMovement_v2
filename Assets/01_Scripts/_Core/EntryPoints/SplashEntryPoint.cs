@@ -5,35 +5,38 @@ using VContainer;
 using VContainer.Unity;
 
 using RottenNoble.Core;
-using RottenNoble.Core.Resource;
 using RottenNoble.Core.UI;
 using RottenNoble.Splash.UI;
 
 /// <summary>
-/// Splash 씬 EntryPoint — SplashView 로드 → SplashViewModel에 위임
+/// Splash 씬 EntryPoint — SplashView 로드 → ViewModel/Model 주입 → 표시
 /// </summary>
 public class SplashEntryPoint : EntryPointBase, IAsyncStartable
 {
-    readonly GameConfig gameConfig;
+    readonly UIConfigSO uiConfig;
 
     [Inject]
-    public SplashEntryPoint(DataManager dataManager, UINavigator uiNavigator, GameConfig gameConfig)
+    public SplashEntryPoint(UIConfigSO uiConfig)
     {
-        this.dataManager  = dataManager;
-        this.uiNavigator  = uiNavigator;
-        this.gameConfig   = gameConfig;
+        this.uiConfig = uiConfig;
     }
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var view = await uiNavigator.LoadAsync<SplashView>(CanvasType.Hud, gameConfig.uiSplashView);
-        AddCache(ResourceType.Addressable, view.gameObject);
+        var viewModel = await uiNavigator.LoadAsync<SplashView, SplashViewModel, SplashModel>(
+            path:       uiConfig.uiSplashView,
+            model:      new SplashModel(),
+            canvasType: CanvasType.Hud,
+            onComplete: async () =>
+            {
+                await dataManager.ScenePath.LoadPatchAsync();
+            });
 
-        view.InjectPresenter<SplashViewModel>()
-            .Initialize(view, new SplashModel());
+        await uiNavigator.ShowAsync<SplashView>();
+        AddUICache<SplashView>();
 
         await UniTask.WaitUntil(
-            () => view.VisibleState == VisibleState.Disappeared,
+            () => viewModel.View.VisibleState == VisibleState.Disappeared,
             cancellationToken: cancellation);
     }
 }

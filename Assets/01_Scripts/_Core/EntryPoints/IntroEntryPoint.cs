@@ -5,35 +5,34 @@ using VContainer;
 using VContainer.Unity;
 
 using RottenNoble.Core;
-using RottenNoble.Core.Resource;
 using RottenNoble.Core.UI;
 using RottenNoble.Intro.UI;
 
 /// <summary>
-/// Intro 씬 EntryPoint — IntroView 로드 → IntroViewModel에 위임
+/// Intro 씬 EntryPoint — IntroView 로드 → ViewModel/Model 주입 → 표시
 /// </summary>
 public class IntroEntryPoint : EntryPointBase, IAsyncStartable
 {
-    readonly GameConfig gameConfig;
+    readonly UIConfigSO uiConfig;
 
     [Inject]
-    public IntroEntryPoint(DataManager dataManager, UINavigator uiNavigator, GameConfig gameConfig)
+    public IntroEntryPoint(UIConfigSO uiConfig)
     {
-        this.dataManager  = dataManager;
-        this.uiNavigator  = uiNavigator;
-        this.gameConfig   = gameConfig;
+        this.uiConfig = uiConfig;
     }
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var view = await uiNavigator.LoadAsync<IntroView>(CanvasType.Hud, gameConfig.uiIntroView);
-        AddCache(ResourceType.Addressable, view.gameObject);
+        var viewModel = await uiNavigator.LoadAsync<IntroView, IntroViewModel, IntroModel>(
+            path:       uiConfig.uiIntroView,
+            model:      new IntroModel(),
+            canvasType: CanvasType.Hud);
 
-        view.InjectPresenter<IntroViewModel>()
-            .Initialize(view, new IntroModel());
+        await uiNavigator.ShowAsync<IntroView>();
+        AddUICache<IntroView>();
 
         await UniTask.WaitUntil(
-            () => view.VisibleState == VisibleState.Disappeared,
+            () => viewModel.View.VisibleState == VisibleState.Disappeared,
             cancellationToken: cancellation);
     }
 }

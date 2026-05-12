@@ -5,35 +5,34 @@ using VContainer;
 using VContainer.Unity;
 
 using RottenNoble.Core;
-using RottenNoble.Core.Resource;
 using RottenNoble.Core.UI;
 using RottenNoble.MainMenu.UI;
 
 /// <summary>
-/// MainMenu 씬 EntryPoint — MainMenuView 로드 → MainMenuViewModel에 위임
+/// MainMenu 씬 EntryPoint — MainMenuView 로드 → ViewModel/Model 주입 → 표시
 /// </summary>
 public class MainMenuEntryPoint : EntryPointBase, IAsyncStartable
 {
-    readonly GameConfig gameConfig;
+    readonly UIConfigSO uiConfig;
 
     [Inject]
-    public MainMenuEntryPoint(DataManager dataManager, UINavigator uiNavigator, GameConfig gameConfig)
+    public MainMenuEntryPoint(UIConfigSO uiConfig)
     {
-        this.dataManager  = dataManager;
-        this.uiNavigator  = uiNavigator;
-        this.gameConfig   = gameConfig;
+        this.uiConfig = uiConfig;
     }
 
     public async UniTask StartAsync(CancellationToken cancellation)
     {
-        var view = await uiNavigator.LoadAsync<MainMenuView>(CanvasType.Hud, gameConfig.uiMainMenuView);
-        AddCache(ResourceType.Addressable, view.gameObject);
+        var viewModel = await uiNavigator.LoadAsync<MainMenuView, MainMenuViewModel, MainMenuModel>(
+            path:       uiConfig.uiMainMenuView,
+            model:      new MainMenuModel(),
+            canvasType: CanvasType.Hud);
 
-        view.InjectPresenter<MainMenuViewModel>()
-            .Initialize(view, new MainMenuModel());
+        await uiNavigator.ShowAsync<MainMenuView>();
+        AddUICache<MainMenuView>();
 
         await UniTask.WaitWhile(
-            () => view != null && view.VisibleState != VisibleState.Disappeared,
+            () => viewModel.View != null && viewModel.View.VisibleState != VisibleState.Disappeared,
             cancellationToken: cancellation);
     }
 }

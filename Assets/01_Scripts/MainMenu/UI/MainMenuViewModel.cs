@@ -1,4 +1,5 @@
-﻿using R3;
+using Cysharp.Threading.Tasks;
+using R3;
 
 using RottenNoble.Core.UI;
 using RottenNoble.MainMenu.Character;
@@ -13,21 +14,21 @@ namespace RottenNoble.MainMenu.UI
     /// </summary>
     public class MainMenuViewModel : ViewModelBase<MainMenuView, MainMenuModel>
     {
-        public override void Initialize(MainMenuView view, MainMenuModel model)
+        public override async UniTask Initialize(MainMenuView view, MainMenuModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
             // ── 서브탭 ViewModel 초기화 ───────────────────
-            view.StageSelectPanel.InjectPresenter<StageSelectViewModel>()
+            await view.StageSelectPanel.InjectPresenter<StageSelectViewModel>()
                 .Initialize(view.StageSelectPanel, new StageSelectModel());
 
-            view.CharacterPanel.InjectPresenter<CharacterViewModel>()
+            await view.CharacterPanel.InjectPresenter<CharacterViewModel>()
                 .Initialize(view.CharacterPanel, new CharacterModel());
 
-            view.CollectionPanel.InjectPresenter<CollectionViewModel>()
+            await view.CollectionPanel.InjectPresenter<CollectionViewModel>()
                 .Initialize(view.CollectionPanel, new CollectionModel());
 
-            view.SettingsPanel.InjectPresenter<SettingsViewModel>()
+            await view.SettingsPanel.InjectPresenter<SettingsViewModel>()
                 .Initialize(view.SettingsPanel, new SettingsModel());
 
             // ── 탭 버튼 구독 ──────────────────────────────

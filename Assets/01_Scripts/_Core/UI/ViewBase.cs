@@ -42,6 +42,18 @@ namespace RottenNoble.Core.UI
         public virtual void Initialize(params object[] parameters) { }
 
         /// <summary>
+        /// ShowAsync / ShowImmediate 완료 후 UINavigator가 호출합니다.
+        /// 캐시된 View가 다시 보여질 때마다 호출됩니다.
+        /// </summary>
+        public virtual void OnReveal() { }
+
+        /// <summary>
+        /// HideAsync / HideImmediate 완료 후 UINavigator가 호출합니다.
+        /// View가 숨겨질 때마다 호출됩니다.
+        /// </summary>
+        public virtual void OnComplete() { }
+
+        /// <summary>
         /// 이 GameObject에 T 컴포넌트를 추가(또는 가져와)하고 VContainer로 인젝션한 뒤 반환합니다.
         /// </summary>
         public T InjectPresenter<T>() where T : ViewModelCore

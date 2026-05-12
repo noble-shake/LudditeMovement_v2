@@ -20,6 +20,9 @@ namespace RottenNoble.Splash.UI
         {
             VisibleState = VisibleState.Appearing;
             gameObject.SetActive(true);
+            await FadeInAsync();
+            await UniTask.Delay(2000);
+            await FadeOutAsync();
             VisibleState = VisibleState.Appeared;
             onComplete?.Invoke();
             await UniTask.CompletedTask;

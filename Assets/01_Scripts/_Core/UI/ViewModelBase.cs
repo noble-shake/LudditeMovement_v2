@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using UnityEngine;
 
+using Cysharp.Threading.Tasks;
+
 namespace RottenNoble.Core.UI
 {
     /// <summary>
@@ -11,10 +13,10 @@ namespace RottenNoble.Core.UI
         where TView  : ViewBase
         where TModel : ModelBase
     {
-        protected TView  View  { get; private set; }
+        public    TView  View  { get; private set; }
         protected TModel Model { get; private set; }
 
-        public virtual void Initialize(TView view, TModel model)
+        public virtual async UniTask Initialize(TView view, TModel model)
         {
             View  = view;
             Model = model;
@@ -23,7 +25,7 @@ namespace RottenNoble.Core.UI
         public static T Get<T>(string objectName) where T : ViewModelBase<TView, TModel>
         {
             return FindObjectsByType<ViewModelBase<TView, TModel>>(
-                       FindObjectsInactive.Include, FindObjectsSortMode.None)
+                       FindObjectsInactive.Include)
                    .FirstOrDefault(v => v.name == objectName) as T;
         }
     }

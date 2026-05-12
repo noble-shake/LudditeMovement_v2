@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using R3;
 using VContainer;
 
@@ -21,9 +22,9 @@ namespace RottenNoble.MainMenu.StageSelect
             this.saveDataService    = saveDataService;
         }
 
-        public override void Initialize(StageSelectView view, StageSelectModel model)
+        public override async UniTask Initialize(StageSelectView view, StageSelectModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
             stageSelectService.Initialize(saveDataService.Data);
 

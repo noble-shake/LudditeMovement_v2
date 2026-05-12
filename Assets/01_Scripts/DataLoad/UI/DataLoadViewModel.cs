@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using R3;
 using VContainer;
 
@@ -13,40 +13,32 @@ namespace RottenNoble.DataLoad.UI
     /// </summary>
     public class DataLoadViewModel : ViewModelBase<DataLoadView, DataLoadModel>
     {
-        DataLoadService _dataLoader;
-        SaveDataService _saveData;
+        DataLoadService dataLoadService;
+        SaveDataService saveDataService;
 
         [Inject]
-        void InjectServices(DataLoadService dataLoader, SaveDataService saveData)
+        void InjectServices(DataLoadService dataLoadService, SaveDataService saveDataService)
         {
-            _dataLoader = dataLoader;
-            _saveData   = saveData;
+            this.dataLoadService = dataLoadService;
+            this.saveDataService = saveDataService;
         }
 
-        public override void Initialize(DataLoadView view, DataLoadModel model)
+        public override async UniTask Initialize(DataLoadView view, DataLoadModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
-            view.ShowAsync(onComplete: async () =>
-            {
-                _dataLoader.Progress
-                    .Subscribe(p => view.SetProgress(p))
-                    .AddTo(ref disposableBag);
+            dataLoadService.Progress
+                .Subscribe(p => view.SetProgress(p))
+                .AddTo(ref disposableBag);
 
-                _dataLoader.StatusText
-                    .Subscribe(s => view.SetStatus(s))
-                    .AddTo(ref disposableBag);
+            dataLoadService.StatusText
+                .Subscribe(s => view.SetStatus(s))
+                .AddTo(ref disposableBag);
 
-                await _dataLoader.LoadAllAsync();
-                await _saveData.LoadAsync();
+            await dataLoadService.LoadAllAsync();
+            await saveDataService.LoadAsync();
 
-                await view.HideAsync(onComplete: async () =>
-                {
-                    resourceFactory.DeleteInstance(ResourceType.Addressable, view.gameObject);
-                    await sceneLoader.LoadMainMenuAsync();
-                });
-
-            }).Forget();
+            await dataManager.ScenePath.LoadMainMenuAsync();
         }
     }
 }

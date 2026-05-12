@@ -22,9 +22,9 @@ namespace RottenNoble.MainMenu.Settings
             this.saveDataService = saveDataService;
         }
 
-        public override void Initialize(SettingsView view, SettingsModel model)
+        public override async UniTask Initialize(SettingsView view, SettingsModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
             // ── 저장된 볼륨 값 로드 ───────────────────────
             model.BgmVolume.Value = saveDataService.Data.BgmVolume;

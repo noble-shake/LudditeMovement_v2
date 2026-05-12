@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using R3;
 using VContainer;
 
@@ -13,35 +13,23 @@ namespace RottenNoble.Patch.UI
     /// </summary>
     public class PatchViewModel : ViewModelBase<PatchView, PatchModel>
     {
-        PatchService _patchService;
+        PatchService patchService;
 
         [Inject]
         void InjectServices(PatchService patchService)
-            => _patchService = patchService;
+            => this.patchService = patchService;
 
-        public override void Initialize(PatchView view, PatchModel model)
+        public override async UniTask Initialize(PatchView view, PatchModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
-            view.ShowAsync(onComplete: async () =>
-            {
-                _patchService.Progress
-                    .Subscribe(p => view.SetProgress(p))
-                    .AddTo(ref disposableBag);
+            patchService.Progress
+                .Subscribe(p => view.SetProgress(p))
+                .AddTo(ref disposableBag);
 
-                _patchService.StatusText
-                    .Subscribe(s => view.SetStatus(s))
-                    .AddTo(ref disposableBag);
-
-                await _patchService.CheckAndUpdateAsync();
-
-                await view.HideAsync(onComplete: async () =>
-                {
-                    resourceFactory.DeleteInstance(ResourceType.Addressable, view.gameObject);
-                    await sceneLoader.LoadIntroAsync();
-                });
-
-            }).Forget();
+            patchService.StatusText
+                .Subscribe(s => view.SetStatus(s))
+                .AddTo(ref disposableBag);
         }
     }
 }

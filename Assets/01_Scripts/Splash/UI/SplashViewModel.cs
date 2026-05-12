@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 using RottenNoble.Core;
 using RottenNoble.Core.UI;
@@ -10,18 +10,11 @@ namespace RottenNoble.Splash.UI
     /// </summary>
     public class SplashViewModel : ViewModelBase<SplashView, SplashModel>
     {
-        public override void Initialize(SplashView view, SplashModel model)
+        public override async UniTask Initialize(SplashView view, SplashModel model)
         {
-            base.Initialize(view, model);
+            await base.Initialize(view, model);
 
-            view.ShowAsync(onComplete: async () =>
-            {
-                await view.FadeInAsync();
-                await UniTask.Delay(2000);
-                await view.FadeOutAsync();
-
-                await sceneLoader.LoadPatchAsync();
-            }).Forget();
+            
         }
     }
 }
