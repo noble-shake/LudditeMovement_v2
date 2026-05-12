@@ -272,10 +272,15 @@ await dataManager.ScenePath.LoadXxxAsync();
 > `WaitUntil` / `WaitWhile` 자체는 금지가 아닙니다.
 > View · 씬 전환과 **무관한** 비동기 대기(서비스 완료 대기 등)에는 자유롭게 사용합니다.
 
-### 숨겨진 View 재표시 (re-show)
+### View 재표시 (re-show)
+
+`LoadAsync`는 캐시 히트 여부와 관계없이 항상 `ShowAsync`까지 실행합니다.
+숨겨진 View를 다시 띄울 때도 `LoadAsync`를 그대로 사용하면 됩니다.
 
 ```csharp
-await uiNavigator.ShowAsync<SomeView>();  // HideAsync 후 다시 표시할 때만 사용
+// 최초 로드든 캐시 재사용이든 동일한 호출
+await uiNavigator.LoadAsync<SomeView, SomeViewModel, SomeModel>(
+    path: ..., model: new SomeModel { OnComplete = ... });
 ```
 
 ### `Object` 모호성 해결 (System + UnityEngine 동시 using 시)

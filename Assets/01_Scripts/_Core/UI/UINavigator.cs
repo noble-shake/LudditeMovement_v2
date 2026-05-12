@@ -85,9 +85,14 @@ namespace RottenNoble.Core.UI
         {
             if (TryGetEntry<TView>(out var cached))
             {
-                // 콜백만 갱신 — 이미 표시된 View는 다시 띄우지 않음
-                viewCache[typeof(TView)] = new CachedEntry(
-                    cached.ResourceType, cached.View, onReveal, onHide);
+                // 콜백 갱신 후 ShowAsync — 캐시 히트도 LoadAsync와 동일한 흐름
+                var updatedEntry = new CachedEntry(cached.ResourceType, cached.View, onReveal, onHide);
+                viewCache[typeof(TView)] = updatedEntry;
+
+                await cached.View.ShowAsync();
+                cached.View.OnReveal();
+                if (onReveal != null) await onReveal.Invoke();
+
                 return cached.View.gameObject.GetComponent<TViewModel>();
             }
 
@@ -126,8 +131,13 @@ namespace RottenNoble.Core.UI
         {
             if (TryGetEntry<TView>(out var cached))
             {
-                viewCache[typeof(TView)] = new CachedEntry(
-                    cached.ResourceType, cached.View, onReveal, onHide);
+                // 콜백 갱신 후 ShowAsync — 캐시 히트도 LoadAsync와 동일한 흐름
+                viewCache[typeof(TView)] = new CachedEntry(cached.ResourceType, cached.View, onReveal, onHide);
+
+                await cached.View.ShowAsync();
+                cached.View.OnReveal();
+                if (onReveal != null) await onReveal.Invoke();
+
                 return (TView)cached.View;
             }
 
