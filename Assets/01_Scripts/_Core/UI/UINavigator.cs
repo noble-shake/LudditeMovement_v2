@@ -88,9 +88,9 @@ namespace RottenNoble.Core.UI
             if (TryGetEntry<TView>(out var cached))
             {
                 // 모델·콜백 갱신 후 ShowAsync — Initialize는 건너뜀
-                var viewModel = cached.View.gameObject.GetComponent<TViewModel>();
-                viewModel.UpdateModel(model);
-                viewModel.OnComplete = onComplete;
+                var cachedViewModel = cached.View.gameObject.GetComponent<TViewModel>();
+                cachedViewModel.UpdateModel(model);
+                cachedViewModel.OnComplete = onComplete;
 
                 viewCache[typeof(TView)] = new CachedEntry(cached.ResourceType, cached.View, onReveal, onHide);
 
@@ -98,7 +98,7 @@ namespace RottenNoble.Core.UI
                 cached.View.OnReveal();
                 if (onReveal != null) await onReveal.Invoke();
 
-                return viewModel;
+                return cachedViewModel;
             }
 
             var go = await resourceFactory.CreateAsync<UnityEngine.GameObject>(ResourceType.Addressable, path);
