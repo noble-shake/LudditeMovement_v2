@@ -10,6 +10,8 @@ using RottenNoble.Core.Services;
 using RottenNoble.Core.UI;
 using RottenNoble.MainMenu.StageSelect;
 
+// SO 직접 주입 지양 — 외부 코드는 DataManager를 통해 접근
+
 /// <summary>
 /// 앱 전체 생명주기 루트 스코프
 /// VContainer ProjectSettings → RootLifetimeScope에 등록
@@ -54,6 +56,9 @@ public class AppLifetimeScope : LifetimeScope
 
         // ── 입력 ─────────────────────────────────────
         builder.Register<InputManager>(Lifetime.Singleton);
+
+        // ── 카메라 ────────────────────────────────────
+        builder.Register<CameraController>(Lifetime.Singleton);
 
         // ── 공유 서비스 ───────────────────────────────
         builder.Register<SaveDataService>(Lifetime.Singleton);
