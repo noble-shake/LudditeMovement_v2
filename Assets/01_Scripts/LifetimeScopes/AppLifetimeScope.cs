@@ -29,6 +29,11 @@ public class AppLifetimeScope : LifetimeScope
     [SerializeField] EnemyResourceSO enemyResource;
     [SerializeField] StageResourceSO stageResource;
 
+    [Header("[ Difficulty Theme ]")]
+    [SerializeField] DifficultyThemeSO themeNormal;
+    [SerializeField] DifficultyThemeSO themeHard;
+    [SerializeField] DifficultyThemeSO themeLunatic;
+
     [Header("[ UI ]")]
     [SerializeField] UIManager uiManager;
 
@@ -44,6 +49,10 @@ public class AppLifetimeScope : LifetimeScope
         builder.RegisterInstance(enemyResource);
         builder.RegisterInstance(stageResource);
 
+        // ── Difficulty Theme ──────────────────────────
+        builder.RegisterInstance(new DifficultyThemePack(themeNormal, themeHard, themeLunatic));
+        builder.Register<ColorManager>(Lifetime.Singleton);
+
         // ── UI ───────────────────────────────────────
         builder.RegisterComponentInHierarchy<UIManager>();
         builder.Register<UINavigator>(Lifetime.Singleton);
@@ -56,6 +65,9 @@ public class AppLifetimeScope : LifetimeScope
 
         // ── 입력 ─────────────────────────────────────
         builder.Register<InputManager>(Lifetime.Singleton);
+
+        // ── 설정 저장 ─────────────────────────────────
+        builder.Register<PlayerPrefsManager>(Lifetime.Singleton);
 
         // ── 카메라 ────────────────────────────────────
         builder.Register<CameraController>(Lifetime.Singleton);

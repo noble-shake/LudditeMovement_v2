@@ -115,7 +115,7 @@ namespace RottenNoble.Core.Resource
         public void DeleteInstance(Object instanceObject)
         {
             if (instanceObject == null) return;
-            int id = instanceObject.GetInstanceID();
+            var id = instanceObject.GetEntityId();
             if (!_instances.TryGetValue(id, out var entry)) return;
 
             entry.Release?.Invoke(entry.Obj);
@@ -136,7 +136,7 @@ namespace RottenNoble.Core.Resource
 
         void RegisterInstance(Object obj, Action<Object> release)
         {
-            int id = obj.GetInstanceID();
+            var id = obj.GetEntityId();
             if (!_instances.ContainsKey(id))
                 _instances[id] = (obj, release);
         }

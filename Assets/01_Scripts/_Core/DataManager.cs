@@ -11,6 +11,7 @@ namespace RottenNoble.Core
     ///   DataManager.SceneConfig  — 씬 이름 목록
     ///   DataManager.AppConfig    — CDN URL, 환경, 디버그 플래그
     ///   DataManager.HeroResource / EnemyResource / StageResource — 리소스 SO
+    ///   DataManager.Color — 난이도 색상 테마 (ColorManager)
     ///
     /// SO 직접 주입 지양 — 항상 DataManager를 통해 접근
     /// </summary>
@@ -30,6 +31,12 @@ namespace RottenNoble.Core
         public EnemyResourceSO EnemyResource { get; }
         public StageResourceSO StageResource { get; }
 
+        // ── 색상 테마 ─────────────────────────────────────
+        public ColorManager       Color       { get; }
+
+        // ── 설정 저장 ─────────────────────────────────────
+        public PlayerPrefsManager PlayerPrefs { get; }
+
         public DataManager(
             SceneLoader     scene,
             ResourceFactory resource,
@@ -38,7 +45,9 @@ namespace RottenNoble.Core
             AppConfigSO     appConfig,
             HeroResourceSO  heroResource,
             EnemyResourceSO enemyResource,
-            StageResourceSO stageResource)
+            StageResourceSO stageResource,
+            ColorManager      colorManager,
+            PlayerPrefsManager playerPrefsManager)
         {
             ScenePath    = scene;
             ResourcePath = resource;
@@ -48,6 +57,8 @@ namespace RottenNoble.Core
             HeroResource  = heroResource;
             EnemyResource = enemyResource;
             StageResource = stageResource;
+            Color         = colorManager;
+            PlayerPrefs   = playerPrefsManager;
         }
     }
 }

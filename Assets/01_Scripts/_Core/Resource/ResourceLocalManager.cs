@@ -58,7 +58,7 @@ namespace RottenNoble.Core.Resource
             var asset    = await LoadAsync<T>(path);
             var instance = UnityEngine.Object.Instantiate(asset, parent);
             instance.name = instance.name.Replace("(Clone)", "").Trim();
-            _instanceCache[instance.GetInstanceID()] = instance;
+            _instanceCache[instance.GetEntityId()] = instance;
             return instance;
         }
 
@@ -73,7 +73,7 @@ namespace RottenNoble.Core.Resource
         public void DeleteInstance(UnityEngine.Object instanceObject)
         {
             if (instanceObject == null) return;
-            int id = instanceObject.GetInstanceID();
+            var id = instanceObject.GetEntityId();
             if (_instanceCache.TryGetValue(id, out var obj))
             {
                 UnityEngine.Object.Destroy(obj);
